@@ -1,5 +1,4 @@
-﻿using Drawie.Backend.Core.Vector;
-using Drawie.Numerics;
+﻿using Drawie.Numerics;
 using PixiEditor.Models.Input;
 
 namespace PixiEditor.Models.Handlers.Tools;

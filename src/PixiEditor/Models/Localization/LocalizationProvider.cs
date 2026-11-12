@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
+﻿using System.Globalization;
 using System.Text.Json;
 using Avalonia.Platform;
 using PixiEditor.Common;
-using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;

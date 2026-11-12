@@ -1,6 +1,4 @@
 ﻿using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
 using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.Windows;

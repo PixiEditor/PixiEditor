@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using CLSEncoderDecoder;
+﻿using CLSEncoderDecoder;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 

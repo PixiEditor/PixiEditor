@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
-using Drawie.Backend.Core;
+﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
-using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.Serialization.Factories;
 

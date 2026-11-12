@@ -1,6 +1,4 @@
-﻿using Avalonia;
-using ChunkyImageLib.DataHolders;
-using Drawie.Backend.Core.Numerics;
+﻿using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 using PixiEditor.Models.Controllers.InputDevice;
 

@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions.Metadata;
 
 namespace PixiEditor.Extensions;

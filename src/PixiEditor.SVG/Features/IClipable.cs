@@ -1,5 +1,4 @@
-﻿using PixiEditor.SVG.Elements;
-using PixiEditor.SVG.Units;
+﻿using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG.Features;
 

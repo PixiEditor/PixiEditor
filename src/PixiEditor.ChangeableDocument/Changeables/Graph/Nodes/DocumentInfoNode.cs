@@ -1,10 +1,11 @@
 ﻿using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("DocumentInfo")]
-public class DocumentInfoNode : Node
+public class DocumentInfoNode : Node, IIterativeRenderSupport
 {
     public OutputProperty<VecI> Size { get; }
     public OutputProperty<VecD> Center { get; }
@@ -35,4 +36,6 @@ public class DocumentInfoNode : Node
     {
         return new DocumentInfoNode();
     }
+
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

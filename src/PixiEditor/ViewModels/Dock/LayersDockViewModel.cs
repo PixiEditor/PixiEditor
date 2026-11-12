@@ -1,7 +1,4 @@
-﻿using Avalonia.Media;
-using PixiDocks.Core.Docking;
-using PixiDocks.Core.Docking.Events;
-using PixiEditor.Helpers.Converters;
+﻿using PixiDocks.Core.Docking.Events;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;

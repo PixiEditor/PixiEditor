@@ -1,5 +1,6 @@
 using Drawie.Backend.Core.Shaders;
 using Drawie.Skia.Implementations;
+using Xunit;
 
 namespace PixiEditor.Backend.Tests;
 

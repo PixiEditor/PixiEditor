@@ -1,6 +1,5 @@
 ﻿using PixiEditor.IdentityProvider;
 using PixiEditor.IdentityProvider.PixiAuth;
-using PixiEditor.PixiAuth;
 
 namespace PixiEditor.Platform.Standalone;
 

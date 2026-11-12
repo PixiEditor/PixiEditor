@@ -1,12 +1,8 @@
-﻿using System.Diagnostics;
-using Avalonia.Media.Imaging;
-using ChunkyImageLib;
+﻿using Avalonia.Media.Imaging;
 using PixiEditor.Helpers.Extensions;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
-using Drawie.Interop.Avalonia.Core;
 using Drawie.Numerics;
 
 namespace PixiEditor.Helpers;

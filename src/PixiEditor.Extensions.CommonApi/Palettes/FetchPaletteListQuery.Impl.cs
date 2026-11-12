@@ -1,6 +1,4 @@
-﻿using ProtoBuf;
-
-namespace PixiEditor.Extensions.CommonApi.Palettes;
+﻿namespace PixiEditor.Extensions.CommonApi.Palettes;
 
 public partial class FetchPaletteListQuery
 {

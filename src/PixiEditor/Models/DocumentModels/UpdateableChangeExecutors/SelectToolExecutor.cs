@@ -1,7 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Enums;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Position;
@@ -9,7 +8,6 @@ using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.ViewModels.SubViewModels;
-using PixiEditor.Views.Overlays.SelectionOverlay;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable

@@ -1,11 +1,9 @@
-﻿using System.ComponentModel;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.ViewModels.Nodes;
 using Point = Avalonia.Point;

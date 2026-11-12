@@ -1,12 +1,8 @@
-﻿using System.IO;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Runtime.InteropServices;
-using Avalonia.Media.Imaging;
-using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Helpers.Extensions;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;

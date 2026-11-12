@@ -1,8 +1,6 @@
 ﻿using Avalonia.Media;
 using PixiEditor.Models.IO;
-using Drawie.Numerics;
 using PixiEditor.Helpers;
-using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 

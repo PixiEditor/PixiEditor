@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0-browser</TargetFramework>
+    <TargetFramework>net10.0-browser</TargetFramework>
     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
     <WasmMainJSPath>wwwroot\main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>

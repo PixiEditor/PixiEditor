@@ -1,5 +1,4 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 

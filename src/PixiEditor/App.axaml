@@ -20,7 +20,6 @@
         <StyleInclude Source="/Styles/PixiEditor.Handles.axaml" />
         <StyleInclude Source="/Styles/PixiEditor.Layers.axaml" />
         <StyleInclude Source="/Styles/PixiEditorPopupTemplate.axaml" />
-        <StyleInclude Source="/Styles/Buttons/CaptionButtonsStyle.axaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Simple/AvaloniaEdit.xaml" />
         <StyleInclude Source="avares://LiveMarkdown.Avalonia/Styles.axaml"/>
         <StyleInclude Source="/Styles/LiveMarkdownPixiEditorStyle.axaml" />

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using PixiEditor.Models.Commands;

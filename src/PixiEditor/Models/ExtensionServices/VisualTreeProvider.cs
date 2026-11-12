@@ -3,7 +3,6 @@ using Avalonia.VisualTree;
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.Ui;
 using PixiEditor.Extensions.CommonApi.Windowing;
-using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.FlyUI.Elements.Native;
 using PixiEditor.Extensions.Windowing;
 using PixiEditor.Views;

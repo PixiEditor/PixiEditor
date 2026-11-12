@@ -868,7 +868,7 @@ Copyright © Microsoft Corporation. All rights reserved.
 License available at https://go.microsoft.com/fwlink/?linkid=868514
 
 
-License notice for Svg.Controls.Skia.Avalonia (v11.3.0.3)
+License notice for Svg.Controls.Skia.Avalonia (v12.0.0.15)
 ------------------------------------
 
 https://github.com/wieslawsoltes/Svg.Skia at d2278fb822dfbd0917bf270dfee3213cf2f84c45

@@ -1,11 +1,9 @@
 ﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
-using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
-using Drawie.Skia;
 using PixiEditor.Tests;
 using Xunit;
 

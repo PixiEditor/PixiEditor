@@ -1,6 +1,4 @@
-﻿using ChunkyImageLib.DataHolders;
-using Drawie.Backend.Core.Numerics;
-using Drawie.Numerics;
+﻿using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
 

@@ -1,8 +1,5 @@
 ﻿using System.Globalization;
-using System.Net.Mime;
 using Avalonia;
-using Avalonia.Styling;
-using PixiEditor.UI.Common.Converters;
 
 namespace PixiEditor.Helpers.Converters;
 

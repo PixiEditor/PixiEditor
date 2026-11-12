@@ -9,6 +9,7 @@
     xmlns:input="clr-namespace:PixiEditor.Views.Input"
     xmlns:decorators="clr-namespace:PixiEditor.Views.Decorators"
     xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
+    xmlns:palettes1="clr-namespace:PixiEditor.Extensions.CommonApi.Palettes;assembly=PixiEditor.Extensions.CommonApi"
     mc:Ignorable="d"
     d:DesignHeight="200"
     d:DesignWidth="800"
@@ -56,7 +57,7 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="palettes1:PaletteColor">
                     <Rectangle Fill="{Binding Hex}" ToolTip.Tip="{Binding}" Width="30" Height="30" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

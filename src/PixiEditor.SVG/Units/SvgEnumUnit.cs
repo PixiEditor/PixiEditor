@@ -17,13 +17,17 @@ public struct SvgEnumUnit<T> : ISvgUnit where T : struct, Enum
     public string ToXml(DefStorage defs)
     {
         FieldInfo field = Value.GetType().GetField(Value.ToString());
+        if (field == null)
+        {
+            return Value.ToString();
+        }
         SvgValueAttribute attribute = field.GetCustomAttribute<SvgValueAttribute>();
         
         if (attribute != null)
         {
             return attribute.Value;
         }
-        
+
         return Value.ToString().ToKebabCase();
     }
 

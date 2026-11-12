@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Views.Dialogs;
 

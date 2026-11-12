@@ -1,7 +1,6 @@
 ﻿using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using PixiEditor.Models.IO;
-using Drawie.Numerics;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Files;

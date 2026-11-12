@@ -55,4 +55,9 @@ public static class InteropUtility
 
         return list.ToArray();
     }
+
+    public static void FreeIntPtr(IntPtr ptr)
+    {
+        Marshal.FreeHGlobal(ptr);
+    }
 }

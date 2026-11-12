@@ -20,5 +20,6 @@ public enum ExtensionPermissions
     /// </summary>
     OpenDocuments = 2,
     ReadUserData = 4,
+    Network = 8,
     FullAccess = ~0,
 }

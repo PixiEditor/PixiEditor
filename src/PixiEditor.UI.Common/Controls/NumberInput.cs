@@ -6,7 +6,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Xaml.Interactivity;
@@ -385,7 +384,7 @@ public partial class NumberInput : TextBox
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
-        if (!EnableScrollChange)
+        if (!EnableScrollChange || !IsFocused)
         {
             return;
         }
@@ -429,7 +428,7 @@ public partial class NumberInput : TextBox
         OnScrollAction?.Invoke();
     }
 
-    protected override void OnLostFocus(RoutedEventArgs e)
+    protected override void OnLostFocus(FocusChangedEventArgs e)
     {
         base.OnLostFocus(e);
         if (TryParse(FormattedValue, out double value))

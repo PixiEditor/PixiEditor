@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;

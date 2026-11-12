@@ -10,6 +10,7 @@
              xmlns:decorators="clr-namespace:PixiEditor.Views.Decorators"
              Background="Transparent" IsHitTestVisible="True"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="input:BrushItem"
              x:Class="PixiEditor.Views.Input.BrushItem">
     <UserControl.Styles>
         <Style Selector="Button#FavouriteButton">
@@ -32,7 +33,7 @@
                                            Texture="{Binding $parent[input:BrushItem].Brush.PointPreviewTexture}"
                                            DockPanel.Dock="Left" />
             <TextBlock VerticalAlignment="Center"
-                       Width="110"
+                       Width="110" x:DataType="input:BrushItem"
                        localization:Translator.TooltipKey="{Binding Brush.Name}"
                        TextTrimming="CharacterEllipsis"
                        localization:Translator.Key="{Binding Brush.Name}" />
@@ -41,7 +42,7 @@
                 <Button
                     Name="FavouriteButton" Width="28" Height="28"
                     Classes="pixi-icon" Padding="2"
-                    Command="{Binding ToggleFavorite}"
+                    Command="{ReflectionBinding ToggleFavorite}"
                     localization:Translator.TooltipKey="ADD_TO_FAVORITES">
                     <Button.Styles>
                         <Style Selector="Button:pointerover">

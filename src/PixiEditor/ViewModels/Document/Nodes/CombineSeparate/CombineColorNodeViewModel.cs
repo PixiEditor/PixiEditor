@@ -1,10 +1,5 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Events;
-using PixiEditor.Models.Handlers;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Nodes;
-using PixiEditor.ViewModels.Nodes.Properties;
 
 namespace PixiEditor.ViewModels.Document.Nodes.CombineSeparate;
 

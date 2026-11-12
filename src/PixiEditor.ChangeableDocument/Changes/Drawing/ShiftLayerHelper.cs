@@ -1,5 +1,4 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 

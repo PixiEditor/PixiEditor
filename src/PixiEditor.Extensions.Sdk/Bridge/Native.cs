@@ -6,7 +6,6 @@ using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
 using PixiEditor.Extensions.Sdk.Api.FlyUI;
 using PixiEditor.Extensions.Sdk.Utilities;
-using ProtoBuf;
 
 namespace PixiEditor.Extensions.Sdk.Bridge;
 

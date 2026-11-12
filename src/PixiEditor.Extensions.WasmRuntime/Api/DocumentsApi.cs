@@ -1,5 +1,7 @@
+using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
+using ProtoBuf;
 
 namespace PixiEditor.Extensions.WasmRuntime.Api;
 
@@ -54,5 +56,42 @@ internal class DocumentsApi : ApiGroupHandler
         }
 
         document.Resize(width, height);
+    }
+
+    [ApiFunction("set_document_palette")]
+    public void SetDocumentPalette(string documentId, Span<byte> paletteData)
+    {
+        if (!Guid.TryParse(documentId, out Guid id))
+        {
+            throw new ArgumentException("Invalid document ID");
+        }
+
+        var document = Api.Documents.GetDocument(id);
+        if (document == null)
+        {
+            throw new ArgumentException("Document not found");
+        }
+
+        document.Palette = Serializer.Deserialize<PaletteColor[]>(new MemoryStream(paletteData.ToArray()));
+    }
+
+    [ApiFunction("get_document_palette")]
+    public byte[] GetDocumentPalette(string documentId)
+    {
+        if (!Guid.TryParse(documentId, out Guid id))
+        {
+            throw new ArgumentException("Invalid document ID");
+        }
+
+        var document = Api.Documents.GetDocument(id);
+        if (document == null)
+        {
+            throw new ArgumentException("Document not found");
+        }
+
+        using MemoryStream stream = new();
+        Serializer.Serialize(stream, document.Palette);
+        byte[] data = stream.ToArray();
+        return data;
     }
 }

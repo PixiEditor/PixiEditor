@@ -1,14 +1,10 @@
-﻿using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.ColorsImpl.Paintables;
-using PixiEditor.ChangeableDocument.Actions;
-using PixiEditor.ChangeableDocument.Actions.Generated;
+﻿using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.Changes.Vectors;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Models.Handlers;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ViewModels.Tools.Tools;
 
@@ -77,9 +73,45 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         }
     }
 
+    public string LayerTypeIcon
+    {
+        get
+        {
+            var shapeData = GetShapeData(0);
+            if (shapeData is LineVectorData)
+            {
+                return PixiPerfectIcons.Line;
+            }
+
+            if (shapeData is TextVectorData)
+            {
+                return PixiPerfectIcons.TextAntialiased;
+            }
+
+            if (shapeData is RectangleVectorData)
+            {
+                return PixiPerfectIcons.Square;
+            }
+
+            if (shapeData is EllipseVectorData)
+            {
+                return PixiPerfectIcons.Circle;
+            }
+
+            return PixiPerfectIcons.Tangent;
+        }
+    }
+
+    public bool CanLockTransparency { get; } = false;
+
     public IReadOnlyShapeVectorData? GetShapeData(KeyFrameTime frameTime)
     {
         return ((IReadOnlyVectorNode)Internals.Tracker.Document.FindMember(Id))?.ShapeData;
+    }
+
+    public void UpdateLayerTypeIcon()
+    {
+        OnPropertyChanged(nameof(LayerTypeIcon));
     }
 
     public override bool CanQuickColorChange()

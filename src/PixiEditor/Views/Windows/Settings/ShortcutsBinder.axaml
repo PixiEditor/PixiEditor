@@ -9,6 +9,7 @@
     xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
     mc:Ignorable="d"
     d:DesignHeight="600" d:DesignWidth="400"
+    x:CompileBindings="False"
     x:Class="PixiEditor.Views.Windows.Settings.ShortcutsBinder">
     
     <Grid>

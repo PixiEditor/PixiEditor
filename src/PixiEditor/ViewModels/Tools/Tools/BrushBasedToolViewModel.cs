@@ -1,12 +1,8 @@
 ﻿using Avalonia.Input;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
-using PixiEditor.Extensions.WasmRuntime.Utilities;
-using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Config;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Input;
 using PixiEditor.UI.Common.Localization;
@@ -34,7 +30,6 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     public KeyCombination? DefaultShortcut { get; set; }
     public bool SupportsSecondaryActionOnRightClick { get; set; }
     public override string DefaultIcon => defaultIcon;
-
 
     public VecD LastAppliedPoint
     {
@@ -100,33 +95,34 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         return ToolbarFactory.Create<BrushBasedToolViewModel, BrushToolbar>(this);
     }
 
-    protected virtual void SwitchToTool()
+    protected void EnsureBrushShapeSettings()
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseBrushBasedTool(this);
         if(!createdBrushSettings)
         {
             AddBrushShapeSettings();
         }
     }
-
+    
     public override void UseTool(VecD pos)
     {
-        SwitchToTool();
+        EnsureBrushShapeSettings();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseBrushBasedTool(this);
     }
 
     public void OnToolSelected(bool restoring)
     {
-        SwitchToTool();
+        EnsureBrushShapeSettings();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.Operations.ResetLastBrushToolUseEndPosition();
     }
 
     public void OnPostUndoInlet()
     {
-        SwitchToTool();
+        EnsureBrushShapeSettings();
     }
 
     public override void OnPostRedoInlet()
     {
-        SwitchToTool();
+        EnsureBrushShapeSettings();
     }
 
     public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)

@@ -1,5 +1,4 @@
-﻿using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Backend.Core.Vector;
+﻿using Drawie.Backend.Core.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 

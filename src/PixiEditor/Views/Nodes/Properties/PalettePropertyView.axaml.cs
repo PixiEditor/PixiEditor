@@ -1,9 +1,5 @@
-using System.Collections.Generic;
-using System.Linq;
-using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers.Extensions;

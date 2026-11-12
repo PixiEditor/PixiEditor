@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Reflection;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
-using PixiEditor.ChangeableDocument.Changes.Structure;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
 namespace PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 

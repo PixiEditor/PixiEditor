@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using PixiEditor.Models.Commands.Commands;
+﻿using PixiEditor.Models.Commands.Commands;
 
 namespace PixiEditor.ViewModels.Menu;
 

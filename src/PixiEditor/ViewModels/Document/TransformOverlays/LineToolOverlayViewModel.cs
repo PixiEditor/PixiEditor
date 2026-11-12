@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 namespace PixiEditor.ViewModels.Document.TransformOverlays;
 

@@ -1,9 +1,6 @@
-﻿using System.Windows.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Vector;
-using PixiEditor.ChangeableDocument.Actions.Generated;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 
@@ -37,6 +34,14 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
                 PathChanged?.Invoke(value);
             }
         }
+    }
+
+    private bool lockEditing = false;
+
+    public bool LockEditing
+    {
+        get => lockEditing;
+        set => SetProperty(ref lockEditing, value);
     }
 
     public event Action<VectorPath>? PathChanged;
@@ -76,6 +81,7 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
         Path = newPath;
         IsActive = true;
         ShowApplyButton = showApplyButton;
+        LockEditing = false;
         AddToUndoCommand = new RelayCommand<VectorPath>(customAddToUndo);
     }
 
@@ -83,6 +89,7 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
     {
         IsActive = false;
         Path = null;
+        LockEditing = false;
         ShowApplyButton = false;
     }
 

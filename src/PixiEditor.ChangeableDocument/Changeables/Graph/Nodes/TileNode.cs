@@ -2,11 +2,7 @@
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;

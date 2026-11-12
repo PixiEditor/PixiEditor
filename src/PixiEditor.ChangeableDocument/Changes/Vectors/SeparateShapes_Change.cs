@@ -1,10 +1,8 @@
 ﻿using ChunkyImageLib.Operations;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
@@ -28,6 +26,10 @@ internal class SeparateShapes_Change : Change
     {
         if (target.TryFindMember<VectorLayerNode>(memberId, out VectorLayerNode? node))
         {
+            if (node.IsLocked)
+            {
+                return false;
+            }
             // Check if the node has embedded shape data and is not already a PathVectorData
             return node.EmbeddedShapeData is PathVectorData p && GetShapeCount(p) > 1;
         }

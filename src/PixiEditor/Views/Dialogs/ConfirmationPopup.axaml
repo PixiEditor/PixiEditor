@@ -18,6 +18,7 @@
                     Margin="0,0,10,15">
             <Button Margin="10,0,10,0" IsDefault="True" Padding="5 0"
                     ui:Translator.LocalizedString="{Binding FirstOptionText}" MinWidth="70"
+                    x:DataType="dialogs1:ConfirmationPopup"
                     Command="{Binding Path=SetConfirmationResultAndCloseCommand, ElementName=popup}">
                 <Button.CommandParameter>
                     <system:Boolean>True</system:Boolean>
@@ -25,6 +26,7 @@
             </Button>
             <Button Padding="5 0"
                     Command="{Binding Path=SetConfirmationResultAndCloseCommand, ElementName=popup}" MinWidth="70"
+                    x:DataType="dialogs1:ConfirmationPopup"
                     ui:Translator.LocalizedString="{Binding SecondOptionText}">
                 <Button.CommandParameter>
                     <system:Boolean>False</system:Boolean>

@@ -3,7 +3,7 @@ using PixiEditor.SVG.Elements;
 
 namespace PixiEditor.SVG.Units;
 
-public class SvgVectorUnit : ISvgUnit
+public struct SvgVectorUnit : ISvgUnit
 {
     public SvgNumericUnit X { get; set; }
     public SvgNumericUnit Y { get; set; }
@@ -30,21 +30,33 @@ public class SvgVectorUnit : ISvgUnit
 
     public void ValuesFromXml(string readerValue, SvgDefs defs)
     {
+        var x = new SvgNumericUnit();
+        var y = new SvgNumericUnit();
         if (string.IsNullOrEmpty(readerValue))
         {
-            X = new SvgNumericUnit();
-            Y = new SvgNumericUnit();
+            X = x;
+            Y = y;
             return;
         }
 
-        string[] values =
-            readerValue.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        string[] values = readerValue.Split([',', ' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (values.Length == 1)
+        {
+            x.ValuesFromXml(values[0], defs);
+            y.ValuesFromXml(values[0], defs);
+            X = x;
+            Y = y;
+            return;
+        }
+
         if (values.Length != 2)
         {
             throw new FormatException("Invalid vector format. Expected two values.");
         }
 
-        X.ValuesFromXml(values[0], defs);
-        Y.ValuesFromXml(values[1], defs);
+        x.ValuesFromXml(values[0], defs);
+        y.ValuesFromXml(values[1], defs);
+        X = x;
+        Y = y;
     }
 }

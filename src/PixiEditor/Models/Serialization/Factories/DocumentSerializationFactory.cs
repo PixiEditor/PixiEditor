@@ -1,9 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Extensions.CommonApi.Utilities;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.BrushEngine;
-using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels;

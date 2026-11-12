@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Formats.Tar;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;

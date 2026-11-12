@@ -1,5 +1,4 @@
 using Avalonia.Controls;
-using Avalonia.Input;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
 
 namespace PixiEditor.Extensions.FlyUI.Elements.Native;

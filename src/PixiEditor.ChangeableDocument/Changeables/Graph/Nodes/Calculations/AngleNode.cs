@@ -1,12 +1,13 @@
 ﻿using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Calculations;
 
 [NodeInfo("Angle")]
-public class AngleNode : Node
+public class AngleNode : Node, IIterativeRenderSupport
 {
     public FuncInputProperty<Float2> Vector { get; }
     public FuncOutputProperty<Float1> Radians { get; }
@@ -64,4 +65,6 @@ public class AngleNode : Node
     {
         return new AngleNode();
     }
+
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

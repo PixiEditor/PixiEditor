@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using PixiEditor.Extensions.UI;
 using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Views.Decorators;

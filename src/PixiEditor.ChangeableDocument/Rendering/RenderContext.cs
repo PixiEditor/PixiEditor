@@ -1,11 +1,9 @@
-﻿using Drawie.Backend.Core;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
@@ -37,7 +35,6 @@ public class RenderContext
     public IReadOnlyNodeGraph Graph { get; set; }
     public bool IterativeRender { get; set; }
     public int GraphCacheId { get; set; } = 0;
-    public Dictionary<string, object> State { get; set; } = new Dictionary<string, object>();
 
     public static RenderContext Empty => new RenderContext(
         null,
@@ -114,7 +111,6 @@ public class RenderContext
             ViewportData = ViewportData,
             CloneDepth = CloneDepth + 1,
             GraphCacheId = GraphCacheId,
-            State = State,
             IterativeRender = IterativeRender
         };
     }

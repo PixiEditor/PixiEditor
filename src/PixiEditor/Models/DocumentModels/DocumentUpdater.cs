@@ -1,9 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Reflection;
 using Avalonia.Threading;
-using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Exceptions;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos;
@@ -15,9 +12,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
-using Drawie.Backend.Core;
 using Drawie.Backend.Core.Shaders.Generation;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -25,7 +20,6 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
@@ -39,7 +33,6 @@ using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.Nodes.Brushes;
 using PixiEditor.ViewModels.Nodes;
-using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
@@ -102,6 +95,9 @@ internal class DocumentUpdater
                 break;
             case Size_ChangeInfo info:
                 ProcessSize(info);
+                break;
+            case LastBrushToolUsePosition_ChangeInfo info:
+                ProcessLastBrushToolUsePosition(info);
                 break;
             case RefreshViewport_PassthroughAction info:
                 ProcessRefreshViewport(info);
@@ -261,7 +257,18 @@ internal class DocumentUpdater
             case FallbackAnimationToLayerImage_ChangeInfo info:
                 ProcessFallbackAnimationToLayerImage(info);
                 break;
+            case LayerLock_ChangeInfo info:
+                ProcessLayerLock(info);
+                break;
+            case VectorShape_ChangeInfo info:
+                ProcessVectorShape(info);
+                break;
         }
+    }
+
+    private void ProcessLastBrushToolUsePosition(LastBrushToolUsePosition_ChangeInfo info)
+    {
+        doc.SetLastBrushToolUseEndPosition(info.newValue);
     }
 
     private void ProcessError(ChangeError_Info info)
@@ -414,10 +421,11 @@ internal class DocumentUpdater
         IStructureMemberHandler? memberVm = doc.StructureHelper.FindOrThrow(info.Id);
 
         memberVm.SetHasMask(info.HasMask);
-        // TODO: Make sure HasMask raises property changed internally
-        //memberVm.OnPropertyChanged(nameof(memberVm.MaskPreviewBitmap));
         if (!info.HasMask && memberVm is ILayerHandler layer)
             layer.ShouldDrawOnMask = false;
+
+        doc.InternalRaiseMaskChanged(new MaskChangedEventArgs(info.Id, info.HasMask));
+        doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Add));
     }
 
     private void ProcessRefreshViewport(RefreshViewport_PassthroughAction info)
@@ -690,7 +698,7 @@ internal class DocumentUpdater
         List<NodePropertyInfo> newInputs =
             info.Inputs.Where(x => node.Inputs.All(y => y.PropertyName != x.PropertyName)).ToList();
 
-        List<INodePropertyHandler> inputs = CreateProperties([..newInputs], node, true);
+        List<INodePropertyHandler> inputs = CreateProperties([.. newInputs], node, true);
         node.Inputs.AddRange(inputs);
     }
 
@@ -730,7 +738,7 @@ internal class DocumentUpdater
         List<NodePropertyInfo> newOutputs =
             info.Outputs.Where(x => node.Outputs.All(y => y.PropertyName != x.PropertyName)).ToList();
 
-        List<INodePropertyHandler> outputs = CreateProperties([..newOutputs], node, false);
+        List<INodePropertyHandler> outputs = CreateProperties([.. newOutputs], node, false);
         node.Outputs.AddRange(outputs);
     }
 
@@ -777,7 +785,7 @@ internal class DocumentUpdater
         }
     }
 
-private List<INodePropertyHandler> CreateProperties(ImmutableArray<NodePropertyInfo> source, NodeViewModel node,
+    private List<INodePropertyHandler> CreateProperties(ImmutableArray<NodePropertyInfo> source, NodeViewModel node,
         bool isInput)
     {
         List<INodePropertyHandler> inputs = new();
@@ -1148,5 +1156,26 @@ private List<INodePropertyHandler> CreateProperties(ImmutableArray<NodePropertyI
     private void ProcessFallbackAnimationToLayerImage(FallbackAnimationToLayerImage_ChangeInfo info)
     {
         doc.AnimationHandler.SetFallbackAnimationToLayerImage(info.Value);
+    }
+
+    private void ProcessLayerLock(LayerLock_ChangeInfo info)
+    {
+        IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.Layer);
+        member.SetLayerLock(info.IsLocked);
+
+        var selected = doc.SelectedMembers;
+        var layers = selected.Select(x => doc.StructureHelper.Find(x));
+        bool layerLocked = layers.Any(x => x.IsLockedStructurally);
+        doc.TransformHandler.LockTransform = layerLocked;
+        doc.PathOverlayHandler.LockEditing = layerLocked;
+    }
+
+    private void ProcessVectorShape(VectorShape_ChangeInfo info)
+    {
+        IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.LayerId);
+        if (member is IVectorLayerHandler vectorLayerHandler)
+        {
+            vectorLayerHandler.UpdateLayerTypeIcon();
+        }
     }
 }

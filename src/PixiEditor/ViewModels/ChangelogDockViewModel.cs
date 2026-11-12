@@ -1,12 +1,7 @@
-﻿using Avalonia.Controls;
-using Avalonia.Media.Imaging;
-using Avalonia.Svg.Skia;
-using LiveMarkdown.Avalonia;
+﻿using LiveMarkdown.Avalonia;
 using PixiDocks.Core.Docking;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.UI.Common.Localization;
-using Svg;
-using SvgImage = Avalonia.Svg.Skia.SvgImage;
 
 namespace PixiEditor.ViewModels;
 

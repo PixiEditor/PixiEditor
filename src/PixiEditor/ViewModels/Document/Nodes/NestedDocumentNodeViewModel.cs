@@ -4,15 +4,12 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Actions.Generated;
-using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ViewModels.Tools.Tools;
@@ -65,6 +62,8 @@ internal partial class NestedDocumentNodeViewModel :
     public bool IsFileLinked => !string.IsNullOrEmpty(_linkedDocumentPath);
 
     public Type? QuickEditTool => typeof(MoveToolViewModel);
+    public string LayerTypeIcon { get; } = PixiPerfectIcons.File;
+    public bool CanLockTransparency { get; } = false;
 
     public bool IsLinked => _linkedDocumentPath != null || (referenceId != null && referenceId != Guid.Empty);
     public string? LinkedDocumentPath => LinkedPathExists() ? _linkedDocumentPath : referenceId?.ToString();

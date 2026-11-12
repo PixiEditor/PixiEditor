@@ -1,10 +1,8 @@
 ﻿using Avalonia.Media;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Helpers.Extensions;
-using Color = Avalonia.Media.Color;
 
 namespace PixiEditor.Helpers.Resources;
 

@@ -13,6 +13,7 @@
                     xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
                     xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
                     xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+                    x:CompileBindings="False"
                     xmlns:ui="clr-namespace:PixiEditor.Helpers.UI">
     <ControlTheme TargetType="animations:Timeline" x:Key="{x:Type animations:Timeline}">
         <Setter Property="Template">
@@ -28,9 +29,9 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <Panel  Margin="20,0,0,0"
-                    ui:AdvisorSlot.AdviceName="AddEmptyFrame"
-                    ui:AdvisorSlot.Direction="Up"/>
+                    <Panel Margin="20,0,0,0"
+                           ui:AdvisorSlot.AdviceName="AddEmptyFrame"
+                           ui:AdvisorSlot.Direction="Up" />
 
                     <Border DockPanel.Dock="Left"
                             BorderThickness="0 0 1 0"
@@ -43,25 +44,14 @@
                             <Button Classes="pixi-icon" DockPanel.Dock="Right"
                                     Content="{DynamicResource icon-settings}"
                                     ui1:Translator.TooltipKey="SETTINGS">
-                                <Button.Styles>
-                                    <Style Selector="Button:pointerover">
-                                        <Setter Property="RenderTransform" Value="rotate(45deg)" />
-                                    </Style>
-                                </Button.Styles>
-                                <Button.Transitions>
-                                    <Transitions>
-                                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3"
-                                                                       Easing="SineEaseInOut" />
-                                    </Transitions>
-                                </Button.Transitions>
                                 <Button.Flyout>
                                     <Flyout Placement="Top">
                                         <Grid>
                                             <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
@@ -84,9 +74,10 @@
                                                                 MaxSize="100" Unit="%"
                                                                 Size="{Binding OnionOpacity, RelativeSource={RelativeSource TemplatedParent},
                                                     Mode=TwoWay}" />
-                                            <CheckBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Margin="0, 5" VerticalAlignment="Center"
+                                            <CheckBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Margin="0, 5"
+                                                      VerticalAlignment="Center"
                                                       ui1:Translator.Key="FALLBACK_FRAMES_TO_LAYER_IMAGE"
-                                                      IsChecked="{Binding FallbackFramesToLayerImage, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"/>
+                                                      IsChecked="{Binding FallbackFramesToLayerImage, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
                                         </Grid>
                                     </Flyout>
                                 </Button.Flyout>
@@ -224,7 +215,7 @@
                                 Offset="{Binding ScrollOffset, RelativeSource={RelativeSource TemplatedParent}}"
                                 MinLeftOffset="{Binding MinLeftOffset, RelativeSource={RelativeSource TemplatedParent}}"
                                 IsSnapToTickEnabled="True"
-                                Name="PART_TimelineSlider"
+                                x:Name="PART_TimelineSlider"
                                 Minimum="1">
                                 <!--<animations:TimelineSlider.Maximum>
                                     <MultiBinding>
@@ -298,12 +289,9 @@
                                       Name="PART_TimelineKeyFramesScroll" Grid.Column="1">
                             <Grid Background="{DynamicResource ThemeBackgroundBrush}" Name="PART_ContentGrid">
                                 <Interaction.Behaviors>
-                                    <EventTriggerBehavior EventName="PointerPressed">
-                                        <InvokeCommandAction
-                                            Command="{Binding ClearSelectedKeyFramesCommand,
+                                    <behaviours:PrimaryPointerPressedTriggerBehavior Command="{Binding ClearSelectedKeyFramesCommand,
                                                         RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
                                             CommandParameter="{x:Null}" />
-                                    </EventTriggerBehavior>
                                 </Interaction.Behaviors>
                                 <ItemsControl ClipToBounds="False" Name="PART_KeyFramesHost"
                                               ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
@@ -347,12 +335,12 @@
                                                 IsSelected="{Binding IsSelected, Mode=TwoWay}"
                                                 SelectLayerCommand="{xaml:Command PixiEditor.Layer.SelectActiveMember, UseProvided=True}"
                                                 IsCollapsed="{Binding IsCollapsed}"
-                                                Min="{Binding ElementName=PART_TimelineSlider, Path=Minimum}"
+                                                Min="{ReflectionBinding ElementName=PART_TimelineSlider, Path=Minimum}"
                                                 PrecisePosition="{Binding PrecisePosition, Mode=TwoWay}"
                                                 PreciseDragCommand="{Binding PreciseDragKeyFrameCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
                                                 IsDragging="{Binding IsDragging, Mode=TwoWay}"
                                                 BeginDragCommand="{Binding BeginDragKeyFrameCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
-                                                EndDragCommand="{Binding EndDragKeyFrameCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}, Path=EndDragKeyFrameCommand}"
+                                                EndDragCommand="{ReflectionBinding EndDragKeyFrameCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}, Path=EndDragKeyFrameCommand}"
                                                 Item="{Binding}">
                                                 <animations:KeyFrame.Width>
                                                     <MultiBinding Converter="{converters:DurationToWidthConverter}">
@@ -382,6 +370,13 @@
                                                             CommandParameter="{Binding}" />
                                                     </EventTriggerBehavior>
                                                 </Interaction.Behaviors>
+                                                <animations:KeyFrame.ContextMenu>
+                                                    <ContextMenu>
+                                                        <MenuItem ui1:Translator.Key="DELETE_SELECTED_CELS" Command="{xaml:Command Name=PixiEditor.Animation.DeleteCels}"/>
+                                                        <MenuItem ui1:Translator.Key="DUPLICATE_SELECTED_CELS"
+                                                                  Command="{xaml:Command Name=PixiEditor.Animation.DuplicateCels}" />
+                                                    </ContextMenu>
+                                                </animations:KeyFrame.ContextMenu>
                                             </animations:KeyFrame>
                                         </DataTemplate>
                                     </ItemsControl.DataTemplates>

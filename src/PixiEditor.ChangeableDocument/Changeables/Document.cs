@@ -6,7 +6,6 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
@@ -51,6 +50,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     public bool VerticalSymmetryAxisEnabled { get; set; }
     public double HorizontalSymmetryAxisY { get; set; }
     public double VerticalSymmetryAxisX { get; set; }
+    public VecD? LastBrushToolUseEndPosition { get; set; } = null;
     public bool IsDisposed { get; private set; }
 
 
@@ -105,7 +105,7 @@ internal class Document : IChangeable, IReadOnlyDocument
             using Surface chunkSurface =
                 Surface.ForProcessing(chunkyImage.CommittedSize, chunkyImage.ProcessingColorSpace);
             chunkyImage.DrawCommittedRegionOn(
-                new RectI(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y),
+                new RectD(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y),
                 ChunkResolution.Full,
                 chunkSurface.DrawingSurface.Canvas,
                 VecI.Zero);
@@ -194,7 +194,8 @@ internal class Document : IChangeable, IReadOnlyDocument
             ReferenceLayer = ReferenceLayer?.Clone(),
             NodeGraph = NodeGraph?.Clone() as NodeGraph,
             AnimationData = AnimationData?.Clone() as AnimationData,
-            Selection = Selection != null ? new Selection() { SelectionPath = Selection.SelectionPath != null ? new VectorPath(Selection.SelectionPath) : null } : null
+            Selection = Selection != null ? new Selection() { SelectionPath = Selection.SelectionPath != null ? new VectorPath(Selection.SelectionPath) : null } : null,
+            LastBrushToolUseEndPosition = LastBrushToolUseEndPosition,
         };
 
         if (preserveDocumentId)
@@ -208,13 +209,13 @@ internal class Document : IChangeable, IReadOnlyDocument
     public IReadOnlyStructureNode[] GetStructureTreeInOrder()
     {
         var list = new List<IReadOnlyStructureNode>();
-        ForEveryReadonlyMember(NodeGraph, member => list.Add(member));
+        ForEveryReadonlyMember(NodeGraph, list.Add);
         return list.ToArray();
     }
 
     private void ForEveryReadonlyMember(IReadOnlyNodeGraph graph, Action<IReadOnlyStructureNode> action)
     {
-        graph.TryTraverse((node) =>
+        graph.TryTraverse(node =>
         {
             if (node is not IReadOnlyStructureNode structureNode)
             {

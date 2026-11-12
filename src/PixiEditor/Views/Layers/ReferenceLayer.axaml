@@ -61,6 +61,7 @@
                             <CheckBox
                                 Classes="ImageCheckBox"
                                 VerticalAlignment="Center"
+                                x:Name="visibilityCheckbox"
                                 IsThreeState="False" HorizontalAlignment="Center"
                                 IsChecked="{Binding Path=Document.ReferenceLayerViewModel.IsVisibleBindable, Mode=TwoWay, ElementName=uc}" />
                         </Grid>

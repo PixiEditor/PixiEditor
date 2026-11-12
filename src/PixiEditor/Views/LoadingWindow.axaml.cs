@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Threading;
 
 namespace PixiEditor.Views;

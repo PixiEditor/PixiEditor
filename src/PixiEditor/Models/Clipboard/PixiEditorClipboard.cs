@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using Avalonia.Input;
+﻿using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 
@@ -32,7 +31,8 @@ public class PixiEditorClipboard : IPixiEditorClipboard
 
     public async Task SetDataObjectAsync(IAsyncDataTransfer data)
     {
-        avaloniaClipboard.SetDataAsync(data);
+        await avaloniaClipboard.SetDataAsync(data);
+        await avaloniaClipboard.FlushAsync();
     }
 
     public async Task<T> GetDataAsync<T>(DataFormat<T> id) where T : class

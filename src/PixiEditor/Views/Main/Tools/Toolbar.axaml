@@ -7,6 +7,7 @@
              xmlns:decorators="clr-namespace:PixiEditor.Views.Decorators"
              xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Main.Tools.Toolbar">
     <Border CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -43,11 +44,13 @@
                       IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}" />
                 <Label CornerRadius="5" Background="{DynamicResource ThemeBackgroundBrush2}" Padding="5" FontSize="12"
                        VerticalAlignment="Center" IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}"
+                       x:DataType="viewModels:ViewModelMain"
                        ui:Translator.Key="{Binding ToolsSubViewModel.ActiveTool.DisplayName.Key}"
                        ui:Translator.TooltipLocalizedString="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}" />
             </StackPanel>
             <ItemsControl VerticalAlignment="Center" Grid.Column="1"
                           IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}"
+                          x:DataType="viewModels:ViewModelMain"
                           ItemsSource="{Binding ToolsSubViewModel.ActiveTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>

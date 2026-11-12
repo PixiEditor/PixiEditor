@@ -1,23 +1,13 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.Changeables.Brushes;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.Helpers;
-using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
-using PixiEditor.ViewModels.Document;
-using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.SubViewModels;
-using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.ViewModels.Nodes.Properties;
 

@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
@@ -25,7 +21,6 @@ using PixiEditor.Models.Palettes;
 using PixiEditor.Models.Structures;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Localization;
-using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Input;

@@ -1,10 +1,7 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Input;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
@@ -25,6 +22,15 @@ public class VectorPathOverlay : Overlay
     public static readonly StyledProperty<SnappingController> SnappingControllerProperty =
         AvaloniaProperty.Register<VectorPathOverlay, SnappingController>(
             nameof(SnappingController));
+
+    public static readonly StyledProperty<bool> LockEditingProperty = AvaloniaProperty.Register<VectorPathOverlay, bool>(
+        nameof(LockEditing));
+
+    public bool LockEditing
+    {
+        get => GetValue(LockEditingProperty);
+        set => SetValue(LockEditingProperty, value);
+    }
 
     public SnappingController SnappingController
     {
@@ -103,16 +109,19 @@ public class VectorPathOverlay : Overlay
 
         dashedStroke.Draw(context, Path);
 
-        RenderHandles(context);
-
-        if (canInsert && CapturedHandle == null)
+        if (!LockEditing)
         {
-            insertPreviewHandle.Draw(context);
-        }
+            RenderHandles(context);
 
-        if ((IsOverAnyHandle() && !isDragging) || canInsert)
-        {
-            TryHighlightSnap(null, null);
+            if (canInsert && CapturedHandle == null)
+            {
+                insertPreviewHandle.Draw(context);
+            }
+
+            if ((IsOverAnyHandle() && !isDragging) || canInsert)
+            {
+                TryHighlightSnap(null, null);
+            }
         }
     }
 
@@ -356,6 +365,9 @@ public class VectorPathOverlay : Overlay
 
     private void MoveHandlePress(Handle source, OverlayPointerArgs args)
     {
+        if(LockEditing)
+            return;
+
         posOnStartDrag = args.Point;
         pathOnStartDrag?.Dispose();
         pathOnStartDrag = new VectorPath(Path);
@@ -368,6 +380,9 @@ public class VectorPathOverlay : Overlay
 
     private void MoveHandleDrag(Handle source, OverlayPointerArgs args)
     {
+        if(LockEditing)
+            return;
+
         var delta = args.Point - posOnStartDrag;
 
         VectorPath updatedPath = new VectorPath(pathOnStartDrag);
@@ -384,6 +399,9 @@ public class VectorPathOverlay : Overlay
 
     protected override void OnKeyPressed(KeyEventArgs args)
     {
+        if(LockEditing)
+            return;
+
         if (args.Key == Key.Delete)
         {
             DeleteSelectedPoints();
@@ -393,6 +411,9 @@ public class VectorPathOverlay : Overlay
 
     private void DeleteSelectedPoints()
     {
+        if(LockEditing)
+            return;
+
         var selectedHandles = anchorHandles.Where(h => h.IsSelected).ToList();
         if (selectedHandles == null || selectedHandles.Count == 0)
         {
@@ -525,6 +546,9 @@ public class VectorPathOverlay : Overlay
             return;
         }
 
+        if(LockEditing)
+            return;
+
         pointerPressed = true;
 
         if (IsOverPath(args.Point, out VecD closestPoint))
@@ -548,6 +572,9 @@ public class VectorPathOverlay : Overlay
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
+        if(LockEditing)
+            return;
+
         if (pointerPressed && convertSelectedOnDrag)
         {
             var anchor = anchorHandles.FirstOrDefault(h => h.IsSelected);

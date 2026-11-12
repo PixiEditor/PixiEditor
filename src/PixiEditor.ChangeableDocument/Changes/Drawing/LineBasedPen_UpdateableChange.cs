@@ -1,27 +1,20 @@
-﻿using System.Diagnostics;
-using System.Reflection;
-using ChunkyImageLib.Operations;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.ColorsImpl.Paintables;
-using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Shaders;
-using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
+﻿using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
-using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
-internal class LineBasedPen_UpdateableChange : UpdateableChange
+internal class LineBasedPen_UpdateableChange : UpdateableChange, IBudgetedUpdateableChange
 {
+    public BudgetedCall? Budget { get; set; }
+    public bool HasUnfinishedWork => engine.HasUnappliedChanges;
+
     private readonly Guid memberGuid;
     private float strokeWidth;
     private readonly bool drawOnMask;
@@ -38,19 +31,25 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private PointerInfo pointerInfo;
     private KeyboardInfo keyboardInfo;
     private EditorData editorData;
+    private VecD pos;
+    private VecD? previousLastBrushToolUsePosition;
 
     [GenerateUpdateableChangeActions]
     public LineBasedPen_UpdateableChange(Guid memberGuid, VecD pos, float strokeWidth,
-        bool antiAliasing,
-        BrushData brushData,
-        bool drawOnMask, int frame, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
+        bool antiAliasing, BrushData brushData, bool drawOnMask, int frame, PointerInfo pointerInfo,
+        KeyboardInfo keyboardInfo, EditorData editorData)
     {
         this.memberGuid = memberGuid;
         this.strokeWidth = strokeWidth;
         this.antiAliasing = antiAliasing;
         this.drawOnMask = drawOnMask;
         this.brushData = brushData;
-        points.Add(new RecordedPoint(pos, pointerInfo, keyboardInfo, editorData));
+        this.pos = pos;
+        if (!IsCarryOnPos())
+        {
+            points.Add(new RecordedPoint(pos, pointerInfo, keyboardInfo, editorData));
+        }
+
         this.frame = frame;
         this.pointerInfo = pointerInfo;
         this.keyboardInfo = keyboardInfo;
@@ -61,7 +60,12 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     public void Update(VecD pos, float strokeWidth, PointerInfo pointerInfo, KeyboardInfo keyboardInfo,
         EditorData editorData, BrushData brushData)
     {
-        points.Add(new RecordedPoint(pos, pointerInfo, keyboardInfo, editorData));
+        this.pos = pos;
+        if (!IsCarryOnPos())
+        {
+            points.Add(new RecordedPoint(pos, pointerInfo, keyboardInfo, editorData));
+        }
+
         this.strokeWidth = strokeWidth;
         this.pointerInfo = pointerInfo;
         this.keyboardInfo = keyboardInfo;
@@ -72,11 +76,15 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
     public override bool InitializeAndValidate(Document target)
     {
+        if (IsCarryOnPos() && points.Count == 0)
+            return false;
+
         if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask, frame))
             return false;
         if (strokeWidth < 0.1)
             return false;
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
+        previousLastBrushToolUsePosition = target.LastBrushToolUseEndPosition;
 
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
 
@@ -107,8 +115,19 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         brushData.AntiAliasing = antiAliasing;
         brushData.StrokeWidth = strokeWidth;
 
-        // TODO: Sampling options?
-        engine.ExecuteBrush(image, brushData, points, frame, target.ProcessingColorSpace, SamplingOptions.Default);
+        if (IsCarryOnPos())
+        {
+            if (engine.HasUnappliedChanges)
+            {
+                engine.ApplyUnfinished(image, brushData, frame, target.ProcessingColorSpace, SamplingOptions.Default,
+                    Budget);
+            }
+        }
+        else
+        {
+            engine.ExecuteBrush(image, brushData, points, frame, target.ProcessingColorSpace, SamplingOptions.Default,
+                Budget);
+        }
 
         if (image.CancelCounter != cancelCounter)
         {
@@ -120,6 +139,28 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         var changeInfo = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affChunks, drawOnMask);
 
         return changeInfo;
+    }
+
+    private bool IsCarryOnPos()
+    {
+        return double.IsNegativeInfinity(pos.X) && double.IsPositiveInfinity(pos.Y);
+    }
+
+
+    public void EnsureAllWorkDone(Document target)
+    {
+        if (engine.HasUnappliedChanges)
+        {
+            var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
+            engine.ApplyUnfinished(image, brushData, frame, target.ProcessingColorSpace, SamplingOptions.Default, null);
+        }
+    }
+
+    public IAction? GetIncrementWorkAction()
+    {
+        return new LineBasedPen_Action(memberGuid, new VecD(double.NegativeInfinity, double.PositiveInfinity),
+            strokeWidth, antiAliasing, brushData, drawOnMask, frame,
+            pointerInfo, keyboardInfo, editorData);
     }
 
     private void FastforwardEnqueueDrawLines(ChunkyImage targetImage, KeyFrameTime frameTime)
@@ -146,6 +187,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (storedChunks is not null)
             throw new InvalidOperationException("Trying to save chunks while there are saved chunks already");
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
+        target.LastBrushToolUseEndPosition = points[^1].Position;
 
         ignoreInUndo = false;
         if (firstApply)
@@ -154,8 +196,11 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
             image.CommitChanges();
 
-            var change = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1;
-            return OneOf<None, IChangeInfo, List<IChangeInfo>>.FromT1(change);
+            return new List<IChangeInfo>()
+            {
+                DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1,
+                new LastBrushToolUsePosition_ChangeInfo(target.LastBrushToolUseEndPosition)
+            };
         }
         else
         {
@@ -165,19 +210,26 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             var affArea = image.FindAffectedArea();
             storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
             image.CommitChanges();
-
-            IChangeInfo info = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1;
-
-            return OneOf<None, IChangeInfo, List<IChangeInfo>>.FromT1(info);
+            
+            return new List<IChangeInfo>()
+            {
+                DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1,
+                new LastBrushToolUsePosition_ChangeInfo(target.LastBrushToolUseEndPosition)
+            };
         }
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
+        target.LastBrushToolUseEndPosition = previousLastBrushToolUsePosition;
         var affected =
             DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame,
                 ref storedChunks);
-        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affected, drawOnMask);
+        return new List<IChangeInfo>()
+        {
+            DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affected, drawOnMask).AsT1,
+            new LastBrushToolUsePosition_ChangeInfo(target.LastBrushToolUseEndPosition)
+        };
     }
 
     public override void Dispose()

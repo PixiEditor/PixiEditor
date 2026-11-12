@@ -12,7 +12,6 @@ using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 
@@ -58,6 +57,9 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
         if (!drawOnMask && member is not ILayerHandler)
+            return ExecutionState.Error;
+
+        if (member.IsLockedBindable)
             return ExecutionState.Error;
         
         localUndoStack = new UndoStack<LineVectorData>();
@@ -127,12 +129,16 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         string snapY = "";
 
         VecD startPos = startDrawingPos;
+        if (AlignToPixels)
+        {
+            startPos = startPos.Floor() + new VecD(0.5);
+        }
 
         if (toolViewModel!.Snap)
         {
             if (AlignToPixels)
             {
-                endPos = GeometryHelper.Get45IncrementedPositionAligned(startDrawingPos, pos);
+                endPos = GeometryHelper.Get45IncrementedPositionAlignedWithPixelCenters(startDrawingPos, pos);
             }
             else
             {
@@ -146,6 +152,10 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         }
         else
         {
+            if (AlignToPixels)
+            {
+                endPos = endPos.Floor() + new VecD(0.5);
+            }
             snapped = document!.SnappingHandler.SnappingController.GetSnapPoint(endPos, out snapX, out snapY);
         }
 

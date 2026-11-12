@@ -1,4 +1,4 @@
-﻿using PixiEditor.Common;
+﻿using Drawie.Backend.Core;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
@@ -30,6 +30,7 @@ public interface IOutputProperty : INodeProperty
     public void ConnectTo(IInputProperty property);
     public void DisconnectFrom(IInputProperty property);
     IReadOnlyCollection<IInputProperty> Connections { get; }
+    Type GetContextlessValueType();
 }
 
 public interface IInputProperty<T> : IInputProperty, INodeProperty<T>

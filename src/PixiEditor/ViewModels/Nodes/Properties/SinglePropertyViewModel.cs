@@ -1,7 +1,4 @@
 ﻿using System.ComponentModel;
-using Avalonia;
-using Avalonia.Media;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace PixiEditor.ViewModels.Nodes.Properties;
 

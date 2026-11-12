@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 
 namespace PixiEditor.Views.Panels;

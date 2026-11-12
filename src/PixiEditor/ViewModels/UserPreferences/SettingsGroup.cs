@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 

@@ -1,17 +1,14 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo(UniqueName)]
-public class MathNode : Node
+public class MathNode : Node, IIterativeRenderSupport
 {
     public const string UniqueName = "Math";
     public const string XPropertyName = "X";
@@ -171,4 +168,5 @@ public class MathNode : Node
 
 
     public override Node CreateCopy() => new MathNode();
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using PixiEditor.Models.Position;
+﻿using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable

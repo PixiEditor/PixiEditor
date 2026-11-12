@@ -124,17 +124,19 @@
                             </TextBlock.IsVisible>
                         </TextBlock>
                     </Panel>
-                    <TextBlock Text="✓" Foreground="{DynamicResource ThemeAccent2Brush}"
-                               FontSize="{DynamicResource FontSizeNormal}">
-                        <TextBlock.IsVisible>
+                    <Panel>
+                        <Panel.IsVisible>
                             <MultiBinding Converter="{converters:AllTrueConverter}">
                                 <Binding Path="WaitingForActivation" />
                                 <Binding Path="EmailEqualsLastSentMail" />
                             </MultiBinding>
-                        </TextBlock.IsVisible>
-                        <Run />
-                        <TextBlock Margin="0, 0, 0, -4" ui:Translator.Key="EMAIL_SENT" />
-                    </TextBlock>
+                        </Panel.IsVisible>
+                        <TextBlock Text="✓" Foreground="{DynamicResource ThemeAccent2Brush}"
+                                   FontSize="{DynamicResource FontSizeNormal}">
+                            <Run />
+                            <TextBlock Margin="0, 0, 0, -4" ui:Translator.Key="EMAIL_SENT" />
+                        </TextBlock>
+                    </Panel>
                 </Panel>
                 <TextBlock Text="✕" IsVisible="{Binding !!LastError}" TextWrapping="Wrap"
                            Foreground="{DynamicResource ErrorOnDarkBrush}">

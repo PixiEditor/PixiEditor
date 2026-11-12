@@ -1,5 +1,4 @@
-﻿using System.Windows.Input;
-using Avalonia.Input;
+﻿using Avalonia.Input;
 
 namespace PixiEditor.Zoombox.Operations;
 

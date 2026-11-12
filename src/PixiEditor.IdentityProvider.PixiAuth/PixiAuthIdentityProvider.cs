@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Avalonia.Threading;
+﻿using Avalonia.Threading;
 using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth;
 using PixiEditor.PixiAuth.Exceptions;

@@ -1,16 +1,10 @@
 ﻿using System.Collections.ObjectModel;
-using System.Drawing;
-using System.Linq;
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.Input;
-using Drawie.Numerics;
-using PixiDocks.Core.Docking;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Handlers;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.UserPreferences;
 using PixiEditor.Views;
@@ -20,7 +14,6 @@ using PixiEditor.Views.Windows;
 using Command = PixiEditor.Models.Commands.Attributes.Commands.Command;
 using Commands_Command = PixiEditor.Models.Commands.Attributes.Commands.Command;
 using Settings_SettingsWindow = PixiEditor.Views.Windows.Settings.SettingsWindow;
-using SettingsWindow = PixiEditor.Views.Windows.Settings.SettingsWindow;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 

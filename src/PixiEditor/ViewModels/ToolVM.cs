@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Avalonia.Markup.Xaml;
+﻿using Avalonia.Markup.Xaml;
 
 namespace PixiEditor.ViewModels;
 

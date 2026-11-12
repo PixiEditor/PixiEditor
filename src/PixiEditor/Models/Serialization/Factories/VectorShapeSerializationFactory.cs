@@ -101,7 +101,7 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
         return extractor.GetBool();
     }
 
-    private Paintable? TryGetPaintable(ByteExtractor extractor, bool fileIsPrePaintables,
+    protected Paintable? TryGetPaintable(ByteExtractor extractor, bool fileIsPrePaintables,
         (string serializerName, string serializerVersion) serializerData)
     {
         if (fileIsPrePaintables)
@@ -123,7 +123,7 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
         return ((IPaintableSerializationFactory)factory).TryDeserialize(extractor);
     }
 
-    private void AddPaintable(Paintable? paintable, ByteBuilder builder)
+    protected void AddPaintable(Paintable? paintable, ByteBuilder builder)
     {
         if(paintable == null)
         {

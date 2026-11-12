@@ -1,12 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
@@ -80,13 +75,38 @@ public class SeparateColorNode : Node
 
     private Half4 GetHsva(FuncContext ctx) =>
         ctx.HasContext
-            ? contextVariables.GetOrAttachNew(ctx, Color, () => ctx.RgbaToHsva(AdjustForHsvRange(ctx.GetValue(Color), ctx)))
-            : AdjustForRgbaRange(ctx.RgbaToHsva(AdjustForHsvRange(ctx.GetValue(Color), ctx)), ctx);
+            ? contextVariables.GetOrAttachNew(ctx, Color,
+                () => AdjustForHsvRange(ctx.RgbaToHsva(ctx.GetValue(Color), NormalizedValues.Value), ctx))
+            : GetHsvaContextless(ctx);
+
 
     private Half4 GetHsla(FuncContext ctx) =>
         ctx.HasContext
-            ? contextVariables.GetOrAttachNew(ctx, Color, () => ctx.RgbaToHsla(AdjustForHslRange(ctx.GetValue(Color), ctx)))
-            : AdjustForRgbaRange(ctx.RgbaToHsla(AdjustForHslRange(ctx.GetValue(Color), ctx)), ctx);
+            ? contextVariables.GetOrAttachNew(ctx, Color,
+                () => AdjustForHslRange(ctx.RgbaToHsla(ctx.GetValue(Color), NormalizedValues.Value), ctx))
+            : GetHslaContextless(ctx);
+
+    private Half4 GetHsvaContextless(FuncContext ctx)
+    {
+        var normalizedRgba = ctx.GetValue(Color);
+        if (NormalizedValues.Value)
+        {
+            return ctx.RgbaToHsva(normalizedRgba, true);
+        }
+
+        return ctx.RgbaToHsva(normalizedRgba, false);
+    }
+
+    private Half4 GetHslaContextless(FuncContext ctx)
+    {
+        var normalizedRgba = ctx.GetValue(Color);
+        if (NormalizedValues.Value)
+        {
+            return ctx.RgbaToHsla(normalizedRgba, true);
+        }
+
+        return ctx.RgbaToHsla(normalizedRgba, false);
+    }
 
     private Half4 AdjustForRgbaRange(Half4 color, FuncContext ctx)
     {
@@ -110,7 +130,6 @@ public class SeparateColorNode : Node
         }
 
         return color;
-
     }
 
     private Half4 AdjustForHsvRange(Half4 color, FuncContext ctx)
@@ -119,9 +138,9 @@ public class SeparateColorNode : Node
         {
             if (!ctx.HasContext)
             {
-                Half4 adjustedColor = new Half4(new Vec4D(color.R.GetConstant() is double r ? r * 360.0 : 0,
-                    color.G.GetConstant() is double g ? g * 100.0 : 0,
-                    color.B.GetConstant() is double b ? b * 100.0 : 0,
+                Half4 adjustedColor = new Half4(new Vec4D(color.R.GetConstant() is double r ? r * 255.0 / 360.0 : 0,
+                    color.G.GetConstant() is double g ? g * 255.0 / 100.0 : 0,
+                    color.B.GetConstant() is double b ? b * 255.0 / 100.0 : 0,
                     color.A.GetConstant() is double a ? a * 255.0 : 0));
                 return adjustedColor;
             }
@@ -143,9 +162,9 @@ public class SeparateColorNode : Node
         {
             if (!ctx.HasContext)
             {
-                Half4 adjustedColor = new Half4(new Vec4D(color.R.GetConstant() is double r ? r * 360.0 : 0,
-                    color.G.GetConstant() is double g ? g * 100.0 : 0,
-                    color.B.GetConstant() is double b ? b * 100.0 : 0,
+                Half4 adjustedColor = new Half4(new Vec4D(color.R.GetConstant() is double r ? r * 255.0 / 360.0 : 0,
+                    color.G.GetConstant() is double g ? g * 255.0 / 100.0 : 0,
+                    color.B.GetConstant() is double b ? b * 255.0 / 100.0 : 0,
                     color.A.GetConstant() is double a ? a * 255.0 : 0));
 
                 return adjustedColor;

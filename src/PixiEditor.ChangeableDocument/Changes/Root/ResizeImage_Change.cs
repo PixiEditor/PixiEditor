@@ -5,8 +5,10 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changes.Selection;
 using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
@@ -18,6 +20,7 @@ internal class ResizeImage_Change : Change
     private VecI originalSize;
     private double originalHorAxisY;
     private double originalVerAxisX;
+    private VectorPath? originalSelectionPath;
 
     private Dictionary<Guid, CommittedChunkStorage> savedChunks = new();
     private Dictionary<Guid, CommittedChunkStorage> savedMaskChunks = new();
@@ -37,6 +40,9 @@ internal class ResizeImage_Change : Change
         originalSize = target.Size;
         originalHorAxisY = target.HorizontalSymmetryAxisY;
         originalVerAxisX = target.VerticalSymmetryAxisX;
+        if (!target.Selection.SelectionPath.IsEmpty)
+            originalSelectionPath = new VectorPath(target.Selection.SelectionPath);
+
         return true;
     }
 
@@ -117,7 +123,19 @@ internal class ResizeImage_Change : Change
         });
 
         ignoreInUndo = false;
-        return new Size_ChangeInfo(newSize, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
+        Size_ChangeInfo sizeChange = new(newSize, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
+        if (originalSelectionPath is null)
+            return sizeChange;
+
+        Matrix3X3 selectionScale = Matrix3X3.CreateScale(
+            newSize.X / (float)originalSize.X,
+            newSize.Y / (float)originalSize.Y);
+
+        return new List<IChangeInfo>
+        {
+            sizeChange,
+            SelectionChangeHelper.ResizeSelection(target, originalSelectionPath, selectionScale, newSize)
+        };
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
@@ -161,7 +179,15 @@ internal class ResizeImage_Change : Change
             stored.Value.Dispose();
         savedMaskChunks = new();
 
-        return new Size_ChangeInfo(originalSize, originalVerAxisX, originalHorAxisY);
+        Size_ChangeInfo sizeChange = new(originalSize, originalVerAxisX, originalHorAxisY);
+        if (originalSelectionPath is null)
+            return sizeChange;
+
+        return new List<IChangeInfo>
+        {
+            sizeChange,
+            SelectionChangeHelper.RestoreSelection(target, originalSelectionPath)
+        };
     }
 
     public override void Dispose()
@@ -170,5 +196,7 @@ internal class ResizeImage_Change : Change
             layer.Value.Dispose();
         foreach (var mask in savedMaskChunks)
             mask.Value.Dispose();
+        originalSelectionPath?.Dispose();
+        originalSelectionPath = null;
     }
 }

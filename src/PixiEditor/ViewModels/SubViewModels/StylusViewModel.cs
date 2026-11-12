@@ -1,9 +1,6 @@
-﻿using PixiEditor.Extensions.CommonApi.UserPreferences;
-using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+﻿using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Tools;
-using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 

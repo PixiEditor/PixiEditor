@@ -1,5 +1,4 @@
 ﻿using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
 
 namespace PixiEditor.AnimationRenderer.Core;
 

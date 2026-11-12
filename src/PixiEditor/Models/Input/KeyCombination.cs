@@ -1,9 +1,7 @@
 ﻿using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using Avalonia.Input;
-using PixiEditor.Extensions.Helpers;
 using PixiEditor.Helpers;
 using PixiEditor.UI.Common.Localization;
 

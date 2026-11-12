@@ -23,6 +23,7 @@ internal interface INodeGraphHandler
    public void RemoveConnections(Guid nodeId);
    public void UpdateAvailableRenderOutputs();
    public void RequestUpdateComputedPropertyValue(INodePropertyHandler property);
+   public void UpdateWatchedComputedValues();
    public IReadOnlyDictionary<Guid, INodeHandler> NodeLookup { get; }
    public IBlackboardHandler Blackboard { get; }
    public ObservableCollection<IGraphUpgrader> AvailableUpgrades { get; }

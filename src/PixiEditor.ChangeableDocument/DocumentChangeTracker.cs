@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
@@ -16,6 +17,13 @@ public class DocumentChangeTracker : IDisposable
     public bool HasSavedUndo => undoStack.Any();
     public bool HasSavedRedo => redoStack.Any();
     public bool IsRunning => running;
+    public bool HasActiveUpdateableChange => activeUpdateableChange is not null;
+
+    private Queue<(ActionSource, IAction)> queue = new();
+    private DateTime? carryOverTime;
+
+    public event Func<List<(ActionSource, IAction)>, List<IChangeInfo?>, Task> WorkCompleted;
+
 
     public Guid? LastChangeGuid
     {
@@ -31,6 +39,7 @@ public class DocumentChangeTracker : IDisposable
     }
 
     public bool IsDisposed => disposed;
+    public Guid? ActiveUpdateableChangeToken => activeUpdateableChange?.ChangeGuid;
 
     private UpdateableChange? activeUpdateableChange = null;
     private List<(ActionSource source, Change change)>? activePacket = null;
@@ -299,8 +308,9 @@ public class DocumentChangeTracker : IDisposable
     }
 
     private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessStartOrUpdateChangeAction(IStartOrUpdateChangeAction act,
-        ActionSource source)
+        ActionSource source, BudgetedCall? budgetCall, out IAction? unfinishedWorkAction)
     {
+        unfinishedWorkAction = null;
         if (activeUpdateableChange is null)
         {
             if (CreateUpdateableChange(act, out var processStartOrUpdateChangeAction))
@@ -343,7 +353,24 @@ public class DocumentChangeTracker : IDisposable
         }
 
         act.UpdateCorrespodingChange(activeUpdateableChange);
-        return activeUpdateableChange.ApplyTemporarily(document);
+
+        IBudgetedUpdateableChange? budgetedChange = null;
+        if (activeUpdateableChange is IBudgetedUpdateableChange budgetedUpdateableChange)
+        {
+            budgetedUpdateableChange.Budget = budgetCall;
+            budgetedChange = budgetedUpdateableChange;
+        }
+
+        var applied = activeUpdateableChange.ApplyTemporarily(document);
+        if (budgetedChange != null)
+        {
+            if (budgetedChange.HasUnfinishedWork)
+            {
+                unfinishedWorkAction = budgetedChange.GetIncrementWorkAction();
+            }
+        }
+
+        return applied;
     }
 
     private bool CreateUpdateableChange(IStartOrUpdateChangeAction act,
@@ -380,6 +407,11 @@ public class DocumentChangeTracker : IDisposable
             return new None();
         }
 
+        if (activeUpdateableChange is IBudgetedUpdateableChange budgetedUpdateableChange)
+        {
+            budgetedUpdateableChange.EnsureAllWorkDone(document);
+        }
+
         var info = activeUpdateableChange.Apply(document, true, out bool ignoreInUndo);
         if (!ignoreInUndo)
             AddToUndo(activeUpdateableChange, source);
@@ -389,9 +421,9 @@ public class DocumentChangeTracker : IDisposable
         return info;
     }
 
-    private List<IChangeInfo?> ProcessActionList(IReadOnlyList<(ActionSource, IAction)> actions)
+    private List<IChangeInfo> ProcessAction((ActionSource, IAction) action, BudgetedCall? budgetCall, out IAction unfinishedWorkAction)
     {
-        List<IChangeInfo?> changeInfos = new();
+        List<IChangeInfo> changeInfos = new();
 
         void AddInfo(OneOf<None, IChangeInfo, List<IChangeInfo>> info) =>
             info.Switch(
@@ -399,67 +431,84 @@ public class DocumentChangeTracker : IDisposable
                 (IChangeInfo changeInfo) => changeInfos.Add(changeInfo),
                 (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
 
-        foreach (var action in actions)
+        unfinishedWorkAction = null;
+        switch (action.Item2)
         {
-            switch (action.Item2)
-            {
-                case IMakeChangeAction act:
-                    AddInfo(ProcessMakeChangeAction(act, action.Item1));
-                    break;
-                case IStartOrUpdateChangeAction act:
-                    AddInfo(ProcessStartOrUpdateChangeAction(act, action.Item1));
-                    break;
-                case IEndChangeAction act:
-                    AddInfo(ProcessEndChangeAction(act, action.Item1));
-                    break;
-                case Undo_Action:
-                    AddInfo(Undo());
-                    break;
-                case Redo_Action:
-                    AddInfo(Redo());
-                    break;
-                case ChangeBoundary_Action:
-                    CompletePacket(action.Item1);
-                    break;
-                case DeleteRecordedChanges_Action:
-                    DeleteAllChanges();
-                    break;
-                //used for "passthrough" actions (move viewport)
-                case IChangeInfo act:
-                    changeInfos.Add(act);
-                    break;
-            }
+            case IMakeChangeAction act:
+                AddInfo(ProcessMakeChangeAction(act, action.Item1));
+                break;
+            case IStartOrUpdateChangeAction act:
+                AddInfo(ProcessStartOrUpdateChangeAction(act, action.Item1, budgetCall, out unfinishedWorkAction));
+                break;
+            case IEndChangeAction act:
+                AddInfo(ProcessEndChangeAction(act, action.Item1));
+                break;
+            case Undo_Action:
+                AddInfo(Undo());
+                break;
+            case Redo_Action:
+                AddInfo(Redo());
+                break;
+            case ChangeBoundary_Action:
+                CompletePacket(action.Item1);
+                break;
+            case DeleteRecordedChanges_Action:
+                DeleteAllChanges();
+                break;
+            //used for "passthrough" actions (move viewport)
+            case IChangeInfo act:
+                changeInfos.Add(act);
+                break;
         }
 
         return changeInfos;
     }
 
-    public async Task<List<IChangeInfo?>> ProcessActions(List<(ActionSource, IAction)> actions)
+    public void Enqueue(List<(ActionSource, IAction)> item)
     {
-        if (disposed)
-            throw new ObjectDisposedException(nameof(DocumentChangeTracker));
-        if (running)
-            throw new InvalidOperationException("Already currently processing");
-        try
+        foreach (var action in item)
         {
-            running = true;
-            var result =
-                await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() => ProcessActionList(actions));
-            running = false;
-            return result;
-        }
-        catch (Exception e)
-        {
-            Trace.WriteLine($"Exception while processing actions: {e}");
-            return new List<IChangeInfo?>();
-        }
-        finally
-        {
-            running = false;
+            queue.Enqueue(action);
         }
     }
 
-    public List<IChangeInfo?> ProcessActionsSync(IReadOnlyList<(ActionSource, IAction)> actions)
+
+    public bool ProcessFor(TimeSpan budget, out IAction? unfinishedWorkAction)
+    {
+        var sw = Stopwatch.StartNew();
+        List<(ActionSource, IAction)> executed = new();
+        List<IChangeInfo> changeInfos = new List<IChangeInfo>();
+
+        BudgetedCall budgetCall = new BudgetedCall(carryOverTime ?? (DateTime.Now + budget));
+        using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        while (queue.Count > 0)
+        {
+            var action = queue.Dequeue();
+            executed.Add(action);
+            changeInfos.AddRange(ProcessAction(action, budgetCall, out unfinishedWorkAction));
+
+            // Uncomment below to enable catch-up work even if no user actions are enabled. Unfortunately this at the moment kills performance for some reason
+            if (sw.Elapsed > budget || unfinishedWorkAction != null)
+            {
+                carryOverTime = DateTime.Now;
+                if(executed.Count > 0)
+                    WorkCompleted?.Invoke(executed, changeInfos);
+
+                return false;
+            }
+        }
+
+        if (executed.Count > 0)
+        {
+            WorkCompleted?.Invoke(executed, changeInfos);
+        }
+
+        unfinishedWorkAction = null;
+        carryOverTime = null;
+        return true;
+    }
+
+    public List<IChangeInfo> ProcessAll(List<(ActionSource source, IAction action)> toExecute)
     {
         if (disposed)
             throw new ObjectDisposedException(nameof(DocumentChangeTracker));
@@ -469,8 +518,13 @@ public class DocumentChangeTracker : IDisposable
         try
         {
             using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
-            var result = ProcessActionList(actions);
-            return result;
+            List<IChangeInfo> changeInfos = new List<IChangeInfo>();
+            foreach (var action in toExecute)
+            {
+                changeInfos.AddRange(ProcessAction(action, null, out var _));
+            }
+
+            return changeInfos;
         }
         finally
         {
@@ -478,6 +532,50 @@ public class DocumentChangeTracker : IDisposable
         }
     }
 }
+
+/*public async Task<List<IChangeInfo?>> ProcessActions(List<(ActionSource, IAction)> actions)
+{
+    if (disposed)
+        throw new ObjectDisposedException(nameof(DocumentChangeTracker));
+    if (running)
+        throw new InvalidOperationException("Already currently processing");
+    try
+    {
+        running = true;
+        var result =
+            await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() => ProcessActionList(actions));
+        running = false;
+        return result;
+    }
+    catch (Exception e)
+    {
+        Trace.WriteLine($"Exception while processing actions: {e}");
+        return new List<IChangeInfo?>();
+    }
+    finally
+    {
+        running = false;
+    }
+}
+
+public List<IChangeInfo?> ProcessActionsSync(IReadOnlyList<(ActionSource, IAction)> actions)
+{
+    if (disposed)
+        throw new ObjectDisposedException(nameof(DocumentChangeTracker));
+    if (running)
+        throw new InvalidOperationException("Already currently processing");
+    running = true;
+    try
+    {
+        using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        var result = ProcessActionList(actions);
+        return result;
+    }
+    finally
+    {
+        running = false;
+    }
+}*/
 
 public enum ActionSource
 {

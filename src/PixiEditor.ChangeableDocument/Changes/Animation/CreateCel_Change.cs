@@ -13,13 +13,17 @@ internal class CreateCel_Change : Change
     private ImageLayerNode? _layer;
     private Guid createdKeyFrameId;
     private bool shiftKeyframesAfter;
+    private bool inheritDuration;
+
+    private KeyFrameData? _cloneFromCel;
+    private ImageLayerNode? _cloneFromLayer;
 
     private Dictionary<Guid, int> originalStartFrames = new Dictionary<Guid, int>();
 
     [GenerateMakeChangeAction]
     public CreateCel_Change(Guid targetLayerGuid, Guid newKeyFrameGuid, int frame,
         int cloneFromFrame = -1,
-        Guid cloneFromExisting = default)
+        Guid cloneFromExisting = default, bool inheritDuration = false)
     {
         _targetLayerGuid = targetLayerGuid;
         _frame = frame;
@@ -27,6 +31,7 @@ internal class CreateCel_Change : Change
         createdKeyFrameId = newKeyFrameGuid;
         this.cloneFromFrame = cloneFromFrame < 0 ? null : cloneFromFrame;
         shiftKeyframesAfter = frame > 0;
+        this.inheritDuration = inheritDuration;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -36,6 +41,24 @@ internal class CreateCel_Change : Change
         if (targetLayer is null)
         {
             return false;
+        }
+
+        if (cloneFrom.HasValue)
+        {
+            var cloneFromMember = cloneFrom.HasValue ? target.FindMember(cloneFrom.Value) : null;
+
+            _cloneFromLayer = cloneFromMember as ImageLayerNode;
+
+            if (_cloneFromLayer is null)
+            {
+                _cloneFromCel =
+                    targetLayer.KeyFrames.FirstOrDefault(x => x.KeyFrameGuid == cloneFrom.Value) as KeyFrameData;
+            }
+
+            if (_cloneFromCel is null && _cloneFromLayer is null)
+            {
+                return false;
+            }
         }
 
         if (_frame == -1)
@@ -65,14 +88,20 @@ internal class CreateCel_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
         out bool ignoreInUndo)
     {
-        var cloneFromImage = cloneFrom.HasValue
-            ? target.FindMemberOrThrow<ImageLayerNode>(cloneFrom.Value).GetLayerImageAtFrame(cloneFromFrame ?? 0)
-            : null;
+        ChunkyImage? cloneFromImage = null;
+
+        if (_cloneFromCel is not null)
+        {
+            cloneFromImage = _cloneFromCel.Data as ChunkyImage;
+        }
+        else if (_cloneFromLayer is not null)
+        {
+            cloneFromImage = _cloneFromLayer.GetLayerImageAtFrame(cloneFromFrame ?? 0);
+        }
+
+        ChunkyImage img = cloneFromImage?.CloneFromCommitted() ?? new ChunkyImage(target.Size);
 
         ImageLayerNode targetNode = target.FindMemberOrThrow<ImageLayerNode>(_targetLayerGuid);
-
-        ChunkyImage img = cloneFromImage?.CloneFromCommitted() ??
-                          new ChunkyImage(target.Size);
 
         var keyFrame =
             new RasterKeyFrame(createdKeyFrameId, targetNode.Id, _frame, target);
@@ -90,8 +119,27 @@ internal class CreateCel_Change : Change
                 return new None();
             }
 
-            targetNode.AddFrame(createdKeyFrameId,
-                new KeyFrameData(createdKeyFrameId, _frame, 1, ImageLayerNode.ImageLayerKey) { Data = img, });
+            if (_cloneFromCel is not null)
+            {
+                duration = _cloneFromCel.Duration;
+            }
+            else if (inheritDuration && cloneFromFrame.HasValue)
+            {
+                var frameToCloneFrom = targetNode.KeyFrames
+                    .FirstOrDefault(x => x.IsInFrame(cloneFromFrame.Value));
+
+                if (frameToCloneFrom is not null)
+                {
+                    duration = frameToCloneFrom.Duration;
+                }
+            }
+
+            targetNode.AddFrame(
+                createdKeyFrameId,
+                new KeyFrameData(createdKeyFrameId, _frame, duration, ImageLayerNode.ImageLayerKey)
+                {
+                    Data = img,
+                });
         }
         else
         {
@@ -110,7 +158,7 @@ internal class CreateCel_Change : Change
         if (rootCelGroup != null)
         {
             bool isCelAtFrame = target.AnimationData.TryGetKeyFrameAtFrame(targetNode.Id, _frame) != null;
-            if (isCelAtFrame && shiftKeyframesAfter)
+            if ((isCelAtFrame || inheritDuration) && shiftKeyframesAfter)
             {
                 var celsAfter = rootCelGroup.Children.OfType<RasterKeyFrame>().Where(x => x.EndFrame >= _frame).ToList();
 

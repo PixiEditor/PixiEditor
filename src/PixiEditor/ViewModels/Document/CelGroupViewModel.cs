@@ -1,8 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Reactive.Linq;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.UI.Common.Localization;

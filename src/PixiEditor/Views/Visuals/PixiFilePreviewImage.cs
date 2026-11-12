@@ -5,7 +5,6 @@ using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models;
-using PixiEditor.Models.IO;
 using Drawie.Numerics;
 using PixiEditor.Parser;
 

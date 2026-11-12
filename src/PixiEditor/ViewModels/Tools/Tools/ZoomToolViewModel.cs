@@ -1,9 +1,6 @@
 ﻿using Avalonia.Input;
-using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
-using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 

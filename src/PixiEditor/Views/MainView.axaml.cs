@@ -2,15 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Bridge;
-using Drawie.Interop.Avalonia.Core;
-using Drawie.Interop.Avalonia.OpenGl;
-using Drawie.Numerics;
-using PixiEditor.Helpers.Extensions;
 using PixiEditor.Helpers;
-using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Behaviors;
@@ -32,6 +24,15 @@ public partial class MainView : UserControl
         Loaded += OnLoaded;
     }
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (DataContext is ViewModelMain vm)
+        {
+            vm.OnEarlyStartup();
+        }
+    }
+
     private void OnLoaded(object? sender, RoutedEventArgs e)
     {
         if (DataContext is ViewModelMain vm)
@@ -44,11 +45,11 @@ public partial class MainView : UserControl
     {
         Context.ActionDisplays[nameof(MainView_Drop)] = null;
 
-        var fileDropList = e.Data.GetFiles();
+        var fileDropList = e.DataTransfer.TryGetFiles();
         var storageItems = fileDropList as IStorageItem[] ?? fileDropList?.ToArray();
         if (storageItems == null || storageItems.Length == 0)
         {
-            if (!ColorHelper.ParseAnyFormat(e.Data, out var color))
+            if (!ColorHelper.ParseAnyFormat(e.DataTransfer, out var color))
             {
                 return;
             }
@@ -72,7 +73,7 @@ public partial class MainView : UserControl
     {
         if (!ClipboardController.IsImage(e.DataTransfer))
         {
-            if (ColorHelper.ParseAnyFormat(e.Data, out _))
+            if (ColorHelper.ParseAnyFormat(e.DataTransfer, out _))
             {
                 Context.ActionDisplays[nameof(MainView_Drop)] = "PASTE_AS_PRIMARY_COLOR";
                 e.DragEffects = DragDropEffects.Copy;

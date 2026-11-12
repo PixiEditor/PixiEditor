@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using Avalonia.Controls.ApplicationLifetimes;
+﻿using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using PixiEditor.OperatingSystem;
 

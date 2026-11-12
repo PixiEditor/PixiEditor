@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
+﻿using System.Globalization;
 using Avalonia.Media;
-using PixiEditor.Models.Files;
 
 namespace PixiEditor.Helpers.Converters;
 

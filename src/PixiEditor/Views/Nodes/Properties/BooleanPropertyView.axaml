@@ -6,16 +6,20 @@
                              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
                              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                              xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
+                             xmlns:system="clr-namespace:System;assembly=System.Runtime"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:DataType="properties1:BooleanPropertyViewModel"
                              x:Class="PixiEditor.Views.Nodes.Properties.BooleanPropertyView">
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+    <StackPanel Orientation="Horizontal"
+                HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <CheckBox Margin="0,0,4,0" IsVisible="{Binding ShowInputField}"
                   MaxWidth="195"
                   localization:Translator.TooltipKey="{Binding DisplayName}"
                   localization:Translator.Key="{Binding DisplayName}"
                   IsChecked="{Binding Value}">
             <CheckBox.ContentTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="system:Boolean">
                     <TextBlock TextTrimming="CharacterEllipsis" Text="{Binding}" Margin="0,0,4,0" />
                 </DataTemplate>
             </CheckBox.ContentTemplate>

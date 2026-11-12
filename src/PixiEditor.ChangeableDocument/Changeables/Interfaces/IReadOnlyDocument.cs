@@ -2,10 +2,8 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 

@@ -40,6 +40,7 @@ namespace PixiEditor.Extensions.CommonApi.Tools
         [global::ProtoBuf.ProtoMember(7)]
         [global::System.ComponentModel.DefaultValue("")]
         public string CommonToolType { get; set; } = "";
+
     }
 
 }

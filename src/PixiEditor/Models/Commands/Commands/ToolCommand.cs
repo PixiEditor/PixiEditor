@@ -1,5 +1,4 @@
-﻿using Avalonia.Input;
-using PixiEditor.Models.Handlers;
+﻿using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Commands.Commands;
 

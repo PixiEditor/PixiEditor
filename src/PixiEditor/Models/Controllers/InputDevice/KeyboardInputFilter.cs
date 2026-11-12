@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Avalonia.Input;
+﻿using Avalonia.Input;
 using PixiEditor.Models.Events;
 
 namespace PixiEditor.Models.Controllers.InputDevice;

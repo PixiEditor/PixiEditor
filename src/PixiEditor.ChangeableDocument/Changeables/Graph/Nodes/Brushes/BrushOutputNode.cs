@@ -1,24 +1,18 @@
-﻿using System.Collections;
-using Drawie.Backend.Core;
+﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
-using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 

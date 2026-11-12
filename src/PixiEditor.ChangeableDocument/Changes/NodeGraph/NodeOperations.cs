@@ -5,10 +5,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
-using PixiEditor.ChangeableDocument.Changes.Structure;
-using Drawie.Backend.Core;
 using Drawie.Backend.Core.Shaders.Generation;
-using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 
@@ -114,9 +111,9 @@ public static class NodeOperations
     }
 
     public static List<IChangeInfo> AppendMember(
-        InputProperty<Painter?> parentInput,
-        OutputProperty<Painter> toAddOutput,
-        InputProperty<Painter> toAddInput, Guid memberId)
+        InputProperty parentInput,
+        OutputProperty toAddOutput,
+        InputProperty toAddInput, Guid appendingMember)
     {
         List<IChangeInfo> changes = new();
         IOutputProperty? previouslyConnected = null;
@@ -133,11 +130,11 @@ public static class NodeOperations
         if (previouslyConnected != null)
         {
             previouslyConnected.ConnectTo(toAddInput);
-            changes.Add(new ConnectProperty_ChangeInfo(previouslyConnected.Node.Id, memberId,
+            changes.Add(new ConnectProperty_ChangeInfo(previouslyConnected.Node.Id, appendingMember,
                 previouslyConnected.InternalPropertyName, toAddInput.InternalPropertyName));
         }
 
-        changes.Add(new ConnectProperty_ChangeInfo(memberId, parentInput.Node.Id,
+        changes.Add(new ConnectProperty_ChangeInfo(appendingMember, parentInput.Node.Id,
             toAddOutput.InternalPropertyName, parentInput.InternalPropertyName));
 
         return changes;
@@ -174,6 +171,50 @@ public static class NodeOperations
             structureNode.Output.DisconnectFrom(outputConnection);
             changes.Add(new ConnectProperty_ChangeInfo(null, outputConnection.Node.Id, null,
                 outputConnection.InternalPropertyName));
+        }
+
+        return changes;
+    }
+
+    /// <summary>
+    ///     Detaches any arbitrary node and attempts to keep the connections intact (only first input and first ouput)
+    /// </summary>
+    /// <param name="node">Node to detach</param>
+    /// <returns>List of changes that were made.</returns>
+    public static List<IChangeInfo> DetachNodeWithAutoconnect(Node node)
+    {
+        List<IChangeInfo> changes = new();
+
+        if (node.InputProperties.FirstOrDefault().Connection != null)
+        {
+            // connect connection to next input if possible
+
+            var connections = node.OutputProperties.FirstOrDefault().Connections.ToArray();
+
+            var output = node.InputProperties.FirstOrDefault()?.Connection;
+
+            foreach (var input in connections)
+            {
+                output.ConnectTo(input);
+
+                changes.Add(new ConnectProperty_ChangeInfo(output.Node.Id, input.Node.Id,
+                    output.InternalPropertyName, input.InternalPropertyName));
+            }
+
+            node.InputProperties.FirstOrDefault()?.Connection.DisconnectFrom(node.InputProperties.FirstOrDefault());
+            changes.Add(new ConnectProperty_ChangeInfo(null, node.Id, null,
+                node.InputProperties.FirstOrDefault()?.InternalPropertyName));
+        }
+
+        var outputs = node.OutputProperties.FirstOrDefault()?.Connections.ToArray();
+        if (outputs != null)
+        {
+            foreach (var outputConnection in outputs)
+            {
+                node.OutputProperties.FirstOrDefault()?.DisconnectFrom(outputConnection);
+                changes.Add(new ConnectProperty_ChangeInfo(null, outputConnection.Node.Id, null,
+                    outputConnection.InternalPropertyName));
+            }
         }
 
         return changes;

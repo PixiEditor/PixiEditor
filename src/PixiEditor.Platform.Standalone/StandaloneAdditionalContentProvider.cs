@@ -1,8 +1,4 @@
-﻿using System.Reflection;
-using System.Security.Principal;
-using PixiEditor.IdentityProvider;
-using PixiEditor.IdentityProvider.PixiAuth;
-using PixiEditor.PixiAuth;
+﻿using PixiEditor.IdentityProvider.PixiAuth;
 using PixiEditor.PixiAuth.Exceptions;
 using PixiEditor.PixiAuth.Models;
 

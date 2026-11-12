@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Input.Raw;
 using Avalonia.Interactivity;
 using PixiEditor.Models.Input;
 using PixiEditor.UI.Common.Localization;
@@ -94,7 +93,7 @@ internal partial class KeyCombinationBox : UserControl
         UpdateText();
     }
 
-    private void TextBox_GotKeyboardFocus(object sender, GotFocusEventArgs e)
+    private void TextBox_GotKeyboardFocus(object sender, FocusChangedEventArgs e)
     {
         currentCombination = new();
         textBox.Text = new LocalizedString("PRESS_ANY_KEY");

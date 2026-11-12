@@ -4,7 +4,6 @@ using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Actions;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
@@ -13,10 +12,6 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Changes.Vectors;
-using PixiEditor.Models.DocumentModels.Public;
-using PixiEditor.ViewModels.Document.TransformOverlays;
-using PixiEditor.Views.Overlays.TransformOverlay;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 

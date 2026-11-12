@@ -1,6 +1,4 @@
-﻿using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
-
-namespace PixiEditor.Extensions.Runtime;
+﻿namespace PixiEditor.Extensions.Runtime;
 
 public static class ExtensionDependencyResolver
 {

@@ -1,5 +1,4 @@
 ﻿using ChunkyImageLib.DataHolders;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;

@@ -1,12 +1,9 @@
-﻿using System.Drawing;
-using System.Globalization;
-using System.IO;
+﻿using System.Globalization;
 using System.Reflection;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Svg.Skia;
-using PixiEditor.Helpers.Extensions;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace PixiEditor.Helpers.Converters;

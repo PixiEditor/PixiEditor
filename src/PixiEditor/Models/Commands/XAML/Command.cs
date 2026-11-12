@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using PixiEditor.Helpers;

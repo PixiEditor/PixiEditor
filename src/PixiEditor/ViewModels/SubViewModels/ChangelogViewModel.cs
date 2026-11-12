@@ -1,5 +1,4 @@
 ﻿using PixiEditor.Extensions.CommonApi.UserPreferences;
-using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;

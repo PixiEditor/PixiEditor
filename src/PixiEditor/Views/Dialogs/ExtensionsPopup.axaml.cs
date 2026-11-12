@@ -1,8 +1,5 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
+﻿using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using PixiEditor.ViewModels.ExtensionManager;
 
@@ -25,7 +22,7 @@ public partial class ExtensionsPopup : PixiEditorPopup
         }
     }
 
-    protected override void OnGotFocus(GotFocusEventArgs e)
+    protected override void OnGotFocus(FocusChangedEventArgs e)
     {
         base.OnGotFocus(e);
         if (DataContext is ExtensionManagerViewModel vm)

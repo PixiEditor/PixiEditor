@@ -8,13 +8,10 @@ using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Dialogs;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Graph;
 using PixiEditor.SVG;
@@ -22,6 +19,7 @@ using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Elements.Filters;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Exceptions;
+using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
@@ -76,11 +74,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                     StyleContext style = styleContext.WithElement(element);
                     if (element is SvgPrimitive primitive)
                     {
-                        lastId = AddPrimitive(element, style, graph, lastId);
+                        lastId = AddPrimitive(element, style, graph, document.Defs, lastId);
                     }
                     else if (element is SvgGroup group)
                     {
-                        lastId = AddGroup(group, graph, style, lastId);
+                        lastId = AddGroup(group, graph, style, document.Defs, lastId);
                     }
                     else if (element is SvgImage svgImage)
                     {
@@ -88,7 +86,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                     }
                     else if (element is SvgDocument nestedDocument)
                     {
-                        lastId = AddNestedDocument(nestedDocument, graph, lastId, style);
+                        lastId = AddNestedDocument(nestedDocument, graph, lastId, style, document.Defs);
                     }
                 }
 
@@ -110,7 +108,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
     [return: NotNull]
     private int? AddPrimitive(SvgElement element, StyleContext styleContext,
-        NodeGraphBuilder graph,
+        NodeGraphBuilder graph, SvgDefs defs,
         int? lastId, string connectionName = "Background")
     {
         LocalizedString name = "";
@@ -152,7 +150,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         var isVisible = element.Visibility.Unit?.Value != SvgVisibility.Hidden &&
                         element.Visibility.Unit?.Value != SvgVisibility.Collapse;
 
-        bool hasFilter = styleContext.Filter.Unit?.ImageFilter != null;
+        int? filterNodeId = null;
+        if (element is IFilterable filterable)
+        {
+            filterNodeId = ExtractFilters(filterable, graph, defs);
+        }
 
         NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<VectorLayerNode>(out int id)
             .WithName(name)
@@ -163,18 +165,6 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             })
             .WithAdditionalData(new Dictionary<string, object>() { { "ShapeData", shapeData } });
 
-        int? filterNodeId = null;
-        if (hasFilter)
-        {
-            var imageFilter = styleContext.Filter.Unit?.ImageFilter;
-            Type filterToNodeType = MapImageFilterToNodeType(imageFilter, out var props);
-            graph.WithNodeOfType(filterToNodeType, out int filterId)
-                .WithId(filterId)
-                .WithInputValues(props);
-
-
-            filterNodeId = filterId;
-        }
 
         List<PropertyConnection> connections = new();
         if (lastId != null)
@@ -200,9 +190,72 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         return lastId;
     }
 
-    private int? AddGroup(SvgGroup group, NodeGraphBuilder graph, StyleContext style, int? lastId,
+    private int? ExtractFilters(IFilterable filterable, NodeGraphBuilder graph, SvgDefs defs)
+    {
+        bool hasFilter = filterable.Filter.Unit?.ImageFilter != null || filterable.Filter.Unit?.LinksTo != null;
+
+        int? filterNodeId = null;
+        if (hasFilter)
+        {
+            var imageFilter = filterable.Filter.Unit?.ImageFilter;
+            if (imageFilter != null)
+            {
+                Type filterToNodeType = MapImageFilterToNodeType(imageFilter, out var props);
+                graph.WithNodeOfType(filterToNodeType, out int filterId)
+                    .WithId(filterId)
+                    .WithInputValues(props);
+                filterNodeId = filterId;
+            }
+            else
+            {
+                var link = filterable.Filter.Unit?.LinksTo;
+                if (link != null && defs.TryFindElement(link.Value.ObjectReference, out var filterObj) &&
+                    filterObj is SvgFilter filter)
+                {
+                    int? lastFilterId = null;
+                    NodeGraphBuilder.NodeBuilder? lastFilterBuilder = null;
+                    foreach (var filterChild in filter.Children)
+                    {
+                        if (filterChild is SvgFilterPrimitive filterPrimitive)
+                        {
+                            Type filterToNodeType = MapImageFilterToNodeType(filterPrimitive, out var props);
+                            var filterBuilder = graph.WithNodeOfType(filterToNodeType, out int filterId)
+                                .WithId(filterId)
+                                .WithInputValues(props);
+
+                            if (lastFilterId != null)
+                            {
+                                filterBuilder?.WithConnections([
+                                    new PropertyConnection()
+                                    {
+                                        InputPropertyName = FilterNode.InputPropertyName,
+                                        OutputPropertyName = FilterNode.OutputPropertyName,
+                                        OutputNodeId = lastFilterId.Value
+                                    }
+                                ]);
+                            }
+
+                            lastFilterBuilder = filterBuilder;
+                            filterNodeId = filterId;
+                            lastFilterId = filterId;
+                        }
+                    }
+                }
+            }
+        }
+
+        return filterNodeId;
+    }
+
+    private int? AddGroup(SvgGroup group, NodeGraphBuilder graph, StyleContext style, SvgDefs defs, int? lastId,
         string connectionName = "Background")
     {
+        int? filterNodeId = null;
+        if (group is IFilterable filterable)
+        {
+            filterNodeId = ExtractFilters(filterable, graph, defs);
+        }
+
         int? childId = null;
         var connectTo = "Background";
         foreach (var child in group.Children)
@@ -211,11 +264,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
             if (child is SvgPrimitive primitive)
             {
-                childId = AddPrimitive(child, childStyle, graph, childId, connectTo);
+                childId = AddPrimitive(child, childStyle, graph, defs, childId, connectTo);
             }
             else if (child is SvgGroup childGroup)
             {
-                childId = AddGroup(childGroup, graph, childStyle, childId, connectTo);
+                childId = AddGroup(childGroup, graph, childStyle, defs, childId, connectTo);
             }
             else if (child is SvgImage image)
             {
@@ -223,37 +276,43 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             }
             else if (child is SvgDocument nestedDocument)
             {
-                childId = AddNestedDocument(nestedDocument, graph, childId, childStyle);
+                childId = AddNestedDocument(nestedDocument, graph, childId, childStyle, defs);
             }
         }
 
         NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<FolderNode>(out int id)
             .WithName(group.Id.Unit != null ? group.Id.Unit.Value.Value : new LocalizedString("NEW_FOLDER"));
 
-        int connectionsCount = 0;
-        if (lastId != null) connectionsCount++;
-        if (childId != null) connectionsCount++;
-
-        PropertyConnection[] connections = new PropertyConnection[connectionsCount];
+        List<PropertyConnection> connections = new List<PropertyConnection>();
         if (lastId != null)
         {
-            connections[0] = new PropertyConnection()
+            connections.Add(new PropertyConnection()
             {
                 InputPropertyName = connectionName, OutputPropertyName = "Output", OutputNodeId = lastId.Value
-            };
+            });
         }
 
         if (childId != null)
         {
-            connections[^1] = new PropertyConnection()
+            connections.Add(new PropertyConnection()
             {
                 InputPropertyName = "Content", OutputPropertyName = "Output", OutputNodeId = childId.Value
-            };
+            });
         }
 
-        if (connections.Length > 0)
+        if (filterNodeId != null)
         {
-            nBuilder.WithConnections(connections);
+            connections.Add(new PropertyConnection()
+            {
+                InputPropertyName = StructureNode.FiltersPropertyName,
+                OutputPropertyName = "Output",
+                OutputNodeId = filterNodeId.Value
+            });
+        }
+
+        if (connections.Count > 0)
+        {
+            nBuilder.WithConnections(connections.ToArray());
         }
 
         lastId = id;
@@ -336,7 +395,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         return lastId;
     }
 
-    private int? AddNestedDocument(SvgDocument nestedDocument, NodeGraphBuilder graph, int? lastId, StyleContext style)
+    private int? AddNestedDocument(SvgDocument nestedDocument, NodeGraphBuilder graph, int? lastId, StyleContext style,
+        SvgDefs defs)
     {
         SvgDocumentBuilder nestedBuilder = new();
 
@@ -344,6 +404,12 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         nestedDocument.Transform.Unit = new SvgTransformUnit(Matrix3X3.Identity);
         DocumentViewModel docViewModel = DocumentViewModel.Build(b =>
             nestedBuilder.Build(b, nestedDocument));
+
+        int? filterId = null;
+        if (nestedDocument is IFilterable filterable)
+        {
+            filterId = ExtractFilters(filterable, graph, defs);
+        }
 
         var graphBuilder = graph.WithNodeOfType<NestedDocumentNode>(out int id)
             .WithName(nestedDocument.Id.Unit?.Value ?? new LocalizedString("NEW_LAYER"))
@@ -355,16 +421,28 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                 }
             }).WithAdditionalData(new Dictionary<string, object>() { { "TransformationMatrix", matrix } });
 
+        List<PropertyConnection> connections = new List<PropertyConnection>();
+
+
         if (lastId != null)
         {
-            graphBuilder.WithConnections([
-                new PropertyConnection()
-                {
-                    InputPropertyName = "Background", OutputPropertyName = "Output", OutputNodeId = lastId.Value
-                }
-            ]);
+            connections.Add(new PropertyConnection()
+            {
+                InputPropertyName = "Background", OutputPropertyName = "Output", OutputNodeId = lastId.Value
+            });
         }
 
+        if (filterId != null)
+        {
+            connections.Add(new PropertyConnection()
+            {
+                InputPropertyName = StructureNode.FiltersPropertyName,
+                OutputPropertyName = FilterNode.OutputPropertyName,
+                OutputNodeId = filterId.Value
+            });
+        }
+
+        graphBuilder.WithConnections(connections.ToArray());
         lastId = id;
         return lastId;
     }
@@ -583,8 +661,9 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             : FontData.CreateDefault();
 
         font.Size = styleContext.FontSize.Unit?.ToPixels(viewBox) ?? 12;
-        font.Bold = styleContext.FontWeight.Unit?.Value == SvgFontWeight.Bold;
-        font.Italic = styleContext.FontStyle.Unit?.Value == SvgFontStyle.Italic;
+        font.Weight = (FontStyleWeight)(styleContext.FontWeight.Unit?.Value ?? SvgFontWeight.Normal);
+        font.Slant = (FontStyleSlant)(styleContext.FontStyle.Unit?.Value ?? SvgFontStyle.Normal);
+        font.Width = (FontStyleWidth)(styleContext.FontStretch.Unit?.Value ?? SvgFontWidth.Normal);
 
         VecD position = new(
             element.X.Unit?.ToPixels(viewBox) ?? 0,
@@ -617,10 +696,34 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             position.X += bounds.Width * anchorX;
         }
 
-        return new TextVectorData(element.Text.Unit.Value.Value)
+        RichText rt = new RichText(element.Text.Unit.Value.Value, font);
+        var inline = rt.Inlines.FirstOrDefault();
+
+        bool hasFill = styleContext.Fill.Unit?.Paintable is { AnythingVisible: true };
+        bool hasStroke = styleContext.Stroke.Unit?.Paintable is { AnythingVisible: true } ||
+                         styleContext.StrokeWidth.Unit is { PixelsValue: > 0 };
+
+        inline.Fill = hasFill;
+        if (hasFill)
         {
-            Position = position, Font = font, MissingFontText = "MISSING_FONT",
-        };
+            var target = styleContext.Fill.Unit;
+            float opacity = (float)(styleContext.FillOpacity.Unit?.Value ?? 1);
+            opacity = Math.Clamp(opacity, 0, 1);
+            inline.FillPaintable = target?.Paintable ?? Colors.Black;
+        }
+
+        if (hasStroke)
+        {
+            var targetColor = styleContext.Stroke.Unit;
+            var targetWidth = styleContext.StrokeWidth.Unit;
+
+            float opacity = (float)(styleContext.StrokeOpacity.Unit?.Value ?? 1);
+            opacity = Math.Clamp(opacity, 0, 1);
+            inline.StrokePaintable = targetColor?.Paintable ?? Colors.Transparent;
+            inline.StrokeWidth = (float)(targetWidth?.PixelsValue ?? 1);
+        }
+
+        return new TextVectorData(rt) { Position = position, MissingFontText = "MISSING_FONT", };
     }
 
     private PathVectorData AddPoly(SvgElement element)
@@ -692,38 +795,95 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         }
     }
 
-    private Type MapImageFilterToNodeType(SvgFilterPrimitive? filter, out Dictionary<string, object> inputProperties)
+    private Type MapImageFilterToNodeType(
+        SvgFilterPrimitive? filter,
+        out Dictionary<string, object> inputProperties)
     {
         inputProperties = new Dictionary<string, object>();
 
         if (filter == null)
-        {
             throw new ArgumentNullException(nameof(filter));
-        }
 
         switch (filter)
         {
-            case SvgFeDropShadow svgFeDropShadow:
+            case SvgFeDropShadow dropShadow:
+            {
                 inputProperties.Add(ShadowNode.OffsetPropertyName, new VecD(
-                    svgFeDropShadow.Dx.Unit?.PixelsValue ?? 0,
-                    svgFeDropShadow.Dy.Unit?.PixelsValue ?? 0));
-                inputProperties.Add(ShadowNode.SigmaPropertyName, new VecD(
-                    svgFeDropShadow.StdDeviation.Unit?.PixelsValue ?? 0,
-                    svgFeDropShadow.StdDeviation.Unit?.PixelsValue ?? 0));
-                Color floodColor = svgFeDropShadow.FloodColor.Unit?.Color ?? Colors.Black;
-                float floodOpacity = (float)(svgFeDropShadow.FloodOpacity.Unit?.NormalizedValue() ?? 1);
-                floodColor = floodColor.WithAlpha((byte)(floodOpacity * 255));
-                inputProperties.Add(ShadowNode.ColorPropertyName, floodColor);
-                return typeof(ShadowNode);
-            case SvgFeGaussianBlur svgFeGaussianBlur:
-                inputProperties.Add(BlurNode.RadiusPropertyName, new VecD(
-                    svgFeGaussianBlur.StdDeviation.Unit?.PixelsValue ?? 0,
-                    svgFeGaussianBlur.StdDeviation.Unit?.PixelsValue ?? 0));
-                return typeof(BlurNode);
-            default:
-                throw new ArgumentOutOfRangeException(nameof(filter));
-        }
+                    dropShadow.Dx.Unit?.Value ?? 0,
+                    dropShadow.Dy.Unit?.Value ?? 0));
 
-        return null;
+                inputProperties.Add(ShadowNode.SigmaPropertyName, new VecD(
+                    dropShadow.StdDeviation.Unit?.X.Value ?? 0,
+                    dropShadow.StdDeviation.Unit?.Y.Value ?? 0));
+
+                Color floodColor = dropShadow.FloodColor.Unit?.Color ?? Colors.Black;
+                float floodOpacity = (float)(dropShadow.FloodOpacity.Unit?.NormalizedValue() ?? 1);
+
+                floodColor = floodColor.WithAlpha((byte)(floodOpacity * 255));
+
+                inputProperties.Add(ShadowNode.ColorPropertyName, floodColor);
+
+                return typeof(ShadowNode);
+            }
+
+            case SvgFeGaussianBlur gaussianBlur:
+            {
+                inputProperties.Add(BlurNode.RadiusPropertyName, new VecD(
+                    gaussianBlur.StdDeviation.Unit?.X.Value ?? 0,
+                    gaussianBlur.StdDeviation.Unit?.Y.Value ?? 0));
+
+                return typeof(BlurNode);
+            }
+
+            case SvgFeColorMatrix colorMatrix:
+            {
+                if ((colorMatrix.Type.Unit?.Value ?? SvgColorMatrixType.Matrix) != SvgColorMatrixType.Matrix)
+                    throw new NotSupportedException(
+                        $"Unsupported color matrix type: {colorMatrix.Type.Unit?.Value}");
+
+                inputProperties.Add(
+                    ColorMatrixFilterNode.MatrixPropertyName,
+                    colorMatrix.Values.Unit is { } values
+                        ? new ColorMatrix(values.Values.Select(x => (float)x.Value).ToArray())
+                        : ColorMatrix.Identity);
+                return typeof(ColorMatrixFilterNode);
+            }
+
+            case SvgFeMorphology morphology:
+            {
+                VecD radius = new(
+                    morphology.Radius.Unit?.X.Value ?? 0,
+                    morphology.Radius.Unit?.Y.Value ?? 0);
+
+                switch (morphology.Operator.Unit?.Value ?? SvgMorphologyOperator.Erode)
+                {
+                    case SvgMorphologyOperator.Dilate:
+                        inputProperties.Add(DilateNode.RadiusPropertyName, radius);
+                        return typeof(DilateNode);
+
+                    case SvgMorphologyOperator.Erode:
+                        inputProperties.Add(ErodeNode.RadiusPropertyName, radius);
+                        return typeof(ErodeNode);
+
+                    default:
+                        throw new NotSupportedException(
+                            $"Unsupported morphology operator: {morphology.Operator.Unit?.Value}");
+                }
+            }
+            case SvgFeOffset offset:
+            {
+                inputProperties.Add(OffsetFilterNode.OffsetPropertyName, new VecD(
+                    offset.Dx.Unit?.Value ?? 0,
+                    offset.Dy.Unit?.Value ?? 0));
+
+                return typeof(OffsetFilterNode);
+            }
+
+            default:
+                throw new ArgumentOutOfRangeException(
+                    nameof(filter),
+                    filter.GetType(),
+                    "Unsupported SVG filter primitive.");
+        }
     }
 }

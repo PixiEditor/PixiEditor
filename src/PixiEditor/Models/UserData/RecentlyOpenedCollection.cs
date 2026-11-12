@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace PixiEditor.Models.UserData;
+﻿namespace PixiEditor.Models.UserData;
 
 internal class RecentlyOpenedCollection : System.Collections.ObjectModel.ObservableCollection<RecentlyOpenedDocument>
 {

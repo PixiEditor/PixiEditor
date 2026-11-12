@@ -1,11 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using Avalonia.Threading;
-using Avalonia.VisualTree;
-using PixiEditor.Models;
 using PixiEditor.Models.AdvisorSystem;
-using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Helpers.UI;
 

@@ -1,6 +1,5 @@
 ﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.Surfaces.ImageData;
-using Drawie.Numerics;
 using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;

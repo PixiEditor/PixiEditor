@@ -41,16 +41,16 @@
                            Foreground="{DynamicResource ThemeForegroundBrush}"
                            VerticalAlignment="Center"
                            FontStyle="{Binding FontStyle}"
-                           Text="{Binding $parent[ContentControl].Tag.Title, FallbackValue=TITLE}" />
+                           Text="{ReflectionBinding $parent[ContentControl].Tag.Title, FallbackValue=TITLE}" />
                 <Ellipse Grid.Column="2" Width="5" Height="5"
                          Fill="{Binding SavedStateColor}"
                          IsVisible="{Binding ShowUnsavedDot}" />
                 <Button Grid.Column="3" Classes="CloseTabButton"
                         Height="16" Width="16" Margin="5, 0, 0, 0"
                         VerticalAlignment="Center"
-                        Command="{Binding $parent[ContentControl].Tag.CloseDockable}"
+                        Command="{ReflectionBinding $parent[ContentControl].Tag.CloseDockable}"
                         IsVisible="{Binding ShowCloseButton}"
-                        IsEnabled="{Binding $parent[ContentControl].Tag.CanClose}" />
+                        IsEnabled="{ReflectionBinding $parent[ContentControl].Tag.CanClose}" />
         </Grid>
     </DataTemplate>
 </ResourceDictionary>

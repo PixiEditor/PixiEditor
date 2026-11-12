@@ -1,7 +1,4 @@
-﻿using Drawie.Backend.Core;
-using Drawie.Numerics;
-
-namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 public interface IReadOnlyFolderNode : IReadOnlyStructureNode
 {

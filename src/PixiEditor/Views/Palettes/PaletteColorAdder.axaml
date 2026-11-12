@@ -25,6 +25,6 @@
                 Classes="pixi-icon"
                 ui:Translator.TooltipKey="ADD_FROM_SWATCHES"
                 Cursor="Hand" Click="AddFromSwatches_OnClick"
-                Content="{DynamicResource icon-copy-add}"/>
+                Content="{DynamicResource icon-duplicate}"/>
     </StackPanel>
 </UserControl>

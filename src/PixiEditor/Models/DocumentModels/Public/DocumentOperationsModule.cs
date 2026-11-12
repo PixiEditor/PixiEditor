@@ -9,7 +9,6 @@ using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
@@ -24,7 +23,6 @@ using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.Helpers;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Nodes;
 
@@ -131,7 +129,7 @@ internal class DocumentOperationsModule : IDocumentOperations
                 if (!opped.IsEmpty)
                 {
                     // TODO: Cut vectors
-                    Internals.ActionAccumulator.AddActions(new DeleteNode_Action(member.Id));
+                    Internals.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member.Id));
                 }
             }
             else
@@ -367,6 +365,12 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
+        if (Document.SelectionPathBindable?.IsEmpty == false)
+        {
+            DeleteSelectedPixels(Document.AnimationHandler.ActiveFrameBindable);
+            return;
+        }
+
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMember_Action(guidValue));
@@ -380,6 +384,12 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+
+        if (Document.SelectionPathBindable?.IsEmpty == false)
+        {
+            DeleteSelectedPixels(Document.AnimationHandler.ActiveFrameBindable);
+            return;
+        }
 
         Internals.ChangeController.TryStopActiveExecutor();
 
@@ -1221,6 +1231,14 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ActionAccumulator.AddFinishedActions(new ResetTransform_Action(member));
     }
+    
+    public void ResetLastBrushToolUseEndPosition()
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+        
+        Internals.ActionAccumulator.AddActions(new ResetLastBrushToolUseEndPosition_Action());
+    }
 
     public void QuickChangeLayerColor(Guid[] layers, Color color)
     {
@@ -1229,5 +1247,26 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
         Internals.ChangeController.TryStartExecutor(new QuickChangeLayerColorsExecutor(layers, color));
+    }
+
+    public void AlignSelectedLayers(List<Guid> selected, HorizontalAlignment horizontal, VerticalAlignment vertical)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new AlignSelectedLayers_Action(selected,
+            Document.AnimationHandler.ActiveFrameBindable, horizontal, vertical));
+
+        InvokeCustomAction(() =>
+        {
+            Internals.ChangeController.TryStartExecutor(new TransformSelectedExecutor(true));
+        });
+    }
+
+    public void MoveNode(Guid toMove, Guid moveOnto)
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new MoveNode_Action(toMove, moveOnto));
     }
 }

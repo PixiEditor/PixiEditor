@@ -2,12 +2,11 @@ using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Tests;
+using Xunit;
 
 namespace PixiEditor.Backend.Tests.NodeTests;
 

@@ -1,7 +1,6 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
 
 namespace PixiEditor.Views.Overlays.TextOverlay;
@@ -25,7 +24,6 @@ internal class Caret : IDisposable
     public double FontSize { get; set; }
     public VecF[] GlyphPositions { get; set; }
     public VecD Offset { get; set; }
-    public float[] GlyphWidths { get; set; }
     public float CaretWidth { get; set; } = 0.5f;
 
     private Paint paint = new Paint() { Color = Colors.White, Style = PaintStyle.StrokeAndFill, StrokeWidth = 3 };
@@ -36,14 +34,13 @@ internal class Caret : IDisposable
 
     public void Render(Canvas canvas)
     {
-        if (GlyphPositions.Length == 0)
+        int clampedBlinkerPosition = 0;
+        if (GlyphPositions.Length > 0)
         {
-            return;
+            clampedBlinkerPosition = Math.Clamp(CaretPosition, 0, GlyphPositions.Length - 1);
         }
 
-        int clampedBlinkerPosition = Math.Clamp(CaretPosition, 0, GlyphPositions.Length - 1);
-
-        var glyphPosition = GlyphPositions[clampedBlinkerPosition];
+        var glyphPosition = GlyphPositions.Length == 0 ? VecF.Zero : GlyphPositions[clampedBlinkerPosition];
 
         var glyphHeight = FontSize;
 

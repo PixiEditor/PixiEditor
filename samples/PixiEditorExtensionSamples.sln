@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Extensions.Commo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample12_Extensions", "Sample12_Extensions\Sample12_Extensions.csproj", "{368053AF-D02C-4A91-A2D2-1ABD0E3C7C1E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample13_Network", "Sample13_Network\Sample13_Network.csproj", "{54AE4A7F-EDF4-40B1-9AA4-F96914E7E76F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,6 +106,10 @@ Global
 		{368053AF-D02C-4A91-A2D2-1ABD0E3C7C1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{368053AF-D02C-4A91-A2D2-1ABD0E3C7C1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{368053AF-D02C-4A91-A2D2-1ABD0E3C7C1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54AE4A7F-EDF4-40B1-9AA4-F96914E7E76F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54AE4A7F-EDF4-40B1-9AA4-F96914E7E76F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54AE4A7F-EDF4-40B1-9AA4-F96914E7E76F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54AE4A7F-EDF4-40B1-9AA4-F96914E7E76F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FD9B4C32-4D2E-410E-BC6B-787779BEB6E2} = {7CC35BC4-829F-4EF4-8EB6-E1D46206E7DC}

@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views.Dialogs;

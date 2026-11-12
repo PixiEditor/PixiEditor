@@ -1,6 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Enums;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;

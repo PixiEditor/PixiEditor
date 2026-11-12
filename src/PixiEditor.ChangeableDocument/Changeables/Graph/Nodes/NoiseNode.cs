@@ -1,8 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Numerics;
+﻿using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -161,117 +157,19 @@ public class NoiseNode : RenderNode
     private Shader GetVoronoiShader(float frequency, int octaves, float seed, int feature, float randomness,
         float angleOffset)
     {
-        string voronoiShaderCode = """
-                                   uniform float iSeed;
-                                   uniform float iFrequency;
-                                   uniform int iOctaves;
-                                   uniform float iRandomness;
-                                   uniform int iFeature;
-                                   uniform float iAngleOffset;
-
-                                   const int MAX_OCTAVES = 8;
-                                   const float LARGE_NUMBER = 1e9;
-                                   const float FEATURE_SEED_SCALE = 10.0;
-                                   const float PI = 3.14159265;
-
-                                   float hashPoint(float2 p, float seed) {
-                                       p = fract(p * float2(0.3183099, 0.3678794) + seed);
-                                       p += dot(p, p.yx + 19.19);
-                                       return fract(p.x * p.y);
-                                   }
-
-                                   float2 getFeaturePoint(float2 cell, float seed, float randomness, float angleOffset) {
-                                       float2 randomCellOffset = float2(
-                                           hashPoint(cell, seed),
-                                           hashPoint(cell, seed + 17.0)
-                                       );
-                                       
-                                       float2 featurePoint = mix(float2(0.5, 0.5), randomCellOffset, randomness);
-                                       
-                                       float angle = hashPoint(cell, seed + 53.0) * PI * 2.0;
-                                       angle += angleOffset;
-                                       
-                                       float2 dir = float2(cos(angle), sin(angle));
-                                       float offsetAmount = 0.15;
-                                       featurePoint += dir * offsetAmount * randomness;
-                                       
-                                       featurePoint = clamp(featurePoint, 0.0, 1.0);
-                                       
-                                       return featurePoint;
-                                   }
-
-                                   float2 getVoronoiDistances(float2 pos, float seed) {
-                                       float2 cell = floor(pos);
-                                       float minDist = LARGE_NUMBER;
-                                       float secondMinDist = LARGE_NUMBER;
-
-                                       for (int y = -1; y <= 1; y++) {
-                                           for (int x = -1; x <= 1; x++) {
-                                               float2 neighborCell = cell + float2(float(x), float(y));
-                                               float2 featurePoint = getFeaturePoint(neighborCell, seed, iRandomness, iAngleOffset);
-                                               float2 delta = pos - (neighborCell + featurePoint);
-                                               float dist = length(delta);
-                                               
-                                               if (dist < minDist) {
-                                                   secondMinDist = minDist;
-                                                   minDist = dist;
-                                               } else if (dist < secondMinDist) {
-                                                   secondMinDist = dist;
-                                               }
-                                           }
-                                       }
-                                       return float2(minDist, secondMinDist);
-                                   }
-
-                                   half4 main(float2 uv) {
-                                       float noiseSum = 0.0;
-                                       float amplitude = 1.0;
-                                       float amplitudeSum = 0.0;
-
-                                       for (int octave = 0; octave < MAX_OCTAVES; octave++) {
-                                           if (octave >= iOctaves) break;
-
-                                           float freq = iFrequency * exp2(float(octave));
-                                           float2 samplePos = uv * freq;
-                                           
-                                           float dist = 0.0;
-                                           float2 distances = getVoronoiDistances(samplePos, iSeed + float(octave) * FEATURE_SEED_SCALE);
-                                           float f1 = distances.x;
-                                           float f2 = distances.y;
-                                           
-                                           if (iFeature == 0) {
-                                               dist = f1;
-                                           }
-                                           else if (iFeature == 1) {
-                                               dist = f2;
-                                           }
-                                           else if (iFeature == 2) {
-                                               dist = f2 - f1;
-                                           }
-
-                                           noiseSum += dist * amplitude;
-                                           amplitudeSum += amplitude;
-                                           amplitude *= 0.5;
-                                       }
-
-                                       return half4(noiseSum / amplitudeSum);
-                                   }
-                                   """;
-
-        Uniforms uniforms = new Uniforms();
-        uniforms.Add("iSeed", new Uniform("iSeed", seed));
-        uniforms.Add("iFrequency", new Uniform("iFrequency", frequency));
-        uniforms.Add("iOctaves", new Uniform("iOctaves", octaves));
-        uniforms.Add("iRandomness", new Uniform("iRandomness", randomness));
-        uniforms.Add("iFeature", new Uniform("iFeature", feature));
-        uniforms.Add("iAngleOffset", new Uniform("iAngleOffset", angleOffset));
-
         if (voronoiShader == null)
         {
-            voronoiShader = Shader.Create(voronoiShaderCode, uniforms, out _);
+            voronoiShader = Shader.CreateVoronoi(frequency, octaves, seed, feature, randomness, angleOffset);
         }
         else
         {
+            Uniforms uniforms = new Uniforms();
+            uniforms.Add("iSeed", new Uniform("iSeed", seed));
+            uniforms.Add("iFrequency", new Uniform("iFrequency", frequency));
+            uniforms.Add("iOctaves", new Uniform("iOctaves", octaves));
+            uniforms.Add("iRandomness", new Uniform("iRandomness", randomness));
+            uniforms.Add("iFeature", new Uniform("iFeature", feature));
+            uniforms.Add("iAngleOffset", new Uniform("iAngleOffset", angleOffset));
             voronoiShader = voronoiShader.WithUpdatedUniforms(uniforms);
         }
 

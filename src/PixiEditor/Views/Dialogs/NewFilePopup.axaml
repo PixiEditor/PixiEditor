@@ -26,7 +26,7 @@
                 Margin="15,0,15,0"
                 VerticalAlignment="Center">
             <ComboBox.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="dialogs:SizePreset">
                     <TextBlock Text="{Binding Name}" />
                 </DataTemplate>
             </ComboBox.ItemTemplate>
@@ -43,7 +43,7 @@
         </Border>
         <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" HorizontalAlignment="Center"
                 IsDefault="True" ui:Translator.Key="CREATE" x:Name="createButton" Focusable="True"
-                Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}">
+                Command="{ReflectionBinding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}">
             <Button.CommandParameter>
                 <system:Boolean>True</system:Boolean>
             </Button.CommandParameter>

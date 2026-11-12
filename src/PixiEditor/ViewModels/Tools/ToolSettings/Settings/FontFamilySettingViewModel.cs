@@ -1,15 +1,6 @@
 ﻿using System.Collections.ObjectModel;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Media;
-using Avalonia.Media.Fonts;
-using Avalonia.Platform.Storage;
-using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Text;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.IO;
-using PixiEditor.ViewModels.UserPreferences;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
@@ -17,6 +8,7 @@ internal class FontFamilySettingViewModel : Setting<FontFamilyName>
 {
     private ObservableCollection<FontFamilyName> allFonts;
     private int selectedIndex;
+    private FontFamilyName? previewFont;
 
     public int FontIndex
     {
@@ -45,6 +37,11 @@ internal class FontFamilySettingViewModel : Setting<FontFamilyName>
         set => SetProperty(ref allFonts, value);
     }
 
+    public FontFamilyName? PreviewFont
+    {
+        get => previewFont;
+        set => SetProperty(ref previewFont, value);
+    }
 
     public FontFamilySettingViewModel(string name, string displayName) : base(name)
     {

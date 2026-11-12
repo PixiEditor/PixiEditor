@@ -1,15 +1,14 @@
 ﻿using Avalonia.Input;
-using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
-using Hardware.Info;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Events;
@@ -22,6 +21,8 @@ internal class ChangeExecutionController
 {
     public bool LeftMousePressed { get; private set; }
     public bool RightMousePressed { get; private set; }
+    public bool ShiftPressed { get; private set; }
+    public bool CtrlPressed { get; private set; }
     public ShapeCorners LastTransformState { get; private set; }
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
@@ -45,11 +46,6 @@ internal class ChangeExecutionController
     private KeyboardInfo lastKeyboardInfo;
     private bool isTransforming;
     private ViewModelMain viewModelMain;
-
-    private bool shiftPressed;
-    private bool ctrlPressed;
-    private bool altPressed;
-    private bool metaPressed;
 
     private UpdateableChangeExecutor? currentSession = null;
 
@@ -80,8 +76,7 @@ internal class ChangeExecutionController
     {
         if (!CanStartExecutor(force))
             return false;
-        if (force)
-            currentSession?.ForceStop();
+        currentSession?.ForceStop();
 
         T executor = new T();
         return TryStartExecutorInternal(executor);
@@ -118,12 +113,13 @@ internal class ChangeExecutionController
     private bool StartExecutor(UpdateableChangeExecutor brandNewExecutor)
     {
         isTransforming = false;
+        currentSession = brandNewExecutor;
         if (brandNewExecutor.Start() == ExecutionState.Success)
         {
-            currentSession = brandNewExecutor;
             return true;
         }
 
+        currentSession = null;
         return false;
     }
 
@@ -374,13 +370,22 @@ internal class ChangeExecutionController
         }
     }
 
-    public void TextOverlayTextChangedInlet(string text)
+    public void TextOverlayTextChangedInlet(RichText text)
     {
         if (currentSession is ITextOverlayEvents textOverlayHandler)
         {
             textOverlayHandler.OnTextChanged(text);
         }
     }
+
+    public void TextOverlaySelectionChangedInlet(int cursorPosition, int selectionEnd)
+    {
+        if (currentSession is ITextOverlayEvents textOverlayHandler)
+        {
+            textOverlayHandler.OnSelectionChanged(cursorPosition, selectionEnd);
+        }
+    }
+
 
     public void QuickToolSwitchInlet()
     {

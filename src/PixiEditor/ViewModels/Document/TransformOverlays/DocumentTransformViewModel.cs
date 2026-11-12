@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Windows.Input;
-using ChunkyImageLib.DataHolders;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Numerics;
-using PixiEditor.Extensions.Helpers;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
@@ -73,6 +71,20 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     {
         get => lockShear;
         set => SetProperty(ref lockShear, value);
+    }
+
+    private bool lockTransform;
+
+    public bool LockTransform
+    {
+        get => lockTransform;
+        set
+        {
+            if (SetProperty(ref lockTransform, value))
+            {
+                TransformLockedChanged?.Invoke(value);
+            }
+        }
     }
 
     private bool snapToAngles;
@@ -207,6 +219,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 
     public event Action<ShapeCorners>? TransformChanged;
     public event Action<VecD, VecD> TransformDragged;
+    public event Action<bool>? TransformLockedChanged;
     public Action<bool> TransformShowStateChanged;
     public event Action TransformStopped;
 
@@ -291,6 +304,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         LockRotation = mode == DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
         LockShear = mode is DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective
             or DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
+        LockTransform = false;
         CoverWholeScreen = coverWholeScreen;
         TransformActive = true;
         ShowTransformControls = showApplyButton;

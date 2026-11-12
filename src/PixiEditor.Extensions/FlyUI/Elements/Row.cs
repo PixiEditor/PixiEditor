@@ -1,7 +1,5 @@
-﻿using System.Collections.Immutable;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using Avalonia.Controls;
-using Avalonia.Layout;
 using Avalonia.Threading;
 using PixiEditor.Extensions.UI.Panels;
 

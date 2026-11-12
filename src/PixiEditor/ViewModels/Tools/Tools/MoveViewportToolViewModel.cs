@@ -1,14 +1,6 @@
-﻿using Avalonia;
-using Avalonia.Input;
-using Avalonia.Media.Imaging;
-using Drawie.Backend.Core.Vector;
-using Drawie.Numerics;
-using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
+﻿using Avalonia.Input;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
-using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 

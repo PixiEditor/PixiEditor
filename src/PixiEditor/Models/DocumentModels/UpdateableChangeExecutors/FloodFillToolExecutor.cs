@@ -1,7 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
@@ -35,6 +34,9 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
         if (!drawOnMask && member is not ILayerHandler)
+            return ExecutionState.Error;
+
+        if (member.IsLockedBindable)
             return ExecutionState.Error;
 
         colorsVM.AddSwatch(new PaletteColor(color.R, color.G, color.B));

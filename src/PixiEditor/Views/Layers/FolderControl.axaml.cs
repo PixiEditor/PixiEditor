@@ -3,10 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using Avalonia.Threading;
-using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Layers;
-using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Views.Layers;
@@ -42,8 +39,6 @@ internal partial class FolderControl : UserControl
             highlightColor = value as IBrush;
         }
         
-        PointerMoved += (a,b) => Manager?.FolderControl_MouseMove(b);
-
         AddHandler(DragDrop.DragEnterEvent, FolderControl_DragEnter);
         AddHandler(DragDrop.DragLeaveEvent, FolderControl_DragLeave);
 
@@ -86,7 +81,7 @@ internal partial class FolderControl : UserControl
 
     private void BackgroundGrid_Drop(object sender, DragEventArgs e)
     {
-        Guid[]? droppedGuids = LayerControl.ExtractMemberGuids(e.Data);
+        Guid[]? droppedGuids = LayerControl.ExtractMemberGuids(e.DataTransfer);
         if (droppedGuids != null && droppedGuids.Contains(Folder.Id))
         {
             e.Handled = true;
@@ -115,7 +110,7 @@ internal partial class FolderControl : UserControl
         LayerControl.RemoveDragEffect(centerGrid);
     }
 
-    private bool HandleDrop(IDataObject dataObj, StructureMemberPlacement placement)
+    private bool HandleDrop(IDataTransfer dataObj, StructureMemberPlacement placement)
     {
         DisableDropPanels();
         Guid[]? droppedGuids = LayerControl.ExtractMemberGuids(dataObj);
@@ -151,19 +146,19 @@ internal partial class FolderControl : UserControl
     private void Grid_Drop_Top(object sender, DragEventArgs e)
     {
         LayerControl.RemoveDragEffect((Grid)sender);
-        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.Above);
+        e.Handled = HandleDrop(e.DataTransfer, StructureMemberPlacement.Above);
     }
 
     private void Grid_Drop_Center(object sender, DragEventArgs e)
     {
         LayerControl.RemoveDragEffect(centerGrid);
-        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.Inside);
+        e.Handled = HandleDrop(e.DataTransfer, StructureMemberPlacement.Inside);
     }
 
     private void Grid_Drop_Bottom(object sender, DragEventArgs e)
     {
         LayerControl.RemoveDragEffect((Grid)sender);
-        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.Below);
+        e.Handled = HandleDrop(e.DataTransfer, StructureMemberPlacement.Below);
     }
 
     private void FolderControl_DragEnter(object sender, DragEventArgs e)

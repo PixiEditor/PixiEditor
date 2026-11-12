@@ -1,10 +1,7 @@
 ﻿using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Interactivity;
-using Avalonia.Media;
-using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
@@ -13,7 +10,6 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
-using PixiEditor.Models.Rendering;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document;
 
@@ -154,6 +150,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             GuidValue,
             Delayed,
             false,
+            !RenderInDocSize,
             ForceRefreshFinalImage);
     }
 
@@ -200,6 +197,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     {
         FixedViewport? viewport = (FixedViewport)args.Sender;
         viewport.CustomRenderSize = args.NewValue.Value ? viewport.Document?.SizeBindable ?? VecI.Zero : VecI.Zero;
+        viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
         viewport.InvalidateMeasure();
         viewport.ForceRefreshFinalImage();
     }

@@ -1,7 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using PixiEditor.ChangeableDocument.Changes.NodeGraph;
-
-namespace PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+﻿namespace PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 
 public record NodePropertyInfo(
     string PropertyName,

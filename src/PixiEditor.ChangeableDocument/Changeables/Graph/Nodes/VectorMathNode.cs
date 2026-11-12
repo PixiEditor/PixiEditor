@@ -1,19 +1,14 @@
 ﻿using System.ComponentModel;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Numerics;
-using PixiEditor.Common;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("VectorMath")]
-public class VectorMathNode : Node
+public class VectorMathNode : Node, IIterativeRenderSupport
 {
     public FuncOutputProperty<Float1> ResultFloat1 { get; }
     public FuncOutputProperty<Float2> Result { get; }
@@ -304,6 +299,8 @@ public class VectorMathNode : Node
 
         return x - range * Math.Floor((x - min) / range);
     }
+
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }
 
 public enum VectorMathMode

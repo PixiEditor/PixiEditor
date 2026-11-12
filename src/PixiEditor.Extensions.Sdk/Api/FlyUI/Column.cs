@@ -19,7 +19,7 @@ public class Column : MultiChildLayoutElement
         Children = new List<LayoutElement>(children);
     }
 
-    public Column(params LayoutElement[] children)
+    public Column(TextField children1, params LayoutElement[] children)
     {
         MainAxisAlignment = MainAxisAlignment.Start;
         CrossAxisAlignment = CrossAxisAlignment.Start;

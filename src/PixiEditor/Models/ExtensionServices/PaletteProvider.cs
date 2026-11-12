@@ -1,12 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using PixiEditor.Extensions.CommonApi.Async;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Models.Palettes;
-using PixiEditor.Platform;
 
 namespace PixiEditor.Models.ExtensionServices;
 

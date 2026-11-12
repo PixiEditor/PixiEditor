@@ -1,5 +1,4 @@
-﻿using Drawie.Backend.Core.Surfaces.ImageData;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
+﻿using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Rendering;
 
@@ -8,24 +7,23 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 [NodeInfo("InvertFilter")]
 public class InvertFilterNode : FilterNode
 {
+    public static ColorMatrix InvertedMatrix { get; } = new ColorMatrix([-1, 0, 0, 0, 1, 0, -1, 0, 0, 1, 0, 0, -1, 0, 1, 0, 0, 0, 1, 0]);
     public InputProperty<double> Intensity { get; }
     private ColorFilter? filter;
-    private ColorMatrix invertedMatrix;
 
     public InvertFilterNode()
     {
         Intensity = CreateInput("Intensity", "INTENSITY", 1.0)
             .WithRules(rules => rules.Min(0d).Max(1d));
-        invertedMatrix = new ColorMatrix(new float[] { -1, 0, 0, 0, 1, 0, -1, 0, 0, 1, 0, 0, -1, 0, 1, 0, 0, 0, 1, 0 });
 
-        filter = ColorFilter.CreateColorMatrix(invertedMatrix);
+        filter = ColorFilter.CreateColorMatrix(InvertedMatrix);
     }
 
     protected override ColorFilter? GetColorFilter(RenderContext context)
     {
         filter?.Dispose();
 
-        var lerped = ColorMatrix.Lerp(ColorMatrix.Identity, invertedMatrix, (float)Intensity.Value);
+        var lerped = ColorMatrix.Lerp(ColorMatrix.Identity, InvertedMatrix, (float)Intensity.Value);
         filter = ColorFilter.CreateColorMatrix(lerped);
 
         return filter;
@@ -34,5 +32,11 @@ public class InvertFilterNode : FilterNode
     public override Node CreateCopy()
     {
         return new InvertFilterNode();
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        filter?.Dispose();
     }
 }

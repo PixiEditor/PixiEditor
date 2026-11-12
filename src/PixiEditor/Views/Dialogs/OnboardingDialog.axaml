@@ -10,14 +10,16 @@
         xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:lottie="clr-namespace:Avalonia.Labs.Lottie;assembly=Avalonia.Labs.Lottie"
         xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-        xmlns:extensions="clr-namespace:PixiEditor.Views.Extensions"
         xmlns:indicators="clr-namespace:PixiEditor.Views.Indicators"
+        xmlns:extensionManager="clr-namespace:PixiEditor.Views.ExtensionManager"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PixiEditor.Views.Dialogs.OnboardingDialog"
         x:DataType="userPreferences:OnboardingViewModel"
         ShowInTaskbar="False"
         CanResize="False"
-        SystemDecorations="Full"
+        WindowDecorations="Full"
+        ExtendClientAreaToDecorationsHint="True"
+        CanMinimize="False"
         d:DataContext="{x:Type userPreferences:OnboardingViewModel}"
         ui:Translator.Key="ONBOARDING_WINDOW_TITLE" Width="600" Height="345">
     <Design.DataContext>
@@ -194,7 +196,8 @@
                 </StackPanel>
                 <DockPanel Grid.Row="1" LastChildFill="True" HorizontalAlignment="Center"
                            IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=4}">
-                    <indicators:LoadingIndicator Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ExtensionsFetching}"/>
+                    <indicators:LoadingIndicator Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                 IsVisible="{Binding ExtensionsFetching}"/>
                     <ItemsControl IsVisible="{Binding !ExtensionsFetching}" ItemsSource="{Binding SuggestedExtensions}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -204,8 +207,8 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <extensions:OnboardingExtensionCard
-                                    SelectExtensionCommand="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:OnboardingDialog, Mode=FindAncestor}}"
+                                <extensionManager:OnboardingExtensionCard
+                                    SelectExtensionCommand="{ReflectionBinding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:OnboardingDialog, Mode=FindAncestor}}"
                                     DataContext="{Binding}"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

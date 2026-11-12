@@ -1,12 +1,9 @@
 ﻿using System.Diagnostics;
-using System.Drawing;
 using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Drawie.Backend.Core.Surfaces;
 using FFMpegCore;
-using FFMpegCore.Arguments;
-using FFMpegCore.Enums;
 using FFMpegCore.Pipes;
 using PixiEditor.AnimationRenderer.Core;
 using Drawie.Backend.Core.Surfaces.ImageData;

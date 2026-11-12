@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
@@ -8,11 +7,11 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Skia;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Helpers;
-using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Document;
 
@@ -103,8 +102,9 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     public static readonly StyledProperty<double> OnionOpacityProperty = AvaloniaProperty.Register<Timeline, double>(
         nameof(OnionOpacity), 50);
 
-    public static readonly StyledProperty<bool> FallbackFramesToLayerImageProperty = AvaloniaProperty.Register<Timeline, bool>(
-        nameof(FallbackFramesToLayerImage));
+    public static readonly StyledProperty<bool> FallbackFramesToLayerImageProperty =
+        AvaloniaProperty.Register<Timeline, bool>(
+            nameof(FallbackFramesToLayerImage));
 
     public bool FallbackFramesToLayerImage
     {
@@ -208,6 +208,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
     private Vector clickPos;
 
+    private bool leftMouseClicked;
     private bool shouldClearNextSelection = true;
     private bool shouldShiftSelect = false;
     private CelViewModel clickedCel;
@@ -452,8 +453,11 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
                 }
             }
 
-            SelectKeyFrame(e, shouldClearNextSelection);
-            shouldClearNextSelection = true;
+            if (leftMouseClicked)
+            {
+                SelectKeyFrame(e, shouldClearNextSelection);
+                shouldClearNextSelection = true;
+            }
         }
         else
         {
@@ -462,6 +466,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         dragged = false;
         clickedCel = null;
+        leftMouseClicked = false;
     }
 
     private void KeyFramesDragged(PointerEventArgs? e)
@@ -472,7 +477,9 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         bool movingBackwards = frameUnderMouse < dragStartFrame;
 
-        int precisePositionFrame = movingBackwards ? MousePosToFrameCeil(clickedCel.PrecisePosition) : MousePosToFrame(clickedCel.PrecisePosition, true);
+        int precisePositionFrame = movingBackwards
+            ? MousePosToFrameCeil(clickedCel.PrecisePosition)
+            : MousePosToFrame(clickedCel.PrecisePosition, true);
         int shiftedFrames = precisePositionFrame - clickedCel.StartFrameBindable;
         if ((shiftedFrames > 0 && movingBackwards) || (shiftedFrames < 0 && !movingBackwards))
         {
@@ -531,13 +538,6 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     {
         e.PreventGestureRecognition(); // Prevents digital pen losing capture when dragging
 
-        if (e.GetMouseButton(this) != MouseButton.Left)
-        {
-            return;
-        }
-
-        shouldShiftSelect = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
-        shouldClearNextSelection = !shouldShiftSelect && !e.KeyModifiers.HasFlag(KeyModifiers.Control);
         KeyFrame target = null;
         if (e.Source is Control obj)
         {
@@ -545,6 +545,23 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
                 target = frame;
             else if (obj.TemplatedParent is KeyFrame keyFrame) target = keyFrame;
         }
+
+        var mouseButton = e.GetMouseButton(this);
+        if (mouseButton != MouseButton.Left)
+        {
+            leftMouseClicked = false;
+            if (!target.IsSelected && mouseButton == MouseButton.Right)
+            {
+                ClearSelectedKeyFrames();
+                target.IsSelected = true;
+            }
+
+            return;
+        }
+
+        shouldShiftSelect = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        shouldClearNextSelection = !shouldShiftSelect && !e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        leftMouseClicked = true;
 
         draggedKeyFrameWasSelected = target is { Item.IsSelected: true };
         e.Pointer.Capture(target);
@@ -600,7 +617,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         int ticks = e.KeyModifiers.HasFlag(KeyModifiers.Control) ? 1 : 10;
 
-        int towardsFrame = MousePosToFrame(e);
+        int towardsFrame = ActiveFrame;
 
         double delta = e.Delta.Y == 0 ? e.Delta.X : e.Delta.Y;
 
@@ -616,7 +633,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         newScale = Math.Clamp(newScale, 1, 900);
         Scale = newScale;
 
-        double mouseXInViewport = e.GetPosition(_timelineKeyFramesScroll).X;
+        double mouseXInViewport = Bounds.Width / 2f;
 
         double currentFrameUnderMouse = towardsFrame - 1;
         double newOffsetX = currentFrameUnderMouse * newScale - mouseXInViewport + MinLeftOffset;

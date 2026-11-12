@@ -7,6 +7,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="settings:PercentSettingViewModel"
              x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.PercentSettingView">
     <Design.DataContext>
         <settings:PercentSettingViewModel/>

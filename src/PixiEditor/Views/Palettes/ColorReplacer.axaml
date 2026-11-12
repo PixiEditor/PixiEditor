@@ -28,9 +28,11 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid Grid.ColumnSpan="2" Grid.RowSpan="2">
+                    <!--
                     <Grid IsVisible="{Binding ElementName=VisibilityCheckbox, Path=!IsChecked}"  Background="Transparent"/>
+                -->
                 </Grid>
-                <controls:Shelf Name="Shelf">
+                <controls:Shelf x:Name="Shelf">
                 <StackPanel Name="MiddleStackPanel" Height="40" Orientation="Horizontal" HorizontalAlignment="Center">
                     <palettes:PaletteColorControl Color="{Binding ElementName=uc, Path=ColorToReplace}"
                                                Height="35"

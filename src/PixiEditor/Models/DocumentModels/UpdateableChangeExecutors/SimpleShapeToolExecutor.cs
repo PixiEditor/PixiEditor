@@ -1,5 +1,4 @@
-﻿using ChunkyImageLib.DataHolders;
-using Drawie.Backend.Core.Numerics;
+﻿using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Utils;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
@@ -60,6 +59,9 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         IStructureMemberHandler? member = document?.SelectedStructureMember;
 
         if (member is null)
+            return ExecutionState.Error;
+
+        if (member.IsLockedBindable)
             return ExecutionState.Error;
 
         memberId = member.Id;

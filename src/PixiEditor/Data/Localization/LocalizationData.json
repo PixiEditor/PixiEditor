@@ -20,7 +20,7 @@
       "code": "de",
       "localeFileName": "de.json",
       "iconFileName": "de.png",
-      "lastUpdated": "2026-04-29 18:44:52"
+      "lastUpdated": "2026-08-01 11:59:35"
     },
     {
       "name": "Español",
@@ -49,7 +49,7 @@
       "code": "uk",
       "localeFileName": "uk.json",
       "iconFileName": "uk.png",
-      "lastUpdated": "2026-07-22 13:45:33"
+      "lastUpdated": "2026-07-29 21:39:37"
     },
     {
       "name": "عربي",
@@ -92,14 +92,14 @@
       "code": "fr",
       "localeFileName": "fr.json",
       "iconFileName": "fr.png",
-      "lastUpdated": "2026-07-15 00:14:46"
+      "lastUpdated": "2026-07-30 01:41:23"
     },
     {
       "name": "Italiano",
       "code": "it",
       "localeFileName": "it.json",
       "iconFileName": "it.png",
-      "lastUpdated": "2026-07-22 13:54:58"
+      "lastUpdated": "2026-08-17 12:49:12"
     },
     {
       "name": "Indonesia",
@@ -113,7 +113,7 @@
       "code": "sl",
       "localeFileName": "sl.json",
       "iconFileName": "sl.png",
-      "lastUpdated": "2026-07-15 20:54:01"
+      "lastUpdated": "2026-08-11 11:14:10"
     }
   ]
 }

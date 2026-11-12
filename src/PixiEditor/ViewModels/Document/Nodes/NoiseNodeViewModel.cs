@@ -1,5 +1,4 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ViewModels.Nodes.Properties;
 

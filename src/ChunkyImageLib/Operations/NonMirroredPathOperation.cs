@@ -1,5 +1,4 @@
 ﻿using ChunkyImageLib.DataHolders;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
@@ -25,7 +24,8 @@ internal class NonMirroredPathOperation : IDrawOperation
         PaintStyle style, bool antiAliasing, RectI? customBounds = null, Matrix3X3? paintableMatrix = null)
     {
         this.antiAliasing = antiAliasing;
-        this.path = new VectorPath(path);
+        this.path = path;
+        path.LockDispose(this);
         this.paintableMatrix = paintableMatrix ??  Matrix3X3.Identity;
         paint = new() { Paintable = paintable, Style = style, StrokeWidth = strokeWidth, StrokeCap = cap, BlendMode = blendMode };
 
@@ -37,7 +37,8 @@ internal class NonMirroredPathOperation : IDrawOperation
         PaintStyle style, bool antiAliasing, RectI? customBounds, Matrix3X3? paintableMatrix = null)
     {
         this.antiAliasing = antiAliasing;
-        this.path = new VectorPath(path);
+        this.path = path;
+        path.LockDispose(this);
         paint = new() { Paintable = paintable, Style = style, StrokeWidth = strokeWidth, StrokeCap = cap, Blender = blender };
 
         RectI floatBounds = customBounds ?? (RectI)(path.Bounds).RoundOutwards();
@@ -71,6 +72,7 @@ internal class NonMirroredPathOperation : IDrawOperation
 
     public void Dispose()
     {
+        path.UnlockDispose(this);
         path.Dispose();
         paint.Dispose();
     }

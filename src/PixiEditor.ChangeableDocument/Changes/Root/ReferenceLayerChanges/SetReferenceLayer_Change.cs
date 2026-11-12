@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 

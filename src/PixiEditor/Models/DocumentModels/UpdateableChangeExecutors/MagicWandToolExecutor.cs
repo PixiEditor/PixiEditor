@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Drawie.Numerics;
+﻿using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions.Generated;
-using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Handlers.Tools;

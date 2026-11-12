@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using Drawie.Backend.Core.Bridge;
+﻿using System.Globalization;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Localization;
 

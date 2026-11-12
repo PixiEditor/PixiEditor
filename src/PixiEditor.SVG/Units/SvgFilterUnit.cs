@@ -1,4 +1,3 @@
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Features;
 
@@ -39,7 +38,13 @@ public struct SvgFilterUnit : ISvgUnit
             if (defs.TryFindElement(LinksTo.Value.ObjectReference, out SvgElement? element) &&
                 element is IImageFilter filter)
             {
-                ImageFilter = filter.GetImageFilter();
+                if (element is SvgFilter filterElement)
+                {
+                    if (filterElement.Children.Count == 1)
+                    {
+                        ImageFilter = filter.GetImageFilter();
+                    }
+                }
             }
         }
     }

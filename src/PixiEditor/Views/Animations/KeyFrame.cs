@@ -7,9 +7,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
-using Avalonia.Threading;
 using Avalonia.VisualTree;
-using PixiEditor.Helpers;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.ViewModels.Document;
 

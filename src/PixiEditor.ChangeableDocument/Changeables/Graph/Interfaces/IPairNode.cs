@@ -1,6 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-
-namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 public interface IPairNode
 {

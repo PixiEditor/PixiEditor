@@ -1,6 +1,4 @@
 using System.Xml;
-using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 
@@ -10,7 +8,7 @@ public class SvgFeDropShadow() : SvgFilterPrimitive("feDropShadow"), IImageFilte
 {
     public SvgProperty<SvgNumericUnit> Dx { get; } = new("dx");
     public SvgProperty<SvgNumericUnit> Dy { get; } = new("dy");
-    public SvgProperty<SvgNumericUnit> StdDeviation { get; } = new("stdDeviation");
+    public SvgProperty<SvgVectorUnit> StdDeviation { get; } = new("stdDeviation");
     public SvgProperty<SvgColorUnit> FloodColor { get; } = new("flood-color");
     public SvgProperty<SvgNumericUnit> FloodOpacity { get; } = new("flood-opacity");
 

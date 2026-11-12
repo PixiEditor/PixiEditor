@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.Helpers;
@@ -9,7 +6,6 @@ using PixiEditor.Models.Commands.Search;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels;
-using CommandSearchResult = PixiEditor.Models.Commands.Search.CommandSearchResult;
 using Search_CommandSearchResult = PixiEditor.Models.Commands.Search.CommandSearchResult;
 
 namespace PixiEditor.Views.Main.CommandSearch;

@@ -5,10 +5,12 @@
                          xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
                          xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                          xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+                         xmlns:debugging="clr-namespace:PixiEditor.Views.Dialogs.Debugging"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          Width="600" Height="400"
                          x:Class="PixiEditor.Views.Dialogs.Debugging.CommandDebugPopup"
                          Name="uc"
+                         x:DataType="debugging:CommandDebugPopup"
                          Title="CommandDebugPopup">
     <Grid>
         <Grid.RowDefinitions>

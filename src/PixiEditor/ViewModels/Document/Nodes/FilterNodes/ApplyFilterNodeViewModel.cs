@@ -1,6 +1,4 @@
-using System.Collections.Specialized;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.FilterNodes;

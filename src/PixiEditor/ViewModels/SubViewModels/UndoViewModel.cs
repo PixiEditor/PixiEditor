@@ -2,8 +2,6 @@
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
-using PixiEditor.Models.Input;
-using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 

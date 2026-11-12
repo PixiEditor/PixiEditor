@@ -33,6 +33,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.All;
 
     private string defaultShaderCode = """
+                                       #version 300
                                        // Below is a list of built-in special uniforms that are automatically added by PixiEditor.
                                        // Any other uniform will be added as a Node input
 

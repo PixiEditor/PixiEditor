@@ -1,6 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Diagnostics;
-using Avalonia;
 using Avalonia.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions;
@@ -9,17 +7,12 @@ using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.IdentityProvider.PixiAuth;
-using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.ExtensionServices;
-using PixiEditor.Models.IO;
 using PixiEditor.Platform;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.ExtensionManager;
 using PixiEditor.Views;
 using PixiEditor.Views.Auth;
-using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Windows;
 
 namespace PixiEditor.ViewModels.SubViewModels;

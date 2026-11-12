@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Input.FontItemView">
+    <StackPanel
+        DataContext="{Binding RelativeSource={RelativeSource AncestorType=input:FontItemView, Mode=FindAncestor}}">
+        <DockPanel LastChildFill="True" MinHeight="24">
+            <ToggleButton
+                Height="24"
+                IsChecked="{Binding Item.IsFavourite, Mode=OneWay}"
+                Click="Favourite_OnClick"
+                VerticalAlignment="Center" DockPanel.Dock="Right"
+                Background="Transparent"
+                Classes="pixi-icon favorites-star-toggle">
+                <ToggleButton.IsVisible>
+                    <MultiBinding Converter="{converters:AnyTrueConverter}">
+                        <Binding Path="IsPointerOver"
+                                 RelativeSource="{RelativeSource AncestorType=Button, Mode=FindAncestor}" />
+                        <Binding Path="Item.IsFavourite" />
+                    </MultiBinding>
+                </ToggleButton.IsVisible>
+            </ToggleButton>
+            <TextBlock Text="{Binding Item.FontFamilyName.Name}"
+                       FontSize="14"
+                       FontFamily="{Binding Item.FontFamilyName, Converter={converters:FontFamilyNameToAvaloniaFontFamily}}" />
+        </DockPanel>
+    </StackPanel>
+</UserControl>

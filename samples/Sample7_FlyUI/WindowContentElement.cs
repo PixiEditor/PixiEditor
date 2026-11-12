@@ -16,10 +16,7 @@ public class WindowContentElement : StatelessElement
     public override ControlDefinition BuildNative()
     {
         SizeInputField field = new SizeInputField();
-        field.SizeChanged += args =>
-        {
-            PixiEditorExtension.Api.Logger.Log(field.Value.ToString());
-        };
+        field.SizeChanged += args => { PixiEditorExtension.Api.Logger.Log(field.Value.ToString()); };
 
         Layout layout = new Layout(body:
             new Container(margin: Edges.All(25), child:
@@ -43,10 +40,13 @@ public class WindowContentElement : StatelessElement
                             margin: Edges.Symmetric(25, 0),
                             backgroundColor: Color.FromRgba(25, 25, 25, 255),
                             child: new Column(
-                                new Image(
-                                    "/Pizza.png",
-                                    filterQuality: FilterQuality.None,
-                                    width: 256, height: 256))
+                                children:
+                                [
+                                    new Image(
+                                        "/Pizza.png",
+                                        filterQuality: FilterQuality.None,
+                                        width: 256, height: 256)
+                                ])
                         ),
                         new CheckBox(new Text("heloo"),
                             onCheckedChanged: args =>

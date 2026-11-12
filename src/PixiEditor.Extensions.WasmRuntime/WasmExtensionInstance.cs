@@ -1,15 +1,10 @@
-using System.Runtime.InteropServices;
-using System.Text;
-using Avalonia.Controls;
 using Avalonia.Threading;
 using PixiEditor.Extensions.Commands;
-using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.WasmRuntime.Api.Modules;
 using PixiEditor.Extensions.WasmRuntime.Management;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
-using PixiEditor.Extensions.Windowing;
 using Wasmtime;
 
 namespace PixiEditor.Extensions.WasmRuntime;
@@ -98,6 +93,7 @@ public partial class WasmExtensionInstance : Extension
             (ICommandSupervisor)Api.Services.GetService(typeof(ICommandSupervisor))));
         modules.Add(new EventsModule(this));
         modules.Add(new ExtensionsModule(this));
+        modules.Add(new NetworkModule(this));
         LayoutBuilder = new LayoutBuilder(new ExtensionResourceStorage(this), (ElementMap)Api.Services.GetService(typeof(ElementMap)));
         //SetElementMap();
         try
@@ -146,10 +142,14 @@ public partial class WasmExtensionInstance : Extension
         return WasmMemoryUtility.GetBytes(ptr, 16);
     }
 
-    private void OnAsyncCallCompleted(int handle, int result)
+    private void OnAsyncCallCompleted(int handle, byte[] result)
     {
         Dispatcher.UIThread.Invoke(() =>
-            Instance.GetAction<int, int>("async_call_completed")?.Invoke(handle, result));
+        {
+            int ptr = WasmMemoryUtility.WriteBytes(result);
+            Instance.GetAction<int, int, int>("async_call_completed")?.Invoke(handle, ptr, result.Length);
+            WasmMemoryUtility.Free(ptr);
+        });
     }
 
     private void OnAsyncCallFaulted(int handle, string exceptionMessage)

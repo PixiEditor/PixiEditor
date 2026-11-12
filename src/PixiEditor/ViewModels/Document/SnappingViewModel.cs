@@ -1,10 +1,6 @@
-﻿using System.Drawing;
-using CommunityToolkit.Mvvm.ComponentModel;
-using PixiEditor.Models.Controllers.InputDevice;
+﻿using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
-using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.ViewModels.Document;
 

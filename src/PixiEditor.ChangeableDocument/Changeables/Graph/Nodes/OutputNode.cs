@@ -1,14 +1,11 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Output")]
-public class OutputNode : Node, IRenderInput
+public class OutputNode : Node, IRenderInput, IIterativeRenderSupport
 {
     public const string UniqueName = "PixiEditor.Output";
     public const string InputPropertyName = "Background";
@@ -63,4 +60,5 @@ public class OutputNode : Node, IRenderInput
     }
 
     RenderInputProperty IRenderInput.Background => Input;
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

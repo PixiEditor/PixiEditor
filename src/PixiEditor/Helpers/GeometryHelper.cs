@@ -6,11 +6,6 @@ public static class GeometryHelper
 {
     public static VecD Get45IncrementedPosition(VecD startPos, VecD curPos)
     {
-
-        VecD delta = curPos - startPos;
-        VecD signs = delta.Signs();
-        VecD offset = new VecD(0).Multiply(signs);
-
         VecD[] positions =
         [
             curPos.ProjectOntoLine(startPos, startPos + new VecD(1, 1)),
@@ -34,32 +29,16 @@ public static class GeometryHelper
         return closest;
     }
 
-    public static VecI Get45IncrementedPositionAligned(VecD startPos, VecD curPos)
+    public static VecD Get45IncrementedPositionAlignedWithPixelCenters(VecD startPos, VecD curPos)
     {
-        Span<VecI> positions =
-        [
-            (VecI)(curPos.ProjectOntoLine(startPos, startPos + new VecD(1, 1)) -
-                   new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
-            (VecI)(curPos.ProjectOntoLine(startPos, startPos + new VecD(1, -1)) -
-                   new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
-            (VecI)(curPos.ProjectOntoLine(startPos, startPos + new VecD(1, 0)) -
-                   new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
-            (VecI)(curPos.ProjectOntoLine(startPos, startPos + new VecD(0, 1)) -
-                   new VecD(0.25).Multiply((curPos - startPos).Signs())).Round()
-        ];
-
-        VecI max = positions[0];
-        double maxLength = double.MaxValue;
-        foreach (var pos in positions)
+        VecD snapped = Get45IncrementedPosition(startPos.Floor() + new VecD(0.5, 0.5), curPos); 
+        
+        // in the 45 degree case `snapped` can end up directly at the intersection of 4 pixels, which is ambiguous
+        if ((snapped - snapped.Round()).LengthSquared < 0.01)
         {
-            double length = (pos - curPos).LengthSquared;
-            if (length < maxLength)
-            {
-                maxLength = length;
-                max = pos;
-            }
+            snapped -= (curPos - startPos).Signs() * 0.5;
         }
-
-        return max;
+        
+        return snapped.Floor() + new VecD(0.5, 0.5);
     }
 }

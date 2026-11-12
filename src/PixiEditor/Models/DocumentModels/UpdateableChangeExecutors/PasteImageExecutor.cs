@@ -1,6 +1,4 @@
-﻿using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Actions.Generated;
+﻿using PixiEditor.ChangeableDocument.Actions.Generated;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
@@ -8,7 +6,6 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -44,7 +41,9 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
             var member = document!.SelectedStructureMember;
 
             if (member is null)
+            if (member is null || member.IsLockedBindable)
                 return ExecutionState.Error;
+            
             drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
 
             switch (drawOnMask)
@@ -62,7 +61,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
         if (NeedsCel())
         {
             actions.Add(new CreateCel_Action(memberGuid.Value, Guid.NewGuid(),
-                document.AnimationHandler.ActiveFrameBindable, -1, Guid.Empty));
+                document.AnimationHandler.ActiveFrameBindable, -1, Guid.Empty, false));
         }
 
         actions.Add(
@@ -78,7 +77,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
         document.Operations.InvokeCustomAction(() =>
         {
             restoreSnapping = SimpleShapeToolExecutor.DisableSelfSnapping(memberGuid.Value, document);
-        });
+        }, false);
 
         return ExecutionState.Success;
     }

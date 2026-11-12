@@ -4,7 +4,6 @@ using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
-using XAMLCommand = PixiEditor.Models.Commands.XAML.Command;
 
 namespace PixiEditor.Models.Services;
 

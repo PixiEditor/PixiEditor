@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using PixiEditor.Extensions.CommonApi.Palettes;
 
 namespace PixiEditor.Helpers.Converters;

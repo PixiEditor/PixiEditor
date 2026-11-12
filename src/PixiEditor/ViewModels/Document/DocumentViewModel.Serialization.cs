@@ -1,13 +1,9 @@
 ﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
-using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.IO.FileEncoders;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -19,17 +15,16 @@ using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
@@ -38,11 +33,10 @@ using PixiEditor.Parser.Skia;
 using PixiEditor.Parser.Skia.Encoders;
 using PixiEditor.SVG;
 using PixiEditor.SVG.Elements;
+using PixiEditor.SVG.Elements.Filters;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
-using PixiEditor.ViewModels.Document.Nodes;
-using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 using Color = System.Drawing.Color;
 using IKeyFrameChildrenContainer = PixiEditor.ChangeableDocument.Changeables.Interfaces.IKeyFrameChildrenContainer;
 using KeyFrameData = PixiEditor.Parser.KeyFrameData;
@@ -121,7 +115,11 @@ internal partial class DocumentViewModel
         float resizeFactorY = (float)exportSize.Y / document.Size.Y;
         VecD resizeFactor = new VecD(resizeFactorX, resizeFactorY);
 
-        var root = document.GetStructureTreeInOrder().Where(x => x.IsVisible.Value).ToList();
+        var root = document.NodeGraph.OutputNode is { } outputNode
+            ? GraphUtils.CalculateExecutionQueue(outputNode,
+                    input => input.InternalPropertyName != FolderNode.ContentInternalName)
+                .OfType<IReadOnlyStructureNode>().Where(x => x.IsVisible.Value).ToList()
+            : new List<IReadOnlyStructureNode>();
 
         AddElements(document, root, svgDocument, atTime, exportSize, resizeFactor, vectorExportConfig,
             svgDocument.Defs);
@@ -160,7 +158,19 @@ internal partial class DocumentViewModel
                     }
                 }
 
-                AddElements(doc, folderNode.GetChildrenNodes().Where(x => x.IsVisible.Value).Reverse().ToList(), group,
+                if (folderNode.Filters.Value != null)
+                {
+                    var filterDef = AddFilterToDefs(group, folderNode.Filters, defs);
+                    group.Filter.Unit = new SvgFilterUnit()
+                    {
+                        LinksTo = new SvgLinkUnit() { ObjectReference = filterDef.Id.Unit.Value.Value }
+                    };
+                }
+
+                AddElements(doc,
+                    folderNode.GetChildrenNodes()
+                        .Where(x => doc.GetParents(x.Id).FirstOrDefault() == folderNode && x.IsVisible.Value).Reverse()
+                        .ToList(), group,
                     atTime, exportSize, resizeFactor, vectorExportConfig, defs);
                 elementContainer.Children.Add(group);
             }
@@ -183,6 +193,14 @@ internal partial class DocumentViewModel
                 var svgDoc = ToSvgDocument(nestedDocument, atTime, exportSize, vectorExportConfig);
                 svgDoc.Transform.Unit = new SvgTransformUnit(nested.TransformationMatrix);
                 elementContainer.Children.Add(svgDoc);
+                if (nested.Filters.Value != null)
+                {
+                    var filterDef = AddFilterToDefs(svgDoc, nested.Filters, defs);
+                    svgDoc.Filter.Unit = new SvgFilterUnit()
+                    {
+                        LinksTo = new SvgLinkUnit() { ObjectReference = filterDef.Id.Unit.Value.Value }
+                    };
+                }
             }
         }
     }
@@ -227,7 +245,7 @@ internal partial class DocumentViewModel
         }
         else if (vectorNode.ShapeData is IReadOnlyTextData textData)
         {
-            elementToAdd = AddText(textData);
+            elementToAdd = AddText(textData, vectorNode);
         }
 
         IReadOnlyShapeVectorData data = vectorNode.ShapeData;
@@ -284,6 +302,147 @@ internal partial class DocumentViewModel
         {
             elementContainer.Children.Add(elementToAdd);
         }
+
+        if (vectorNode.Filters.Value != null && elementToAdd is IFilterable filterable)
+        {
+            var filterDef = AddFilterToDefs(elementToAdd, vectorNode.Filters, defs);
+            filterable.Filter.Unit = new SvgFilterUnit()
+            {
+                LinksTo = new SvgLinkUnit() { ObjectReference = filterDef.Id.Unit.Value.Value }
+            };
+        }
+    }
+
+    private static SvgFilter AddFilterToDefs(SvgElement svgElement, InputProperty<Filter> filtersInputValue,
+        SvgDefs defs)
+    {
+        SvgFilter filter = new SvgFilter();
+        filter.Id.Unit = new SvgStringUnit(svgElement.TagName + "_filter_" + defs.Children.Count);
+        filter.FilterUnits.Unit = new SvgEnumUnit<SvgFilterUnits>(SvgFilterUnits.UserSpaceOnUse);
+
+        if (filtersInputValue.Connection != null)
+        {
+            filtersInputValue.Connection.Node.TraverseBackwards(n =>
+            {
+                if (n is FilterNode filterNode && filterNode.IsFilterEnabled.Value)
+                {
+                    var svgFilter = ToSvgFilter(filterNode);
+                    if (svgFilter != null)
+                    {
+                        filter.Children.Add(svgFilter);
+                    }
+                }
+
+                return true;
+            });
+        }
+
+        filter.Children.Reverse();
+        defs.Children.Add(filter);
+        return filter;
+    }
+
+    private static SvgElement? ToSvgFilter(FilterNode filterNode)
+    {
+        switch (filterNode)
+        {
+            case BlurNode blurNode:
+                return new SvgFeGaussianBlur { StdDeviation = { Unit = new SvgVectorUnit(blurNode.Radius.Value) } };
+            case ColorAdjustmentsFilterNode colorAdjustmentsFilterNode:
+                break;
+            case ColorMatrixFilterNode colorMatrixFilterNode:
+                return new SvgFeColorMatrix()
+                {
+                    Type = { Unit = new SvgEnumUnit<SvgColorMatrixType>(SvgColorMatrixType.Matrix) },
+                    Values = { Unit = new SvgNumericArrayUnit(colorMatrixFilterNode.Matrix.Value) }
+                };
+            case ColorOverlayFilterNode colorOverlayFilterNode:
+                //  TODO: Implement
+                break;
+            case DilateNode dilateNode:
+                return new SvgFeMorphology()
+                {
+                    Radius = { Unit = new SvgVectorUnit(dilateNode.Radius.Value) },
+                    Operator = { Unit = new SvgEnumUnit<SvgMorphologyOperator>(SvgMorphologyOperator.Dilate) }
+                };
+            case ErodeNode erodeNode:
+                return new SvgFeMorphology()
+                {
+                    Radius = { Unit = new SvgVectorUnit(erodeNode.Radius.Value) },
+                    Operator = { Unit = new SvgEnumUnit<SvgMorphologyOperator>(SvgMorphologyOperator.Erode) }
+                };
+            case GrayscaleNode grayscaleNode:
+                return new SvgFeColorMatrix()
+                {
+                    Type = { Unit = new SvgEnumUnit<SvgColorMatrixType>(SvgColorMatrixType.Matrix) },
+                    Values = { Unit = new SvgNumericArrayUnit(grayscaleNode.GetColorMatrix()) }
+                };
+            case InvertFilterNode invertFilterNode:
+                return new SvgFeColorMatrix()
+                {
+                    Type = { Unit = new SvgEnumUnit<SvgColorMatrixType>(SvgColorMatrixType.Matrix) },
+                    Values =
+                    {
+                        Unit = new SvgNumericArrayUnit(ColorMatrix.Lerp(ColorMatrix.Identity,
+                            InvertFilterNode.InvertedMatrix, (float)invertFilterNode.Intensity.Value)),
+                    }
+                };
+            case KernelFilterNode kernelFilterNode:
+                // TODO: Below does not look correct in the browser
+                /*return new SvgFeConvolveMatrix
+                {
+                    KernelMatrix =
+                    {
+                        Unit = new SvgNumericArrayUnit(kernelFilterNode.Kernel.Value.AsSpan().ToArray())
+                    },
+                    Order = { Unit = new SvgVectorUnit(new VecD(kernelFilterNode.Kernel.Value.Width, kernelFilterNode.Kernel.Value.Height)) },
+                    Divisor = { Unit = new SvgNumericUnit(kernelFilterNode.Gain.Value, "") },
+                    Bias = { Unit = new SvgNumericUnit(kernelFilterNode.Bias.Value, "") },
+                    TargetX = { Unit = new SvgNumericUnit(kernelFilterNode.Kernel.Value.RadiusX, "") },
+                    TargetY = { Unit = new SvgNumericUnit(kernelFilterNode.Kernel.Value.RadiusY, "") },
+                    PreserveAlpha = { Unit = new SvgBoolUnit(kernelFilterNode.OnAlpha.Value) }
+                };*/
+                break;
+            /* Not available for now
+            case NoiseDisplacementFilterNode noiseDisplacementFilterNode:
+                break;
+            */
+            case OffsetFilterNode offsetFilterNode:
+                return new SvgFeOffset()
+                {
+                    Dx = { Unit = new SvgNumericUnit(offsetFilterNode.Offset.Value.X, "") },
+                    Dy = { Unit = new SvgNumericUnit(offsetFilterNode.Offset.Value.Y, "") }
+                };
+            case SepiaFilterNode sepiaFilterNode:
+                return new SvgFeColorMatrix()
+                {
+                    Type = { Unit = new SvgEnumUnit<SvgColorMatrixType>(SvgColorMatrixType.Matrix) },
+                    Values =
+                    {
+                        Unit = new SvgNumericArrayUnit(ColorMatrix.Lerp(ColorMatrix.Identity,
+                            SepiaFilterNode.SepiaMatrix, (float)sepiaFilterNode.Intensity.Value))
+                    }
+                };
+            case ShadowNode shadowNode:
+                var shadow = new SvgFeDropShadow
+                {
+                    Dx = { Unit = new SvgNumericUnit(shadowNode.Offset.Value.X, "") },
+                    Dy = { Unit = new SvgNumericUnit(shadowNode.Offset.Value.Y, "") },
+                    StdDeviation = { Unit = new SvgVectorUnit(shadowNode.Sigma.Value) },
+                    FloodColor =
+                    {
+                        Unit = SvgColorUnit.FromRgba(shadowNode.Color.Value.R, shadowNode.Color.Value.G,
+                            shadowNode.Color.Value.B, 255)
+                    },
+                    FloodOpacity = { Unit = new SvgNumericUnit(shadowNode.Color.Value.A / 255.0, "") }
+                };
+
+                return shadow;
+            default:
+                return null;
+        }
+
+        return null;
     }
 
     private static SvgLine AddLine(IReadOnlyLineData lineData)
@@ -389,49 +548,70 @@ internal partial class DocumentViewModel
         elementContainer.Children.Add(image);
     }
 
-    private static SvgElement AddText(IReadOnlyTextData textData)
+    private static SvgElement AddText(IReadOnlyTextData textData, IReadOnlyVectorNode vectorNode)
     {
-        RichText rt = new RichText(textData.Text);
-        rt.Spacing = textData.Spacing;
+        var rt = textData.Text;
         rt.MaxWidth = textData.MaxWidth;
 
-        using Font font = textData.ConstructFont();
-
-        if (rt.Lines.Length <= 1)
+        if (rt.Lines.Length <= 1 && rt.Lines.FirstOrDefault()?.Count <= 1)
         {
-            return BuildTextElement(textData, textData.Text, font);
+            var elem = BuildTextElements(textData, textData.Text.Lines.FirstOrDefault());
+            return elem.FirstOrDefault();
         }
 
         SvgGroup group = new SvgGroup();
+        group.Opacity.Unit = new SvgNumericUnit(vectorNode.Opacity.Value, "");
+
         for (int i = 0; i < rt.Lines.Length; i++)
         {
-            var offset = rt.GetLineOffset(i, font);
+            var text = BuildTextElements(textData, rt.Lines[i]);
 
-            var text = BuildTextElement(textData, rt.Lines[i], font);
-            text.Y.Unit = SvgNumericUnit.FromUserUnits(textData.Position.Y + offset.Y);
-
-            group.Children.Add(text);
+            group.Children.AddRange(text);
         }
 
         return group;
     }
 
-    private static SvgText BuildTextElement(IReadOnlyTextData textData, string value, Font font)
+    private static List<SvgText> BuildTextElements(IReadOnlyTextData textData, IEnumerable<TextInline> value)
     {
-        SvgText text = new SvgText();
-        text.Text.Unit = new SvgStringUnit(value);
-        text.X.Unit = SvgNumericUnit.FromUserUnits(textData.Position.X);
-        text.Y.Unit = SvgNumericUnit.FromUserUnits(textData.Position.Y);
-        text.FontSize.Unit = SvgNumericUnit.FromUserUnits(font.Size);
-        text.FontFamily.Unit = new SvgStringUnit(font.Family.Name);
-        text.FontWeight.Unit = new SvgEnumUnit<SvgFontWeight>(font.Bold ? SvgFontWeight.Bold : SvgFontWeight.Normal);
-        text.FontStyle.Unit = new SvgEnumUnit<SvgFontStyle>(font.Italic ? SvgFontStyle.Italic : SvgFontStyle.Normal);
-        text.Stroke.Unit = new SvgPaintServerUnit(textData.Stroke);
-        text.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(textData.StrokeWidth);
-        text.Fill.Unit =
-            new SvgPaintServerUnit(textData.Fill ? textData.FillPaintable : new ColorPaintable(Colors.Transparent));
+        List<SvgText> texts = new List<SvgText>();
+        foreach (var textInline in value)
+        {
+            SvgText text = new SvgText();
+            text.Text.Unit = new SvgStringUnit(textInline.Text);
+            var pos = textData.Text.GetInlinePosition(textInline) + textData.Position;
 
-        return text;
+            text.X.Unit = SvgNumericUnit.FromUserUnits(pos.X);
+            text.Y.Unit = SvgNumericUnit.FromUserUnits(pos.Y);
+            text.FontSize.Unit = SvgNumericUnit.FromUserUnits(textInline.Font.Size);
+            text.FontFamily.Unit = new SvgStringUnit(textInline.Font.Family.Name);
+            text.FontWeight.Unit = new SvgEnumUnit<SvgFontWeight>((SvgFontWeight)(int)textInline.Font.Weight);
+            text.FontStyle.Unit = new SvgEnumUnit<SvgFontStyle>((SvgFontStyle)textInline.Font.Slant);
+            text.FontStretch.Unit = new SvgEnumUnit<SvgFontWidth>((SvgFontWidth)textInline.Font.Width);
+            text.Stroke.Unit = new SvgPaintServerUnit(textInline.StrokePaintable);
+            text.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(textInline.StrokeWidth);
+            text.Fill.Unit =
+                new SvgPaintServerUnit(textInline.Fill
+                    ? textInline.FillPaintable
+                    : new ColorPaintable(Colors.Transparent));
+            text.TextAlign.Unit = new SvgEnumUnit<SvgTextAlign>((SvgTextAlign)textInline.Alignment);
+            text.FillOpacity.Unit = SvgNumericUnit.FromUserUnits(TryGetOpacity(textInline.FillPaintable));
+            text.StrokeOpacity.Unit = SvgNumericUnit.FromUserUnits(TryGetOpacity(textInline.StrokePaintable));
+
+            texts.Add(text);
+        }
+
+        return texts;
+    }
+
+    private static double TryGetOpacity(Paintable paintable)
+    {
+        if (paintable is ColorPaintable color)
+        {
+            return color.Color.A / 255.0;
+        }
+
+        return 1;
     }
 
     private static SvgImage CreateImageElement(VecD resizeFactor, RectD tightBounds,
@@ -588,7 +768,7 @@ internal partial class DocumentViewModel
             if (prop.Value.Value is Brush br && br.Document.AccessInternalReadOnlyDocument().Blackboard == blackboard)
             {
                 // Prevent stack overflow
-                 continue;
+                continue;
             }
 
             variables.Add(new Variable()
@@ -686,7 +866,7 @@ internal partial class DocumentViewModel
         IReadOnlyNodeGraph graph,
         Dictionary<Guid, int> nodeIdMap, Dictionary<Guid, int> keyFrameIds)
     {
-        if(root == null) return;
+        if (root == null) return;
 
         foreach (var keyFrame in root)
         {
@@ -732,7 +912,7 @@ internal partial class DocumentViewModel
                 new ImageInfo(bounds.Value.Width, bounds.Value.Height));
 
             image.DrawMostUpToDateRegionOn(
-                new RectI(0, 0, bounds.Value.Width, bounds.Value.Height), ChunkResolution.Full, surface.Canvas,
+                new RectD(0, 0, bounds.Value.Width, bounds.Value.Height), ChunkResolution.Full, surface.Canvas,
                 new VecI(0, 0));
         }
 

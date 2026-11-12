@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Threading.Tasks;
 using Avalonia.Threading;
 
 namespace PixiEditor.Helpers.Extensions;

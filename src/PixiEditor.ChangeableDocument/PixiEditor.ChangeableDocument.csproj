@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -41,11 +41,6 @@
     <ProjectReference Include="..\Drawie\src\Drawie.Backend.Core\Drawie.Backend.Core.csproj" />
     <ProjectReference Include="..\Drawie\src\Drawie.Numerics\Drawie.Numerics.csproj" />
     <ProjectReference Include="..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\" />
-    <Folder Include="Utils\" />
   </ItemGroup>
 
 </Project>

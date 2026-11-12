@@ -9,20 +9,6 @@
         <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
         <Setter Property="WindowStartupLocation" Value="CenterScreen" />
-        <Setter Property="ExtendClientAreaChromeHints">
-            <Setter.Value>
-                <OnPlatform>
-                    <OnPlatform.Default>
-                        <platform:ExtendClientAreaChromeHints>SystemChrome</platform:ExtendClientAreaChromeHints>
-                    </OnPlatform.Default>
-                    <OnPlatform.macOS>
-                        <platform:ExtendClientAreaChromeHints>Default,NoChrome,OSXThickTitleBar</platform:ExtendClientAreaChromeHints>
-                    </OnPlatform.macOS>
-                </OnPlatform>
-            </Setter.Value>
-        </Setter>
-        <Setter Property="ExtendClientAreaToDecorationsHint" Value="True" />
-        <Setter Property="ExtendClientAreaTitleBarHeightHint" Value="36" />
         <Setter Property="Template">
             <ControlTemplate>
                 <Panel>

@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Avalonia.Media;
-using Avalonia.Threading;
 using Drawie.Backend.Core;
 using Drawie.Interop.Avalonia.Core.Controls;
 using Drawie.Numerics;

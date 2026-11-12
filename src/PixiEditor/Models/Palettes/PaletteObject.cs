@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Drawie.Backend.Core.ColorsImpl;
+﻿using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.Extensions.CommonApi.Palettes;
 
 namespace PixiEditor.Models.Palettes;

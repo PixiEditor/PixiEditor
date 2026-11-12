@@ -1,9 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
-using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Arrays;
 

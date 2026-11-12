@@ -1,5 +1,4 @@
-﻿using PixiEditor.IdentityProvider;
-using PixiEditor.Platform;
+﻿using PixiEditor.Platform;
 
 namespace PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 

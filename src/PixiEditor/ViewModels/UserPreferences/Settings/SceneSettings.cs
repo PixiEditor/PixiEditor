@@ -1,7 +1,6 @@
 ﻿using System.Windows.Input;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
-using Drawie.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers.Extensions;

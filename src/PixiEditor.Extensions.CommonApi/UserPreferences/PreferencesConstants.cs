@@ -62,6 +62,7 @@ public static class PreferencesConstants
     public const bool AutoRasterizeNestedLayersOnDrawDefault = false;
 
     public const string LastSeenChangelogVersion = "LastSeenChangelogVersion";
+    public const string FavouriteFonts = "FavouriteFonts";
 
     public static bool UseSystemWindowDecorationsDefault = System.OperatingSystem.IsWindowsVersionAtLeast(10)
                                                            && !System.OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000); // True for Windows 10 and false for others, due to the offset rendering bug

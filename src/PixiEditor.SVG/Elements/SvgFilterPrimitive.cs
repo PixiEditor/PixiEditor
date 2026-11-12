@@ -1,4 +1,3 @@
-using System.Xml;
 using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG.Elements;

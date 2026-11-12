@@ -1,22 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Drawie.Backend.Core;
 using PixiEditor.ChangeableDocument;
-using PixiEditor.Helpers.Converters;
-using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
-using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
@@ -25,14 +15,15 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Helpers;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
+using PixiEditor.ViewModels.Layers;
+using PixiEditor.Views;
+using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Overlays.TextOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -129,6 +120,19 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return count > 1;
     }
 
+    [Evaluator.CanExecute("PixiEditor.Layer.HasMultipleFlattenedSelectedMembers",
+        nameof(DocumentManagerViewModel.ActiveDocument),
+        nameof(DocumentManagerViewModel.ActiveDocument.SelectedStructureMember),
+        nameof(DocumentManagerViewModel.ActiveDocument.SoftSelectedStructureMembers))]
+    public bool HasMultipleFlattenedSelectedMembers()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return false;
+        int count = doc.ExtractSelectedLayers().Count;
+        return count > 1;
+    }
+
     private List<Guid> GetSelected()
     {
         List<Guid> members = new();
@@ -209,6 +213,30 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
 
         doc.Operations.CreateStructureMember(StructureMemberType.ImageLayer);
+    }
+
+    [Command.Basic("PixiEditor.Layer.ToggleLayerLock", "TOGGLE_ACTIVE_LAYER_LOCK",
+        "TOGGLE_ACTIVE_LAYER_LOCK_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.HasSelectedMembers", Icon = PixiPerfectIcons.Lock, AnalyticsTrack = true)]
+    public void ToggleLayerLock()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        var selectedMembers = doc.SelectedMembers;
+        if (selectedMembers.Count == 0)
+            return;
+
+        var memberVms = selectedMembers.Select(member => doc.StructureHelper.Find(member)).ToList();
+        bool allLocked = memberVms.All(member => member is { IsLockedBindable: true });
+        bool newLockState = !allLocked;
+
+        using var block = doc.Operations.StartChangeBlock();
+        foreach (var member in memberVms)
+        {
+            member.IsLockedBindable = newLockState;
+        }
     }
 
     public Guid? NewLayer(Type layerType, ActionSource source, string? name = null)
@@ -311,6 +339,37 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
 
         nestedDocVm.Document.Operations.UnlinkNestedDocument(nestedDocVm.Id);
+    }
+
+    [Command.Basic("PixiEditor.Layer.OpenFilters", "OPEN_FILTERS_PANEL", "OPEN_FILTERS_PANEL_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.HasSelectedMembers",
+        Icon = PixiPerfectIcons.List, AnalyticsTrack = true)]
+    public void OpenFiltersPanel()
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (document?.SelectedStructureMember == null) return;
+
+        FiltersPopup popup = new FiltersPopup();
+        var vm = new FiltersPopupViewModel() { Document = document, StructureMember = document.SelectedStructureMember };
+        vm.StructureMemberInvalid += popup.Close;
+        popup.DataContext = vm;
+        popup.Closing += (sender, args) => vm.UnsubscribeFromChanges();
+
+        popup.Show(MainWindow.Current);
+    }
+
+    [Command.Internal("PixiEditor.Layer.OpenFilterForLayer")]
+    public void OpenFiltersPanelForLayer(IStructureMemberHandler member)
+    {
+        if (member == null) return;
+
+        FiltersPopup popup = new FiltersPopup();
+        var vm = new FiltersPopupViewModel() { Document = member.Document as DocumentViewModel, StructureMember = member };
+        vm.StructureMemberInvalid += popup.Close;
+        popup.DataContext = vm;
+        popup.Closing += (sender, args) => vm.UnsubscribeFromChanges();
+
+        popup.Show(MainWindow.Current);
     }
 
     [Command.Internal("PixiEditor.Layer.CreateNestedFromLayer")]
@@ -587,6 +646,100 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.Operations.MergeStructureMembers(selected);
     }
 
+    [Command.Basic("PixiEditor.Layer.CenterSelectedHorizontally", "CENTER_SELECTED_LAYERS_HORIZONTALLY",
+        "CENTER_SELECTED_LAYERS_HORIZONTALLY_DESCRIPTIVE",
+        MenuItemPath = "LAYER/ALIGN_SELECTED/CENTER_HORIZONTALLY", MenuItemOrder = 1,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalJustifyCenter,
+        AnalyticsTrack = true)]
+    public void CenterSelectedLayersHorizontally()
+    {
+        Align(HorizontalAlignment.Center, VerticalAlignment.Unaligned);
+    }
+
+    [Command.Basic("PixiEditor.Layer.CenterSelectedVertically", "CENTER_SELECTED_LAYERS_VERTICALLY",
+        "CENTER_SELECTED_LAYERS_VERTICALLY_DESCRIPTIVE",
+        MenuItemPath = "LAYER/ALIGN_SELECTED/CENTER_VERTICALLY", MenuItemOrder = 2,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalJustifyCenter,
+        AnalyticsTrack = true)]
+    public void CenterSelectedLayersVertically()
+    {
+        Align(HorizontalAlignment.Unaligned, VerticalAlignment.Center);
+    }
+
+    [Command.Basic("PixiEditor.Layer.AlignRightSelectedLayers", "ALIGN_RIGHT_SELECTED_LAYERS",
+        "ALIGN_RIGHT_SELECTED_LAYERS_DESCRIPTIVE",
+        MenuItemPath = "LAYER/ALIGN_SELECTED/RIGHT", MenuItemOrder = 3,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalJustifyEnd,
+        AnalyticsTrack = true)]
+    public void AlignRightSelectedLayers()
+    {
+        Align(HorizontalAlignment.Right, VerticalAlignment.Unaligned);
+    }
+
+    [Command.Basic("PixiEditor.Layer.AlignLeftSelectedLayers", "ALIGN_LEFT_SELECTED_LAYERS",
+        "ALIGN_LEFT_SELECTED_LAYERS_DESCRIPTIVE",
+        MenuItemPath = "LAYER/ALIGN_SELECTED/LEFT", MenuItemOrder = 4,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalJustifyStart,
+        AnalyticsTrack = true)]
+    public void AlignLeftSelectedLayers()
+    {
+        Align(HorizontalAlignment.Left, VerticalAlignment.Unaligned);
+    }
+
+    [Command.Basic("PixiEditor.Layer.AlignTopSelectedLayers", "ALIGN_TOP_SELECTED_LAYERS",
+        "ALIGN_TOP_SELECTED_LAYERS_DESCRIPTIVE",
+        MenuItemPath = "LAYER/ALIGN_SELECTED/TOP", MenuItemOrder = 5,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalJustifyStart,
+        AnalyticsTrack = true)]
+    public void AlignTopSelectedLayers()
+    {
+        Align(HorizontalAlignment.Unaligned, VerticalAlignment.Top);
+    }
+
+
+    [Command.Basic("PixiEditor.Layer.AlignBottomSelectedLayers", "ALIGN_BOTTOM_SELECTED_LAYERS",
+        "ALIGN_BOTTOM_SELECTED_LAYERS_DESCRIPTIVE",
+        MenuItemPath = "LAYER/ALIGN_SELECTED/BOTTOM", MenuItemOrder = 6,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalJustifyEnd,
+        AnalyticsTrack = true)]
+    public void AlignBottomSelectedLayers()
+    {
+        Align(HorizontalAlignment.Unaligned, VerticalAlignment.Bottom);
+    }
+
+    [Command.Basic("PixiEditor.Layer.AlignSpreadHorizontalSelectedLayer", "ALIGN_SPREAD_HORIZONTAL_SELECTED_LAYERS",
+        "ALIGN_SPREAD_HORIZONTAL_SELECTED_LAYERS_DESCRIPTIVE",
+        MenuItemPath = "LAYER/ALIGN_SELECTED/SPREAD_HORIZONTALLY", MenuItemOrder = 7,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalSpaceBetween,
+        AnalyticsTrack = true)]
+    public void AlignSpreadHorizontalSelectedLayer()
+    {
+        Align(HorizontalAlignment.Spread, VerticalAlignment.Unaligned);
+    }
+
+    [Command.Basic("PixiEditor.Layer.AlignSpreadVerticalSelectedLayer", "ALIGN_SPREAD_VERTICAL_SELECTED_LAYERS",
+        "ALIGN_SPREAD_VERTICAL_SELECTED_LAYERS_DESCRIPTIVE",
+        MenuItemPath = "LAYER/ALIGN_SELECTED/SPREAD_VERTICALLY", MenuItemOrder = 8,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalSpaceBetween,
+        AnalyticsTrack = true)]
+    public void AlignSpreadVerticalSelectedLayer()
+    {
+        Align(HorizontalAlignment.Unaligned, VerticalAlignment.Spread);
+    }
+
+    public void Align(HorizontalAlignment horizontal, VerticalAlignment vertical)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+        var selected = GetSelected();
+
+        if (selected.Count == 0)
+            return;
+
+        doc.Operations.AlignSelectedLayers(selected, horizontal, vertical);
+    }
+
     public void MergeSelectedWith(bool above)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -675,7 +828,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         VecI size = new VecI(bitmap.Size.X, bitmap.Size.Y);
 
         doc.Operations.ImportReferenceLayer(
-            [..bytes],
+            [.. bytes],
             size);
     }
 

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Drawie.Backend.Core.Surfaces;
+﻿using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -17,6 +16,8 @@ public class BlurNode : FilterNode
 
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs | CacheTriggerFlags.RenderSize | CacheTriggerFlags.ChunkResolution;
 
+    private ImageFilter? lastFilter;
+
     public BlurNode()
     {
         PreserveAlpha = CreateInput("PreserveAlpha", "PRESERVE_ALPHA", true);
@@ -25,12 +26,15 @@ public class BlurNode : FilterNode
 
     protected override ImageFilter? GetImageFilter(RenderContext context)
     {
+        lastFilter?.Dispose();
+
         var sigma = (VecF)(Radius.Value * context.ChunkResolution.Multiplier());
         var preserveAlpha = PreserveAlpha.Value;
 
         if (preserveAlpha)
         {
-            return ImageFilter.CreateBlur(sigma.X, sigma.Y, TileMode.Mirror);
+            lastFilter = ImageFilter.CreateBlur(sigma.X, sigma.Y, TileMode.Mirror);
+            return lastFilter;
         }
 
         var xFilter = GetGaussianFilter(sigma.X, true, null, out float[] xKernel);
@@ -38,12 +42,14 @@ public class BlurNode : FilterNode
         var yKernel = Math.Abs(sigma.Y - sigma.X) < 0.0001f ? xKernel : null;
         var yFilter = GetGaussianFilter(sigma.Y, false, yKernel, out _);
 
-        return (xFilter, yFilter) switch
+        lastFilter = (xFilter, yFilter) switch
         {
             (null, _) => yFilter,
             (_, null) => xFilter,
             (_, _) => ImageFilter.CreateCompose(yFilter, xFilter)
         };
+
+        return lastFilter;
     }
 
     private static ImageFilter? GetGaussianFilter(float sigma, bool isX, float[]? kernel,
@@ -88,4 +94,10 @@ public class BlurNode : FilterNode
     }
 
     public override Node CreateCopy() => new BlurNode();
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        lastFilter?.Dispose();
+    }
 }

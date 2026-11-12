@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace PixiEditor.Extensions.FlyUI;
+﻿namespace PixiEditor.Extensions.FlyUI;
 
 public interface IPropertyDeserializable
 {

@@ -4,9 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+             xmlns:dock="clr-namespace:PixiEditor.ViewModels.Dock"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Dock.SwatchesDockView">
-    <palettes:SwatchesView
+    <palettes:SwatchesView x:DataType="dock:SwatchesDockViewModel"
         SelectSwatchCommand="{xaml:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
         Swatches="{Binding DocumentManagerSubViewModel.ActiveDocument.Swatches}" />
 </UserControl>

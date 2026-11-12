@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
-using Drawie.Backend.Core;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.ViewModels;

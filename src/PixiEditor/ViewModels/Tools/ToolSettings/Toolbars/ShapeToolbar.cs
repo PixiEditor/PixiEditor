@@ -1,6 +1,5 @@
 ﻿using Avalonia.Media;
 using PixiEditor.Models.Handlers.Toolbars;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;

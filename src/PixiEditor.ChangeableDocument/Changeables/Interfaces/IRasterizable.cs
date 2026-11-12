@@ -1,6 +1,5 @@
 ﻿using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 

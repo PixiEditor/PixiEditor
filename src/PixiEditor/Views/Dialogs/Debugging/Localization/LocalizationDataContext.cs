@@ -1,13 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Input.Platform;
 using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;

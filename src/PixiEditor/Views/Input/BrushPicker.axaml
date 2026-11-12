@@ -282,7 +282,7 @@
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
+                                        <DataTemplate x:DataType="brushSystem:BrushViewModel">
                                             <Border Cursor="Hand" CornerRadius="4"
                                                     localization:Translator.TooltipKey="{Binding Name}"
                                                     PointerPressed="SelectBrushElementPressed"

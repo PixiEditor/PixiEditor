@@ -2,7 +2,6 @@
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using PixiEditor.Helpers.Extensions;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;

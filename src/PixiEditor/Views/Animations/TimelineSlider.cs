@@ -1,5 +1,4 @@
 ﻿using Avalonia;
-using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
@@ -36,6 +35,8 @@ public class TimelineSlider : Slider
         get { return (double)GetValue(MinLeftOffsetProperty); }
         set { SetValue(MinLeftOffsetProperty, value); }
     }
+
+    public Track Track => _track;
 
     private Button _increaseButton;
     private Track _track;

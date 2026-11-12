@@ -15,4 +15,6 @@ public static class ClipboardDataFormats
     public static readonly DataFormat<byte[]> PixiVectorData = DataFormat.CreateBytesApplicationFormat("PixiEditor.VectorData");
     public static readonly DataFormat<byte[]> UriList = DataFormat.CreateBytesPlatformFormat("text/uri-list");
     public static readonly DataFormat<byte[]> HadSelectionFormat = DataFormat.CreateBytesApplicationFormat("PixiEditor.HadSelection");
+    public static readonly DataFormat<byte[]> LayersDataName = DataFormat.CreateBytesApplicationFormat("PixiEditor.LayersData");
+    public static readonly DataFormat<byte[]> PaletteColorDaoFormat = DataFormat.CreateBytesApplicationFormat("PixiEditor.PaletteColor");
 }

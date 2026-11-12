@@ -6,7 +6,6 @@ using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.DocumentModels.Autosave;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.SubViewModels;

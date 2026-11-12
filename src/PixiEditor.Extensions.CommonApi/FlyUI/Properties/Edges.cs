@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+﻿namespace PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
 public struct Edges : IStructProperty
 {

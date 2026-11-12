@@ -1,8 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Drawie.Backend.Core;
-using PixiEditor.Models.BrushEngine;
-using PixiEditor.Models.Controllers;
-using PixiEditor.ViewModels.SubViewModels;
+﻿using Drawie.Backend.Core;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 

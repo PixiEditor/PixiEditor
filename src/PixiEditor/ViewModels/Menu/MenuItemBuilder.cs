@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
-using PixiEditor.Extensions.UI;
 using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.ViewModels.Menu;

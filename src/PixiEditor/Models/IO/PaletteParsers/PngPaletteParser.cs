@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
+﻿using Avalonia.Media.Imaging;
 using PixiEditor.Helpers.Extensions;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Helpers;

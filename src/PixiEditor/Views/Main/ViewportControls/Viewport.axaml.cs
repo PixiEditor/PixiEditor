@@ -5,18 +5,11 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Media;
 using Avalonia.Skia;
 using Avalonia.VisualTree;
-using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Helpers;
-using PixiEditor.ViewModels;
-using PixiEditor.Views.Visuals;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
-using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels;
@@ -72,10 +65,10 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         AvaloniaProperty.Register<Viewport, bool>(nameof(GridLinesVisible), false);
 
     public static readonly StyledProperty<double> GridLinesXSizeProperty =
-        AvaloniaProperty.Register<Viewport, double>(nameof(GridLinesXSize), 1.0);
+        AvaloniaProperty.Register<Viewport, double>(nameof(GridLinesXSize), 0);
 
     public static readonly StyledProperty<double> GridLinesYSizeProperty =
-        AvaloniaProperty.Register<Viewport, double>(nameof(GridLinesYSize), 1.0);
+        AvaloniaProperty.Register<Viewport, double>(nameof(GridLinesYSize), 0);
 
     public static readonly StyledProperty<bool> ZoomOutOnClickProperty =
         AvaloniaProperty.Register<Viewport, bool>(nameof(ZoomOutOnClick), false);
@@ -539,6 +532,10 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         if (newDoc != null)
         {
             newDoc.SizeChanged += viewport.OnDocumentSizeChanged;
+            if(viewport.GridLinesXSize == 0)
+                viewport.GridLinesXSize = Math.Max(newDoc.SizeBindable.X / 12f, 1);
+            if(viewport.GridLinesYSize == 0)
+                viewport.GridLinesYSize = Math.Max(newDoc.SizeBindable.Y / 12f, 1);
         }
 
         oldDoc?.Operations.RemoveViewport(viewport.GuidValue);
@@ -589,7 +586,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             EditorDataFunc(),
             CalculateVisibleRegion(),
             ViewportRenderOutput, Scene.CalculateSampling(), Dimensions, CalculateResolution(), GuidValue, Delayed,
-            true, ForceRefreshFinalImage);
+            true, HighResPreview, ForceRefreshFinalImage);
     }
 
     private void Image_MouseDown(object? sender, PointerPressedEventArgs e)

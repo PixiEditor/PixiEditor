@@ -1,11 +1,12 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Palettes;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("DecomposePalette")]
-public class DecomposePaletteNode : Node
+public class DecomposePaletteNode : Node, IIterativeRenderSupport
 {
     public InputProperty<Palette> Palette { get; }
     public OutputProperty<Color[]> Output { get; }
@@ -24,4 +25,6 @@ public class DecomposePaletteNode : Node
     {
         return new DecomposePaletteNode();
     }
+
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

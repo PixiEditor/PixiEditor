@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using PixiEditor.Extensions.CommonApi.Palettes;
+﻿using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Old.PixiV4;

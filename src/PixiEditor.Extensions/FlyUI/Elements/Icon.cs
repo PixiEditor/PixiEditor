@@ -1,9 +1,5 @@
-using System.Collections.Immutable;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
-using Avalonia.Markup.Xaml.MarkupExtensions;
-using Avalonia.Media;
 using PixiEditor.Extensions.FlyUI.Converters;
 using Color = PixiEditor.Extensions.CommonApi.FlyUI.Properties.Color;
 using Colors = PixiEditor.Extensions.CommonApi.FlyUI.Properties.Colors;

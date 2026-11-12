@@ -3,7 +3,6 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
-using Drawie.Numerics.Helpers;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 

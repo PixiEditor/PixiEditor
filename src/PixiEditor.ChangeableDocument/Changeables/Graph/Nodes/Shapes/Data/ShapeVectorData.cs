@@ -1,10 +1,10 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using Drawie.Backend.Core;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Common;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
@@ -76,7 +76,7 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(TransformationMatrix, Stroke, FillPaintable, Fill);
+        return HashCode.Combine(TransformationMatrix, Stroke, FillPaintable, Fill, StrokeWidth);
     }
 
     public abstract VectorPath ToPath(bool transformed = false);
@@ -87,7 +87,11 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
 
     protected bool Equals(ShapeVectorData other)
     {
-        return TransformationMatrix.Equals(other.TransformationMatrix) && Stroke.Equals(other.Stroke) && FillPaintable.Equals(other.FillPaintable) && Fill == other.Fill && StrokeWidth.Equals(other.StrokeWidth);
+        return TransformationMatrix.Equals(other.TransformationMatrix)
+               && ((Stroke == null && other.Stroke == null) || (Stroke != null && Stroke.Equals(other.Stroke)))
+               && ((FillPaintable == null && other.FillPaintable == null) || (FillPaintable != null && FillPaintable.Equals(other.FillPaintable)))
+               && Fill == other.Fill
+               && StrokeWidth.Equals(other.StrokeWidth);
     }
 
     public override bool Equals(object? obj)

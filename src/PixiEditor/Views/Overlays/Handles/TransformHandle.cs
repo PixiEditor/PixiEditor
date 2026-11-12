@@ -1,14 +1,8 @@
-﻿using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Media;
-using Drawie.Backend.Core.Numerics;
+﻿using Avalonia.Input;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.Views.Overlays.TransformOverlay;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
-using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Views.Overlays.Handles;
 

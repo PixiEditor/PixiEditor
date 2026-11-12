@@ -1,13 +1,7 @@
-﻿using System.Linq;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
+﻿using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using PixiDocks.Avalonia.Controls;
-using PixiEditor.Models.Preferences;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
@@ -17,11 +11,8 @@ using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Input;
-using Drawie.Numerics;
-using PixiEditor.Models;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.ViewModels.Document;
-using PixiEditor.ViewModels.Tools;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.Views;
 

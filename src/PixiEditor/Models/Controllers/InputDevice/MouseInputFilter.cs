@@ -1,8 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using Avalonia.Input;
-using Drawie.Backend.Core.Numerics;
-using Drawie.Numerics;
+﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using Point = Avalonia.Point;
 
