@@ -1,0 +1,101 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+    xmlns:avalonia="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
+    xmlns:commands="clr-namespace:PixiEditor.Models.Commands.Attributes.Commands"
+    xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+    xmlns:document="clr-namespace:PixiEditor.ViewModels.Document"
+    xmlns:dock="clr-namespace:PixiEditor.ViewModels.Dock"
+    xmlns:ui="clr-namespace:PixiEditor.Helpers.UI;assembly=PixiEditor.UI.Common"
+    xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+    xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+    xmlns:dock1="clr-namespace:PixiEditor.Views.Dock"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="450"
+    x:DataType="dock:GuidesDockViewModel"
+    x:Class="PixiEditor.Views.Dock.GuidesDockView">
+
+    <Design.DataContext>
+        <dock:GuidesDockViewModel />
+    </Design.DataContext>
+
+    <ScrollViewer>
+        <StackPanel Orientation="Vertical">
+            <TextBlock
+                Classes="h2"
+                localization:Translator.Key="VERTICAL_GUIDES_HEADING" />
+
+            <ItemsControl ItemsSource="{Binding GuidesSubViewModel.VerticalGuides}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="document:GuideViewModel">
+                        <Grid ui:Juice.Animations="Loaded:PopIn">
+                            <Grid
+                                ColumnDefinitions="24,*"
+                                ColumnSpacing="4"
+                                VerticalAlignment="Center">
+                                <Button
+                                    Grid.Column="0"
+                                    Classes="pixi-icon"
+                                    Command="{xaml:Command Name=PixiEditor.Document.RemoveGuide, UseProvided=True}"
+                                    CommandParameter="{Binding Id}"
+                                    Content="{DynamicResource icon-trash}" />
+                                <controls:SizeInput
+                                    Grid.Column="1"
+                                    Classes="pixi-icon"
+                                    MinSize="-999999"
+                                    DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}"
+                                    Size="{Binding OffsetBindable, Mode=TwoWay}"
+                                    Decimals="4"
+                                    MeasurementConverterData="{Binding $parent[dock1:GuidesDockView].((dock:GuidesDockViewModel)DataContext).MeasurementConverterData}"
+                                    Unit="{Binding $parent[dock1:GuidesDockView].((dock:GuidesDockViewModel)DataContext).Document.MeasurementUnitBindable.ShortNameLocalizationKey, Converter={converters:LocalizationKeyToStringConverter}}">
+                                </controls:SizeInput>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Separator />
+
+            <TextBlock
+                Classes="h2"
+                localization:Translator.Key="HORIZONTAL_GUIDES_HEADING" />
+
+            <ItemsControl ItemsSource="{Binding GuidesSubViewModel.HorizontalGuides}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="document:GuideViewModel">
+                        <Grid ui:Juice.Animations="Loaded:PopIn">
+                            <Grid
+                                ColumnDefinitions="24,*"
+                                ColumnSpacing="4"
+                                VerticalAlignment="Center">
+                                <Button
+                                    Grid.Column="0"
+                                    Classes="pixi-icon"
+                                    Command="{xaml:Command Name=PixiEditor.Document.RemoveGuide, UseProvided=True}"
+                                    CommandParameter="{Binding Id}"
+                                    Content="{DynamicResource icon-trash}" />
+                                <controls:SizeInput
+                                    Grid.Column="1"
+                                    Classes="pixi-icon"
+                                    MinSize="-999999"
+                                    DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}"
+                                    Size="{Binding OffsetBindable, Mode=TwoWay}"
+                                    Decimals="4"
+                                    MeasurementConverterData="{Binding $parent[dock1:GuidesDockView].((dock:GuidesDockViewModel)DataContext).MeasurementConverterData}"
+                                    Unit="{Binding $parent[dock1:GuidesDockView].((dock:GuidesDockViewModel)DataContext).Document.MeasurementUnitBindable.ShortNameLocalizationKey, Converter={converters:LocalizationKeyToStringConverter}}">
+                                </controls:SizeInput>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -8,10 +8,14 @@ namespace PixiEditor.ViewModels.Document;
 internal class GuidesViewModel : ViewModelBase, IGuidesHandler
 {
     public IReadOnlyList<IGuideHandler> Guides => guides;
+    public IReadOnlyList<IGuideHandler> VerticalGuides => verticalGuides;
+    public IReadOnlyList<IGuideHandler> HorizontalGuides => horizontalGuides;
 
     IEnumerable<IGuideHandler> IGuidesHandler.GuidesHandler => Guides;
 
     private ObservableCollection<IGuideHandler> guides = new ObservableCollection<IGuideHandler>();
+    private ObservableCollection<IGuideHandler> verticalGuides = new ObservableCollection<IGuideHandler>();
+    private ObservableCollection<IGuideHandler> horizontalGuides = new ObservableCollection<IGuideHandler>();
     private ISnappingHandler snappingHandler;
 
     private DocumentInternalParts internals;
@@ -39,13 +43,34 @@ internal class GuidesViewModel : ViewModelBase, IGuidesHandler
     public void AddGuideInternal(IGuideHandler guideViewModel)
     {
         guides.Add(guideViewModel);
-        snappingHandler.AddFromAxis("guide_" + guideViewModel.Id, guideViewModel.IsVertical, () => guideViewModel.Offset);
+        snappingHandler.AddFromAxis("guide_" + guideViewModel.Id, guideViewModel.IsVertical, () => guideViewModel.OffsetBindable);
+        if (guideViewModel.IsVertical)
+        {
+            verticalGuides.Add(guideViewModel);
+            OnPropertyChanged(nameof(VerticalGuides));
+        }
+        else
+        {
+            horizontalGuides.Add(guideViewModel);
+            OnPropertyChanged(nameof(HorizontalGuides));
+        }
+
         OnPropertyChanged(nameof(Guides));
     }
 
     public void RemoveGuideInternal(IGuideHandler guide)
     {
         guides.Remove(guide);
+        if (guide.IsVertical)
+        {
+            verticalGuides.Remove(guide);
+            OnPropertyChanged(nameof(VerticalGuides));
+        }
+        else
+        {
+            horizontalGuides.Remove(guide);
+            OnPropertyChanged(nameof(HorizontalGuides));
+        }
         snappingHandler.Remove("guide_" + guide.Id);
         OnPropertyChanged(nameof(Guides));
     }

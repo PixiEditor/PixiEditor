@@ -37,6 +37,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     public IReadOnlyBlackboard Blackboard => NodeGraph.Blackboard;
     public ColorSpace ProcessingColorSpace { get; internal set; } = ColorSpace.CreateSrgbLinear();
     public float Dpi { get; set; } = 300;
+    public MeasurementUnit MeasurementUnit { get; set; } = new PixelUnit();
     public List<Guide> Guides { get; } = new List<Guide>();
 
     /// <summary>

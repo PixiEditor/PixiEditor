@@ -22,8 +22,9 @@ namespace PixiEditor.Views.Overlays.Ruler;
 
 public class RulerOverlay : Overlay
 {
-    public static readonly StyledProperty<RulerUnit> UnitProperty = AvaloniaProperty.Register<RulerOverlay, RulerUnit>(
-        nameof(Unit), RulerUnit.Pixels);
+    public static readonly StyledProperty<MeasurementUnit> UnitProperty =
+        AvaloniaProperty.Register<RulerOverlay, MeasurementUnit>(
+            nameof(Unit), MeasurementUnit.Pixels);
 
     public static readonly StyledProperty<float> DpiProperty = AvaloniaProperty.Register<RulerOverlay, float>(
         nameof(Dpi));
@@ -44,8 +45,9 @@ public class RulerOverlay : Overlay
         AvaloniaProperty.Register<RulerOverlay, ICommand>(
             nameof(CreateGuideCommand));
 
-    public static readonly StyledProperty<SnappingController> SnappingControllerProperty = AvaloniaProperty.Register<RulerOverlay, SnappingController>(
-        nameof(SnappingController));
+    public static readonly StyledProperty<SnappingController> SnappingControllerProperty =
+        AvaloniaProperty.Register<RulerOverlay, SnappingController>(
+            nameof(SnappingController));
 
     public static readonly StyledProperty<VecI> DocumentSizeProperty = AvaloniaProperty.Register<RulerOverlay, VecI>(
         nameof(DocumentSize));
@@ -92,7 +94,7 @@ public class RulerOverlay : Overlay
         set => SetValue(DpiProperty, value);
     }
 
-    public RulerUnit Unit
+    public MeasurementUnit Unit
     {
         get => GetValue(UnitProperty);
         set => SetValue(UnitProperty, value);
@@ -121,18 +123,18 @@ public class RulerOverlay : Overlay
 
     private const int SafeOverlapPadding = 8;
 
-    private List<RulerUnit> allUnits =
+    private List<MeasurementUnit> allUnits =
     [
-        RulerUnit.Pixels,
-        RulerUnit.Millimeter,
-        RulerUnit.Points,
-        RulerUnit.Inches,
+        MeasurementUnit.Pixels,
+        MeasurementUnit.Millimeter,
+        MeasurementUnit.Points,
+        MeasurementUnit.Inches,
     ];
 
     static RulerOverlay()
     {
         textFont = Font.CreateDefault();
-        UnitProperty.Changed.AddClassHandler<RulerOverlay, RulerUnit>(OnUnitChanged);
+        UnitProperty.Changed.AddClassHandler<RulerOverlay, MeasurementUnit>(OnUnitChanged);
         GuidesProperty.Changed.AddClassHandler<RulerOverlay, ObservableCollection<IGuideHandler>>(OnGuidesChanged);
     }
 
@@ -145,7 +147,7 @@ public class RulerOverlay : Overlay
         selectionTextPaint = ResourceLoader.GetPaint("ThemeAccent3Brush");
         textPaint.IsAntiAliased = true;
         selectionTextPaint.IsAntiAliased = true;
-        unitText = new LocalizedString(RulerUnit.Pixels.ShortNameLocalizationKey);
+        unitText = new LocalizedString(MeasurementUnit.Pixels.ShortNameLocalizationKey);
         lastPointerPos = VecD.Zero;
         AlwaysPassPointerEvents = true;
         infoBox = new InfoBox();
@@ -171,7 +173,7 @@ public class RulerOverlay : Overlay
     }
 
     private static void OnUnitChanged(RulerOverlay overlay,
-        AvaloniaPropertyChangedEventArgs<RulerUnit> avaloniaPropertyChangedEventArgs)
+        AvaloniaPropertyChangedEventArgs<MeasurementUnit> avaloniaPropertyChangedEventArgs)
     {
         if (avaloniaPropertyChangedEventArgs.NewValue.Value != null)
         {
@@ -215,27 +217,21 @@ public class RulerOverlay : Overlay
     {
         if (TestHit(args.CanvasPoint, args.ViewportPoint))
         {
-            if (args.PointerButton == MouseButton.Right)
+            if (args.PointerButton == MouseButton.Left)
             {
                 if (args.ViewportPoint is { X: < Offset, Y: < Offset })
                 {
                     int currentIndex = allUnits.IndexOf(Unit);
                     if (currentIndex == -1 || currentIndex == allUnits.Count - 1)
                     {
-                        Unit = RulerUnit.Pixels;
+                        Unit = MeasurementUnit.Pixels;
                     }
                     else
                     {
                         Unit = allUnits[currentIndex + 1];
                     }
                 }
-
-                Refresh();
-                args.Handled = true;
-            }
-            else if (args.PointerButton == MouseButton.Left)
-            {
-                if (args.ViewportPoint is ({ X: < Offset } or { Y: < Offset }) and not { X: < Offset, Y: < Offset })
+                else if (args.ViewportPoint is { X: < Offset } or { Y: < Offset })
                 {
                     previewGuideIsVertical = args.ViewportPoint.Y < Offset;
                     args.Pointer.Capture(this);
@@ -243,6 +239,9 @@ public class RulerOverlay : Overlay
 
                     args.Handled = true;
                 }
+
+                Refresh();
+                args.Handled = true;
             }
         }
     }
@@ -256,7 +255,7 @@ public class RulerOverlay : Overlay
             if (args.Modifiers.HasFlag(KeyModifiers.Shift))
             {
                 double spacing;
-                if(previewGuideIsVertical)
+                if (previewGuideIsVertical)
                 {
                     GetYTickSpacing(lastMatrix, out spacing);
                 }
@@ -316,12 +315,12 @@ public class RulerOverlay : Overlay
         {
             if (guide.IsVertical)
             {
-                context.DrawLine(new VecD(guide.Offset, 0), new VecD(guide.Offset, DocumentSize.Y),
+                context.DrawLine(new VecD(guide.OffsetBindable, 0), new VecD(guide.OffsetBindable, DocumentSize.Y),
                     highlightPaint);
             }
             else
             {
-                context.DrawLine(new VecD(0, guide.Offset), new VecD(DocumentSize.X, guide.Offset),
+                context.DrawLine(new VecD(0, guide.OffsetBindable), new VecD(DocumentSize.X, guide.OffsetBindable),
                     highlightPaint);
             }
         }

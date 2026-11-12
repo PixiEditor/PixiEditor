@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using PixiEditor.UI.Common.Converters;
 
 namespace PixiEditor.UI.Common.Controls;
 
@@ -31,6 +32,25 @@ public partial class SizeInput : UserControl
 
     public static readonly StyledProperty<int> DecimalsProperty = AvaloniaProperty.Register<SizeInput, int>(
         nameof(Decimals), defaultValue: 0);
+
+    public static readonly StyledProperty<double> DisplaySizeProperty =
+        AvaloniaProperty.Register<SizeInput, double>(
+            nameof(DisplaySize));
+
+    public static readonly StyledProperty<MeasurementConverterData?> MeasurementConverterDataProperty = AvaloniaProperty.Register<SizeInput, MeasurementConverterData?>(
+        nameof(MeasurementConverterData));
+
+    public MeasurementConverterData? MeasurementConverterData
+    {
+        get => GetValue(MeasurementConverterDataProperty);
+        set => SetValue(MeasurementConverterDataProperty, value);
+    }
+
+    public double DisplaySize
+    {
+        get => GetValue(DisplaySizeProperty);
+        set => SetValue(DisplaySizeProperty, value);
+    }
 
     public int Decimals
     {
@@ -80,6 +100,74 @@ public partial class SizeInput : UserControl
     public SizeInput()
     {
         InitializeComponent();
+    }
+
+    private bool _updatingSize;
+
+    static SizeInput()
+    {
+        SizeProperty.Changed.AddClassHandler<SizeInput>((input, _) =>
+        {
+            input.UpdateDisplaySize();
+        });
+
+        DisplaySizeProperty.Changed.AddClassHandler<SizeInput>((input, _) =>
+        {
+            input.UpdatePixelSize();
+        });
+
+        MeasurementConverterDataProperty.Changed.AddClassHandler<SizeInput>((input, _) =>
+        {
+            input.UpdateDisplaySize();
+        });
+    }
+
+    private void UpdateDisplaySize()
+    {
+        if (_updatingSize)
+            return;
+
+        try
+        {
+            _updatingSize = true;
+
+            if (MeasurementConverterData != null)
+            {
+                DisplaySize = MeasurementConverterData.FromPixels(Size, MeasurementConverterData.GetDpi());
+            }
+            else
+            {
+                DisplaySize = Size;
+            }
+        }
+        finally
+        {
+            _updatingSize = false;
+        }
+    }
+
+    private void UpdatePixelSize()
+    {
+        if (_updatingSize)
+            return;
+
+        try
+        {
+            _updatingSize = true;
+
+            if (MeasurementConverterData != null)
+            {
+                Size = MeasurementConverterData.ToPixels(DisplaySize, MeasurementConverterData.GetDpi());
+            }
+            else
+            {
+                Size = DisplaySize;
+            }
+        }
+        finally
+        {
+            _updatingSize = false;
+        }
     }
 
     protected override void OnGotFocus(FocusChangedEventArgs e)

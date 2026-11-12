@@ -19,7 +19,7 @@ internal class GuideExecutor : UpdateableChangeExecutor
         if (guide == null)
             return ExecutionState.Error;
 
-        double lastPos = guide.Offset;
+        double lastPos = guide.OffsetBindable;
 
         internals.ActionAccumulator.AddActions(new GuidePosition_Action(guideId, lastPos));
 

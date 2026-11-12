@@ -850,7 +850,7 @@ internal class ViewportOverlays
         Binding rulerUnit = new Binding()
         {
             Source = Viewport,
-            Path = "Document.RulerOverlayViewModel.Unit",
+            Path = "Document.MeasurementUnitBindable",
             Mode = BindingMode.TwoWay
         };
 

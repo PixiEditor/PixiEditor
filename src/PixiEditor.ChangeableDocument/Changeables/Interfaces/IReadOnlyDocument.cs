@@ -106,6 +106,7 @@ public interface IReadOnlyDocument : IDisposable, ICloneable
     public IReadOnlyBlackboard Blackboard { get; }
     public ColorSpace ProcessingColorSpace { get; }
     public float Dpi { get; }
+    public MeasurementUnit MeasurementUnit { get; }
     public void InitProcessingColorSpace(ColorSpace processingColorSpace);
     public List<IReadOnlyStructureNode> GetParents(Guid memberGuid);
     public ICrossDocumentPipe<T> CreateNodePipe<T>(Guid layerId) where T : class, IReadOnlyNode;

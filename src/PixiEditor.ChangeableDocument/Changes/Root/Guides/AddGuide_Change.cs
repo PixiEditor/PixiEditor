@@ -18,7 +18,7 @@ internal class AddGuide_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        return offset > 0 && offset < (isVertical ? target.Size.Y : target.Size.X) && target.Guides.All(x => Math.Abs(x.Offset - offset) > 0.01 || x.IsVertical != isVertical);
+        return target.Guides.All(x => Math.Abs(x.Offset - offset) > 0.01 || x.IsVertical != isVertical);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

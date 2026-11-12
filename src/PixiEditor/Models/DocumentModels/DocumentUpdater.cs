@@ -19,6 +19,7 @@ using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
@@ -272,6 +273,9 @@ internal class DocumentUpdater
                 break;
             case RemoveGuide_ChangeInfo info:
                 ProcessRemoveGuide(info);
+                break;
+            case DocumentMeasurement_ChangeInfo info:
+                ProcessDocumentMeasurement(info);
                 break;
         }
     }
@@ -1203,7 +1207,7 @@ internal class DocumentUpdater
         }
         else
         {
-            doc.GuidesHandler.AddGuideInternal(new GuideViewModel(info.Id, info.IsVertical, info.Offset));
+            doc.GuidesHandler.AddGuideInternal(new GuideViewModel(helper, info.Id, info.IsVertical, info.Offset));
         }
     }
 
@@ -1214,5 +1218,10 @@ internal class DocumentUpdater
         {
             doc.GuidesHandler.RemoveGuideInternal(found);
         }
+    }
+
+    private void ProcessDocumentMeasurement(DocumentMeasurement_ChangeInfo info)
+    {
+        doc.SetMeasurementUnitInternal(info.Unit);
     }
 }

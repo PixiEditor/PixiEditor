@@ -157,6 +157,24 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
+    private MeasurementUnit measurementUnit = new PixelUnit();
+
+    public MeasurementUnit MeasurementUnitBindable
+    {
+        get => measurementUnit;
+        set
+        {
+            if (!Internals.ChangeController.IsBlockingChangeActive)
+                Internals.ActionAccumulator.AddFinishedActions(new DocumentMeasurementUnit_Action(value));
+        }
+    }
+
+    public void SetMeasurementUnitInternal(MeasurementUnit unit)
+    {
+        measurementUnit = unit;
+        OnPropertyChanged(nameof(MeasurementUnitBindable));
+    }
+
     public void SetDpiInternal(float targetDpi)
     {
         this.dpi = targetDpi;
@@ -434,8 +452,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
 
         viewModel.DpiBindable = builderInstance.Dpi;
+        viewModel.MeasurementUnitBindable = MeasurementUnit.AllKnown.FirstOrDefault(x => string.Equals(x.UnitName, builderInstance.MeasurementUnit, StringComparison.OrdinalIgnoreCase), MeasurementUnit.Pixels);
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
+
+        foreach (var builderInstanceGuide in builderInstance.Guides)
+        {
+            viewModel.GuidesViewModel.AddGuide(builderInstanceGuide.IsVertical, builderInstanceGuide.Offset);
+        }
 
         SerializationConfig config =
             new SerializationConfig(BuiltInEncoders.Encoders[builderInstance.ImageEncoderUsed],

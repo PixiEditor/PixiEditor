@@ -8,10 +8,12 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Graph;
 using PixiEditor.Parser.Skia;
+using Guide = PixiEditor.Parser.Guide;
 using NodeGraph = PixiEditor.Parser.Graph.NodeGraph;
 
 namespace PixiEditor.Helpers;
@@ -24,9 +26,10 @@ internal class DocumentViewModelBuilder
     public int Height { get; set; }
     public bool FitToContent { get; set; } = false;
     public float Dpi { get; set; } = 300;
-
+    public string MeasurementUnit { get; set; } = ChangeableDocument.Changeables.MeasurementUnit.Pixels.UnitName;
     public List<PaletteColor> Swatches { get; set; } = new List<PaletteColor>();
     public List<PaletteColor> Palette { get; set; } = new List<PaletteColor>();
+    public List<Guide> Guides { get; set; } = new List<Guide>();
 
     public ReferenceLayerBuilder ReferenceLayer { get; set; }
     public AnimationDataBuilder AnimationData { get; set; }
@@ -50,6 +53,12 @@ internal class DocumentViewModelBuilder
     public DocumentViewModelBuilder WithDpi(float dpi)
     {
         Dpi = dpi;
+        return this;
+    }
+
+    public DocumentViewModelBuilder WithMeasurementUnit(string unit)
+    {
+        MeasurementUnit = unit;
         return this;
     }
 
@@ -211,7 +220,7 @@ internal class DocumentViewModelBuilder
                         .WithNodeId(node.Id));
                 }
 
-                if(existingGroup == null)
+                if (existingGroup == null)
                     data.Add(builder);
             }
         }
@@ -286,6 +295,12 @@ internal class DocumentViewModelBuilder
     public DocumentViewModelBuilder WithResources(ResourceStorage documentResources)
     {
         DocumentResources = documentResources;
+        return this;
+    }
+
+    public DocumentViewModelBuilder WithGuides(List<Guide> documentGuides)
+    {
+        Guides = new List<Guide>(documentGuides);
         return this;
     }
 
@@ -586,7 +601,8 @@ internal class NodeGraphBuilder
     {
         public List<VariableBuilder> Variables { get; set; } = new List<VariableBuilder>();
 
-        public BlackboardBuilder WithVariable(string name, object value, string type, string unit = null, double? min = null,
+        public BlackboardBuilder WithVariable(string name, object value, string type, string unit = null,
+            double? min = null,
             double? max = null, bool isExposed = true)
         {
             Variables.Add(new VariableBuilder

@@ -23,6 +23,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 using PixiEditor.Models.BrushEngine;
@@ -38,6 +39,7 @@ using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 using Color = System.Drawing.Color;
+using Guide = PixiEditor.Parser.Guide;
 using IKeyFrameChildrenContainer = PixiEditor.ChangeableDocument.Changeables.Interfaces.IKeyFrameChildrenContainer;
 using KeyFrameData = PixiEditor.Parser.KeyFrameData;
 using Node = PixiEditor.Parser.Graph.Node;
@@ -89,6 +91,8 @@ internal partial class DocumentViewModel
             Width = Width,
             Height = Height,
             Dpi = doc.Dpi,
+            MeasurementUnit = doc.MeasurementUnit.UnitName,
+            Guides = ToGuidesCollection(doc.Guides),
             Swatches = ToCollection(Swatches),
             Palette = ToCollection(Palette),
             Graph = graph,
@@ -847,6 +851,9 @@ internal partial class DocumentViewModel
 
     private ColorCollection ToCollection(IList<PaletteColor> collection) =>
         new(collection.Select(x => Color.FromArgb(255, x.R, x.G, x.B)));
+
+    private List<Guide> ToGuidesCollection(IReadOnlyCollection<IReadOnlyGuide> docGuides) =>
+    docGuides.Select((x, i) => new Guide() { IsVertical = x.IsVertical, Offset = x.Offset } ).ToList();
 
     private AnimationData ToAnimationData(IReadOnlyAnimationData animationData, IReadOnlyNodeGraph graph,
         Dictionary<Guid, int> nodeIdMap, Dictionary<Guid, int> keyFrameIds)

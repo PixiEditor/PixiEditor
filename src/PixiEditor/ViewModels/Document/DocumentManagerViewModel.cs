@@ -215,6 +215,19 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument.GuidesViewModel.AddGuide(args.isVertical, args.offset);
     }
 
+    [Command.Internal("PixiEditor.Document.RemoveGuide", CanExecute = "PixiEditor.HasDocument",
+        AnalyticsTrack = true)]
+    public void RemoveGuide(Guid id)
+    {
+        if (ActiveDocument is null)
+            return;
+
+        var guide = ActiveDocument.GuidesViewModel.Guides.FirstOrDefault(x => x.Id == id);
+        if (guide == null) return;
+
+        ActiveDocument.GuidesViewModel.RemoveGuide(guide);
+    }
+
     [Command.Internal("PixiEditor.Document.StartDragGuide", CanExecute = "PixiEditor.HasDocument",
         AnalyticsTrack = true)]
     public void StartDragGuide(Guid id)

@@ -4,6 +4,6 @@ public interface IGuideHandler
 {
     Guid Id { get; }
     bool IsVertical { get; }
-    double Offset { get; }
+    double OffsetBindable { get; }
     void SetOffsetInternal(double newOffset);
 }

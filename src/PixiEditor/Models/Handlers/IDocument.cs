@@ -10,6 +10,7 @@ using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -82,5 +83,7 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public IReadOnlyDocument AccessInternalReadOnlyDocument();
     public bool IsNestedDocument { get; }
     float DpiBindable { get; }
+    MeasurementUnit MeasurementUnitBindable { get; }
     internal void SetDpiInternal(float dpi);
+    internal void SetMeasurementUnitInternal(MeasurementUnit unit);
 }
