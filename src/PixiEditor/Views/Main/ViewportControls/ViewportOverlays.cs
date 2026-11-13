@@ -799,9 +799,24 @@ internal class ViewportOverlays
             Source = Viewport, Path = "Document.SizeBindable", Mode = BindingMode.OneWay
         };
 
+        Binding canEditBinding = new()
+        {
+            Source = Viewport, Path = "Document.GuidesOverlayViewModel.CanEdit", Mode = BindingMode.OneWay
+        };
+
+        Binding rulerUnit = new Binding()
+        {
+            Source = Viewport, Path = "Document.MeasurementUnitBindable", Mode = BindingMode.TwoWay
+        };
+
+        Binding dpi = new Binding() { Source = Viewport, Path = "Document.DpiBindable", Mode = BindingMode.OneWay };
+
         guidesOverlay.Bind(Visual.IsVisibleProperty, enabled);
         guidesOverlay.Bind(GuidesOverlay.GuidesProperty, guidesBinding);
         guidesOverlay.Bind(GuidesOverlay.DocumentSizeProperty, documentSizeBinding);
+        guidesOverlay.Bind(GuidesOverlay.CanEditProperty, canEditBinding);
+        guidesOverlay.Bind(GuidesOverlay.UnitProperty, rulerUnit);
+        guidesOverlay.Bind(GuidesOverlay.DpiProperty, dpi);
 
         guidesOverlay.BeginDragGuideCommand =
             (ICommand)new Command("PixiEditor.Document.StartDragGuide") { UseProvided = true }.ProvideValue(null);

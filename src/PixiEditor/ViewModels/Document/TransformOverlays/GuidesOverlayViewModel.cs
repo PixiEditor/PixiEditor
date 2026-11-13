@@ -3,7 +3,7 @@ using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.ViewModels.Document.TransformOverlays;
 
-public class GuidesOverlayViewModel : ViewModelBase
+public partial class GuidesOverlayViewModel : ViewModelBase
 {
     private SnappingController snappingController;
     private bool isEnabled;
@@ -28,6 +28,10 @@ public class GuidesOverlayViewModel : ViewModelBase
             }
         }
     }
+
+
+    [ObservableProperty]
+    public partial bool CanEdit { get; set; }
 
     public GuidesOverlayViewModel(SnappingController controller)
     {

@@ -22,6 +22,8 @@ namespace PixiEditor.Views.Overlays.Ruler;
 
 public class RulerOverlay : Overlay
 {
+    private const double UnitDensity = 50;
+
     public static readonly StyledProperty<MeasurementUnit> UnitProperty =
         AvaloniaProperty.Register<RulerOverlay, MeasurementUnit>(
             nameof(Unit), MeasurementUnit.Pixels);
@@ -106,6 +108,7 @@ public class RulerOverlay : Overlay
     private Paint selectionTextPaint;
     private Paint highlightPaint;
     private Paint selectionPaint;
+    private Paint previewGuidePaint;
 
     private static Font textFont;
 
@@ -122,14 +125,6 @@ public class RulerOverlay : Overlay
 
     private const int SafeOverlapPadding = 8;
 
-    private List<MeasurementUnit> allUnits =
-    [
-        MeasurementUnit.Pixels,
-        MeasurementUnit.Millimeter,
-        MeasurementUnit.Points,
-        MeasurementUnit.Inches,
-    ];
-
     static RulerOverlay()
     {
         textFont = Font.CreateDefault();
@@ -143,6 +138,8 @@ public class RulerOverlay : Overlay
         highlightPaint = ResourceLoader.GetPaint("ThemeAccentHighBrush");
         selectionPaint = ResourceLoader.GetPaint("SelectionFillBrush");
         selectionTextPaint = ResourceLoader.GetPaint("ThemeAccent3Brush");
+        previewGuidePaint = ResourceLoader.GetPaint("ThemeAccent3Brush");
+        previewGuidePaint.Color = previewGuidePaint.Color.WithAlpha(127);
         textPaint.IsAntiAliased = true;
         selectionTextPaint.IsAntiAliased = true;
         unitText = new LocalizedString(MeasurementUnit.Pixels.ShortNameLocalizationKey);
@@ -199,14 +196,14 @@ public class RulerOverlay : Overlay
             {
                 if (args.ViewportPoint is { X: < Offset, Y: < Offset })
                 {
-                    int currentIndex = allUnits.IndexOf(Unit);
-                    if (currentIndex == -1 || currentIndex == allUnits.Count - 1)
+                    int currentIndex = IndexOf(Unit);
+                    if (currentIndex == -1 || currentIndex == MeasurementUnit.AllKnown.Count - 1)
                     {
                         Unit = MeasurementUnit.Pixels;
                     }
                     else
                     {
-                        Unit = allUnits[currentIndex + 1];
+                        Unit = MeasurementUnit.AllKnown[currentIndex + 1];
                     }
                 }
                 else if (args.ViewportPoint is { X: < Offset } or { Y: < Offset })
@@ -225,6 +222,17 @@ public class RulerOverlay : Overlay
         }
     }
 
+    private int IndexOf(MeasurementUnit unit)
+    {
+        for (var index = 0; index < MeasurementUnit.AllKnown.Count; index++)
+        {
+            var measurementUnit = MeasurementUnit.AllKnown[index];
+            if (measurementUnit == unit) return index;
+        }
+
+        return -1;
+    }
+
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
         if (isDraggingPreviewGuide)
@@ -236,11 +244,11 @@ public class RulerOverlay : Overlay
                 double spacing;
                 if (previewGuideIsVertical)
                 {
-                    GetYTickSpacing(lastMatrix, out spacing);
+                    GetYTickSpacing(lastMatrix, Unit, Dpi, out spacing);
                 }
                 else
                 {
-                    GetXTickSpacing(lastMatrix, out spacing);
+                    GetXTickSpacing(lastMatrix, Unit, Dpi, out spacing);
                 }
 
                 previewGuide = Unit.ToPixels(SnapToGrid(Unit.FromPixels(previewGuide, Dpi), spacing), Dpi);
@@ -267,7 +275,7 @@ public class RulerOverlay : Overlay
         }
     }
 
-    private static double SnapToGrid(double value, double spacing)
+    internal static double SnapToGrid(double value, double spacing)
     {
         return Math.Round(value / spacing) * spacing;
     }
@@ -292,12 +300,12 @@ public class RulerOverlay : Overlay
             if (previewGuideIsVertical)
             {
                 context.DrawLine(new VecD(previewGuide, 0), new VecD(previewGuide, DocumentSize.Y),
-                    highlightPaint);
+                    previewGuidePaint);
             }
             else
             {
                 context.DrawLine(new VecD(0, previewGuide), new VecD(DocumentSize.X, previewGuide),
-                    highlightPaint);
+                    previewGuidePaint);
             }
 
             infoBox.ZoomScale = ZoomScale;
@@ -394,7 +402,7 @@ public class RulerOverlay : Overlay
 
     private void DrawHorizontalRuler(Canvas context, Paint paint, Matrix3X3 previousMatrix)
     {
-        var docSizePixelSpacing = GetXTickSpacing(previousMatrix, out var tickSpacing);
+        var docSizePixelSpacing = GetXTickSpacing(previousMatrix, Unit, Dpi, out var tickSpacing);
 
         RectD rect = new RectD(Offset, 0, context.DeviceClipBounds.Width, Offset);
         int saved = context.Save();
@@ -434,17 +442,9 @@ public class RulerOverlay : Overlay
         context.RestoreToCount(saved);
     }
 
-    private double GetXTickSpacing(Matrix3X3 previousMatrix, out double tickSpacing)
-    {
-        double zeroX = previousMatrix.MapPoint(new VecD(0, 0)).X;
-        double docSizePixelSpacing = previousMatrix.MapPoint(new VecD(Unit.ToPixels(1, Dpi), 0)).X - zeroX;
-        tickSpacing = GetTickSpacing(GetDensityForUnit(), docSizePixelSpacing);
-        return docSizePixelSpacing;
-    }
-
     private void DrawVerticalRuler(Canvas context, Paint paint, Matrix3X3 previousMatrix)
     {
-        var docSizePixelSpacing = GetYTickSpacing(previousMatrix, out var tickSpacing);
+        var docSizePixelSpacing = GetYTickSpacing(previousMatrix, Unit, Dpi, out var tickSpacing);
 
         RectD rect = new RectD(0, Offset, Offset, context.DeviceClipBounds.Height);
         int saved = context.Save();
@@ -452,7 +452,6 @@ public class RulerOverlay : Overlay
         context.DrawRect(rect, backgroundPaint);
 
         var selectionRect = DrawVerticalSelection(context, previousMatrix);
-
 
         double startY = previousMatrix.TransY;
         double visibleStart = Offset;
@@ -493,24 +492,27 @@ public class RulerOverlay : Overlay
         context.RestoreToCount(saved);
     }
 
-    private double GetYTickSpacing(Matrix3X3 previousMatrix, out double tickSpacing)
+    internal static double GetYTickSpacing(Matrix3X3 previousMatrix, MeasurementUnit unit, float dpi, out double tickSpacing)
     {
         double zeroY = previousMatrix.MapPoint(new VecD(0, 0)).Y;
-        double docSizePixelSpacing = previousMatrix.MapPoint(new VecD(0, Unit.ToPixels(1, Dpi))).Y - zeroY;
-        tickSpacing = GetTickSpacing(GetDensityForUnit(), docSizePixelSpacing);
+        double docSizePixelSpacing = previousMatrix.MapPoint(new VecD(0, unit.ToPixels(1, dpi))).Y - zeroY;
+        tickSpacing = GetTickSpacing(docSizePixelSpacing, unit);
         return docSizePixelSpacing;
     }
 
-    private double GetDensityForUnit()
+    internal static double GetXTickSpacing(Matrix3X3 previousMatrix, MeasurementUnit unit, float dpi, out double tickSpacing)
     {
-        return 50;
+        double zeroX = previousMatrix.MapPoint(new VecD(0, 0)).X;
+        double docSizePixelSpacing = previousMatrix.MapPoint(new VecD(unit.ToPixels(1, dpi), 0)).X - zeroX;
+        tickSpacing = GetTickSpacing(docSizePixelSpacing, unit);
+        return docSizePixelSpacing;
     }
 
-    private double GetTickSpacing(double minLabelSpacing, double docSizePixelSpacing)
+    private static double GetTickSpacing(double docSizePixelSpacing, MeasurementUnit unit)
     {
-        double minTickSpacing = minLabelSpacing / docSizePixelSpacing;
-        double tickSpacing = Unit.GetSpacing(minTickSpacing);
-        if (!Unit.AllowFractionalValues)
+        double minTickSpacing = UnitDensity / docSizePixelSpacing;
+        double tickSpacing = unit.GetSpacing(minTickSpacing);
+        if (!unit.AllowFractionalValues)
         {
             tickSpacing = Math.Max(1, tickSpacing);
         }

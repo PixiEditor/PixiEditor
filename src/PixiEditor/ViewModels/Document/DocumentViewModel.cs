@@ -288,6 +288,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     IRulerOverlayHandler IDocument.RulerOverlayHandler => RulerOverlayViewModel;
     public bool UsesSrgbBlending { get; private set; }
 
+    public event Action ExecutorChanged;
+
     private bool isDisposed = false;
     private Guid referenceId = Guid.Empty;
     private Queue<Action> queuedLayerReadyToUseActions = new();
@@ -329,6 +331,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private void InitializeViewModel()
     {
         Internals.ChangeController.ToolSessionFinished += () => ToolSessionFinished?.Invoke();
+        Internals.ChangeController.ExecutorChanged += () => ExecutorChanged?.Invoke();
 
         Tools = new DocumentToolsModule(this, Internals);
         StructureHelper = new DocumentStructureModule(this);
@@ -371,6 +374,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         GuidesViewModel = new GuidesViewModel(SnappingViewModel, Internals);
         GuidesOverlayViewModel = new GuidesOverlayViewModel(SnappingViewModel.SnappingController);
+        ExecutorChanged += UpdateGuidesEditingState;
+        ToolSessionFinished += UpdateGuidesEditingState;
         SizeChanged += (_, args) =>
         {
             SnappingViewModel.AddFromDocumentSize(args.NewSize);
@@ -396,6 +401,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         Renderer = new DocumentRenderer(Internals.Tracker.Document);
         SceneRenderer = new SceneRenderer(Internals.Tracker.Document, this);
+    }
+
+    private void UpdateGuidesEditingState()
+    {
+        GuidesOverlayViewModel.CanEdit = IsChangeFeatureActive<IGuidesEditingFeature>();
     }
 
     /// <summary>

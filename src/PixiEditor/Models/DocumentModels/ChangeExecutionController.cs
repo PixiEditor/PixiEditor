@@ -33,6 +33,7 @@ internal class ChangeExecutionController
     public bool IsChangeActive => currentSession is not null;
     public EditorData EditorData => GetEditorData();
 
+    public event Action ExecutorChanged;
     public event Action ToolSessionFinished;
 
     public IDocument Document => document;
@@ -117,10 +118,12 @@ internal class ChangeExecutionController
         currentSession = brandNewExecutor;
         if (brandNewExecutor.Start() == ExecutionState.Success)
         {
+            ExecutorChanged?.Invoke();
             return true;
         }
 
         currentSession = null;
+        ExecutorChanged?.Invoke();
         return false;
     }
 

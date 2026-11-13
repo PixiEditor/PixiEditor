@@ -1636,12 +1636,16 @@
   "UNKNOWN_UNIT_SHORT_NAME": "?",
   "PX_UNIT_SHORT_NAME": "px",
   "MILLIMETER_UNIT_SHORT_NAME": "mm",
+  "METER_UNIT_SHORT_NAME": "m",
+  "CENTIMETER_UNIT_SHORT_NAME": "cm",
   "POINTS_UNIT_SHORT_NAME": "pt",
   "INCHES_UNIT_SHORT_NAME": "in",
+  "YARD_UNIT_SHORT_NAME": "yd",
   "VERTICAL_GUIDES_HEADING": "Vertical",
   "HORIZONTAL_GUIDES_HEADING": "Horizontal",
   "TOGGLE_GUIDES": "Toggle Guides",
   "TOGGLE_GUIDES_DESCRIPTIVE": "Toggle Guides Overlay",
   "TOGGLE_RULERS": "Toggle Rulers",
-  "TOGGLE_RULERS_DESCRIPTIVE": "Toggle Rulers Overlay"
+  "TOGGLE_RULERS_DESCRIPTIVE": "Toggle Rulers Overlay",
+  "GUIDES_TITLE": "Guides"
 }

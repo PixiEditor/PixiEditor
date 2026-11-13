@@ -1,9 +1,10 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Tools;
 using PixiEditor.Views.Overlays.Ruler;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
-internal class GuideExecutor : UpdateableChangeExecutor
+internal class GuideExecutor : UpdateableChangeExecutor, IGuidesEditingFeature
 {
     private readonly Guid guideId;
 
@@ -43,5 +44,10 @@ internal class GuideExecutor : UpdateableChangeExecutor
     public override void ForceStop()
     {
         internals.ActionAccumulator.AddFinishedActions(new EndGuidePosition_Action());
+    }
+
+    public bool IsFeatureEnabled<T>()
+    {
+        return typeof(T) == typeof(IGuidesEditingFeature);
     }
 }
