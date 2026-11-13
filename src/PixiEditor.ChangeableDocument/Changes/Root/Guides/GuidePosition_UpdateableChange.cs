@@ -28,6 +28,11 @@ internal class GuidePosition_UpdateableChange : UpdateableChange
     public override bool InitializeAndValidate(Document target)
     {
         guide = target.Guides.FirstOrDefault(g => g.Id == guideId);
+        if (guide != null)
+        {
+            originalPos = guide.Offset;
+        }
+
         return guide != null;
     }
 
