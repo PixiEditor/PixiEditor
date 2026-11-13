@@ -86,6 +86,7 @@ internal class ViewOptionsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.ToggleRulers", "TOGGLE_RULERS", "TOGGLE_RULERS_DESCRIPTIVE",
+        Key = Key.R, Modifiers = KeyModifiers.Control,
         Icon = PixiPerfectIcons.Ruler)]
     public void ToggleRulers()
     {
