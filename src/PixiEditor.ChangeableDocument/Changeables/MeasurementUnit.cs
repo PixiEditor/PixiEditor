@@ -9,10 +9,11 @@ public abstract class MeasurementUnit
     public static MeasurementUnit Meter { get; } = new MeterUnit();
     public static MeasurementUnit Centimeter { get; } = new CentimeterUnit();
     public static MeasurementUnit Yard { get; } = new YardUnit();
+    public static MeasurementUnit Picas { get; } =  new PicasUnit();
 
     public static IReadOnlyList<MeasurementUnit> AllKnown { get; } =
     [
-        Pixels, Points, Millimeter, Centimeter, Meter, Inches, Yard
+        Pixels, Points, Picas, Millimeter, Centimeter, Meter, Inches, Yard
     ];
 
     /// <summary>
@@ -172,5 +173,22 @@ public sealed class YardUnit : MeasurementUnit
     public override double FromPixels(double pixels, float dpi)
     {
         return pixels / (dpi *  InchesInYard);
+    }
+}
+
+public sealed class PicasUnit : MeasurementUnit
+{
+    public override string UnitName { get; } = "Picas";
+    public override string ShortNameLocalizationKey { get; } = "PICAS_UNIT_SHORT_NAME";
+    public override bool AllowFractionalValues { get; } = true;
+
+    public override double ToPixels(double value, float dpi)
+    {
+        return value * 12 * dpi / 72;
+    }
+
+    public override double FromPixels(double pixels, float dpi)
+    {
+        return pixels * 72 / (12 * dpi);
     }
 }
