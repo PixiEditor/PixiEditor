@@ -1,4 +1,5 @@
 ﻿using Drawie.Numerics;
+using PixiEditor.Common;
 
 namespace PixiEditor.Models.Controllers.InputDevice;
 
@@ -18,6 +19,9 @@ public class SnappingController
 
     public Dictionary<string, Func<VecD>> HorizontalSnapPoints { get; } = new();
     public Dictionary<string, Func<VecD>> VerticalSnapPoints { get; } = new();
+
+    private Dictionary<string, Func<VecD>> disabledHorizontalSnapPoints = new();
+    private Dictionary<string, Func<VecD>> disabledVerticalSnapPoints = new();
 
     public string HighlightedXAxis
     {
@@ -136,6 +140,51 @@ public class SnappingController
 
         return closest;
     }
+
+    public void EnableVerticalStartingWith(string identifier)
+    {
+        var toEnable = disabledVerticalSnapPoints.Where(x => x.Key.StartsWith(identifier)).ToDictionary();
+        VerticalSnapPoints.AddRangeOverride(toEnable);
+
+        foreach (var func in toEnable)
+        {
+            disabledVerticalSnapPoints.Remove(func.Key);
+        }
+    }
+
+    public void EnableHorizontalStartingWith(string identifier)
+    {
+        var toEnable = disabledHorizontalSnapPoints.Where(x => x.Key.StartsWith(identifier)).ToDictionary();
+        HorizontalSnapPoints.AddRangeOverride(toEnable);
+
+        foreach (var func in toEnable)
+        {
+            disabledHorizontalSnapPoints.Remove(func.Key);
+        }
+    }
+
+    public void DisableHorizontalStartingWith(string identifier)
+    {
+        var toEnable = HorizontalSnapPoints.Where(x => x.Key.StartsWith(identifier)).ToDictionary();
+        disabledHorizontalSnapPoints.AddRangeOverride(toEnable);
+
+        foreach (var func in toEnable)
+        {
+            HorizontalSnapPoints.Remove(func.Key);
+        }
+    }
+
+    public void DisableVerticalStartingWith(string identifier)
+    {
+        var toDisable = VerticalSnapPoints.Where(x => x.Key.StartsWith(identifier)).ToDictionary();
+        disabledVerticalSnapPoints.AddRangeOverride(toDisable);
+
+        foreach (var func in toDisable)
+        {
+            VerticalSnapPoints.Remove(func.Key);
+        }
+    }
+
 
     public void AddXYAxis(string identifier, VecD axisVector)
     {

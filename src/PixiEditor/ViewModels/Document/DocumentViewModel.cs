@@ -178,7 +178,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public void SetDpiInternal(float targetDpi)
     {
         this.dpi = targetDpi;
-        RulerOverlayViewModel.Dpi = targetDpi;
         OnPropertyChanged(nameof(DpiBindable));
     }
 
@@ -270,6 +269,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public AnimationDataViewModel AnimationDataViewModel { get; set; }
     public TextOverlayViewModel TextOverlayViewModel { get; set; }
     public RulerOverlayViewModel RulerOverlayViewModel { get; set; }
+    public GuidesOverlayViewModel GuidesOverlayViewModel { get; set; }
     private DocumentInternalParts Internals { get; }
     public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
     public ContextualOptionsViewModel ContextualOptionsViewModel { get; set; } = new();
@@ -340,7 +340,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         NodeGraph = new NodeGraphViewModel(this, Internals);
         AutosaveViewModel = new AutosaveDocumentViewModel(this, Internals);
 
-
         TransformViewModel = new(this);
         TransformViewModel.TransformChanged += (args) => Internals.ChangeController.TransformChangedInlet(args);
         TransformViewModel.TransformDragged += (from, to) => Internals.ChangeController.TransformDraggedInlet(from, to);
@@ -356,7 +355,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         LineToolOverlayViewModel.LineMoved += (_, args) =>
             Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
 
-        RulerOverlayViewModel = new(DpiBindable);
+        RulerOverlayViewModel = new();
         TextOverlayViewModel = new TextOverlayViewModel();
         TextOverlayViewModel.TextChanged += text =>
         {
@@ -371,6 +370,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         SnappingViewModel.AddFromDocumentSize(SizeBindable);
 
         GuidesViewModel = new GuidesViewModel(SnappingViewModel, Internals);
+        GuidesOverlayViewModel = new GuidesOverlayViewModel(SnappingViewModel.SnappingController);
         SizeChanged += (_, args) =>
         {
             SnappingViewModel.AddFromDocumentSize(args.NewSize);

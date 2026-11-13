@@ -93,4 +93,13 @@ internal class ViewOptionsViewModel : SubViewModel<ViewModelMain>
 
         doc?.RulerOverlayViewModel.IsEnabled = !doc.RulerOverlayViewModel.IsEnabled;
     }
+
+    [Command.Basic("PixiEditor.ToggleGuides", "TOGGLE_GUIDES", "TOGGLE_GUIDES_DESCRIPTIVE",
+        Icon = PixiPerfectIcons.ClosedGrid)]
+    public void ToggleGuides()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+        doc?.GuidesOverlayViewModel.IsEnabled = !doc.GuidesOverlayViewModel.IsEnabled;
+    }
 }

@@ -37,10 +37,6 @@ public class RulerOverlay : Overlay
         AvaloniaProperty.Register<RulerOverlay, bool>(
             nameof(SelectionEnabled));
 
-    public static readonly StyledProperty<ObservableCollection<IGuideHandler>> GuidesProperty =
-        AvaloniaProperty.Register<RulerOverlay, ObservableCollection<IGuideHandler>>(
-            nameof(Guides));
-
     public static readonly StyledProperty<ICommand> CreateGuideCommandProperty =
         AvaloniaProperty.Register<RulerOverlay, ICommand>(
             nameof(CreateGuideCommand));
@@ -51,6 +47,15 @@ public class RulerOverlay : Overlay
 
     public static readonly StyledProperty<VecI> DocumentSizeProperty = AvaloniaProperty.Register<RulerOverlay, VecI>(
         nameof(DocumentSize));
+
+    public static readonly StyledProperty<bool> GuidesVisibleProperty = AvaloniaProperty.Register<RulerOverlay, bool>(
+        nameof(GuidesVisible));
+
+    public bool GuidesVisible
+    {
+        get => GetValue(GuidesVisibleProperty);
+        set => SetValue(GuidesVisibleProperty, value);
+    }
 
     public VecI DocumentSize
     {
@@ -68,12 +73,6 @@ public class RulerOverlay : Overlay
     {
         get => GetValue(CreateGuideCommandProperty);
         set => SetValue(CreateGuideCommandProperty, value);
-    }
-
-    public ObservableCollection<IGuideHandler> Guides
-    {
-        get => GetValue(GuidesProperty);
-        set => SetValue(GuidesProperty, value);
     }
 
     public bool SelectionEnabled
@@ -135,7 +134,6 @@ public class RulerOverlay : Overlay
     {
         textFont = Font.CreateDefault();
         UnitProperty.Changed.AddClassHandler<RulerOverlay, MeasurementUnit>(OnUnitChanged);
-        GuidesProperty.Changed.AddClassHandler<RulerOverlay, ObservableCollection<IGuideHandler>>(OnGuidesChanged);
     }
 
     public RulerOverlay()
@@ -151,25 +149,6 @@ public class RulerOverlay : Overlay
         lastPointerPos = VecD.Zero;
         AlwaysPassPointerEvents = true;
         infoBox = new InfoBox();
-    }
-
-
-    private static void OnGuidesChanged(
-        RulerOverlay overlay,
-        AvaloniaPropertyChangedEventArgs<ObservableCollection<IGuideHandler>> args)
-    {
-        if (args.OldValue.Value is { } oldGuides)
-            oldGuides.CollectionChanged -= overlay.OnGuidesCollectionChanged;
-
-        if (args.NewValue.Value is { } newGuides)
-            newGuides.CollectionChanged += overlay.OnGuidesCollectionChanged;
-
-        overlay.Refresh();
-    }
-
-    private void OnGuidesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        Refresh();
     }
 
     private static void OnUnitChanged(RulerOverlay overlay,
@@ -209,7 +188,6 @@ public class RulerOverlay : Overlay
 
         context.RestoreToCount(saved);
 
-        DrawGuides(context);
         DrawPreviewGuide(context);
     }
 
@@ -234,6 +212,7 @@ public class RulerOverlay : Overlay
                 else if (args.ViewportPoint is { X: < Offset } or { Y: < Offset })
                 {
                     previewGuideIsVertical = args.ViewportPoint.Y < Offset;
+                    GuidesVisible = true;
                     args.Pointer.Capture(this);
                     isDraggingPreviewGuide = true;
 
@@ -304,26 +283,6 @@ public class RulerOverlay : Overlay
         context.ClipRect(new RectD(0, Offset, Offset, context.DeviceClipBounds.Height));
         context.DrawLine(new VecD(0, lastPointerPos.Y), new VecD(Offset, lastPointerPos.Y), highlightPaint);
         context.RestoreToCount(saved);
-    }
-
-    private void DrawGuides(Canvas context)
-    {
-        if (Guides == null)
-            return;
-
-        foreach (var guide in Guides)
-        {
-            if (guide.IsVertical)
-            {
-                context.DrawLine(new VecD(guide.OffsetBindable, 0), new VecD(guide.OffsetBindable, DocumentSize.Y),
-                    highlightPaint);
-            }
-            else
-            {
-                context.DrawLine(new VecD(0, guide.OffsetBindable), new VecD(DocumentSize.X, guide.OffsetBindable),
-                    highlightPaint);
-            }
-        }
     }
 
     private void DrawPreviewGuide(Canvas context)

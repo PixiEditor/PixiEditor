@@ -9,6 +9,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views;
+using PixiEditor.Views.Overlays.Ruler;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.ViewModels.Document;
@@ -235,14 +236,24 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         if (ActiveDocument is null || ActiveDocument.GuidesViewModel.Guides.All(x => x.Id != id))
             return;
 
-        ActiveDocument.EventInlet.OnGuideDragStarted(id);
         ActiveDocument.Tools.UseGuide(id);
+        ActiveDocument.EventInlet.OnGuideDragStarted(id);
+    }
+
+    [Command.Internal("PixiEditor.Document.DragGuide", CanExecute = "PixiEditor.HasDocument",
+        AnalyticsTrack = true)]
+    public void DragGuide(GuideDragInfo info)
+    {
+        if (ActiveDocument is null)
+            return;
+
+        ActiveDocument.EventInlet.OnGuideDragged(info);
     }
 
     [Command.Internal("PixiEditor.Document.EndDragGuide", CanExecute = "PixiEditor.HasDocument")]
     public void EndDragGuide(Guid id)
     {
-        if (ActiveDocument is null || ActiveDocument.GuidesViewModel.Guides.All(x => x.Id != id))
+        if (ActiveDocument is null)
             return;
 
         ActiveDocument.EventInlet.OnGuideDragEnded(id);

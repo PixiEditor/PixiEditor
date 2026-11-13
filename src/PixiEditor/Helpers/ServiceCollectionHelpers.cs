@@ -225,7 +225,9 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<MenuItemBuilder, OpenDockablesMenuBuilder>()
             .AddSingleton<MenuItemBuilder, ToggleGridLinesMenuBuilder>()
             .AddSingleton<MenuItemBuilder, ToggleSnappingMenuBuilder>()
-            .AddSingleton<MenuItemBuilder, ToggleHighResPreviewMenuBuilder>();
+            .AddSingleton<MenuItemBuilder, ToggleHighResPreviewMenuBuilder>()
+            .AddSingleton<MenuItemBuilder, ToggleRulersMenuBuilder>()
+            .AddSingleton<MenuItemBuilder, ToggleGuidesMenuBuilder>();
     }
 
     public static IServiceCollection AddExtensionServices(this IServiceCollection collection, ExtensionLoader loader) =>
