@@ -257,6 +257,7 @@ public class RulerOverlay : Overlay
             Cursor = new Cursor(previewGuideIsVertical
                 ? StandardCursorType.SizeWestEast
                 : StandardCursorType.SizeNorthSouth);
+            args.Handled = true;
         }
 
         lastPointerPos = args.ViewportPoint;

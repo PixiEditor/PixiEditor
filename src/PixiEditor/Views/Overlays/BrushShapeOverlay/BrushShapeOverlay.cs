@@ -292,7 +292,7 @@ internal class BrushShapeOverlay : Overlay
 
     public void Render(Canvas targetCanvas)
     {
-        if (BrushShape != null)
+        if (BrushShape != null && (Scene?.CapturedOverlay == null || Scene?.CapturedOverlay == this))
         {
             paint.BlendMode = BlendMode.SrcOver;
             paint.IsAntiAliased = true;

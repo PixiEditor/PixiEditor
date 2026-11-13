@@ -570,6 +570,8 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding sceneBinding = new() { Source = Viewport, Path = "Scene", Mode = BindingMode.OneWay };
+
         brushShapeOverlay.Bind(Visual.IsVisibleProperty, isVisibleMultiBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.BrushDataProperty, brushDataBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.ActiveFrameTimeProperty, activeFrameTimeBidning);
@@ -580,6 +582,7 @@ internal class ViewportOverlays
             lastBrushToolUseEndPositionBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.LastAppliedPointProperty, lastAppliedPointBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.BrushSettingChangedTriggerProperty, settingChangedTrigger);
+        brushShapeOverlay.Bind(BrushShapeOverlay.SceneProperty, sceneBinding);
     }
 
     private void BindTextOverlay()

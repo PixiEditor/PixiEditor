@@ -166,6 +166,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     public PointerInfo LastPointerInfo => lastPointerInfo;
     public KeyboardInfo LastKeyboardInfo => lastKeyboardInfo;
+    public Overlay? CapturedOverlay => capturedOverlay;
 
     private Overlay? capturedOverlay;
 

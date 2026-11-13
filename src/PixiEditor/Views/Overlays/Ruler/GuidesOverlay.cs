@@ -215,6 +215,8 @@ public class GuidesOverlay : Overlay
             ? StandardCursorType.SizeWestEast
             : StandardCursorType.SizeNorthSouth);
         lastCanvasPointer = args.CanvasPoint;
+
+        args.Handled = true;
     }
 
     protected override void OnOverlayPointerEntered(OverlayPointerArgs args)
