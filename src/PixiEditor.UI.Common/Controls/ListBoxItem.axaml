@@ -1,14 +1,14 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ControlTheme x:Key="{x:Type ListBoxItem}"
-                TargetType="ListBoxItem">
+                  TargetType="ListBoxItem">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Height" Value="30"/>
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Height" Value="30" />
         <Setter Property="Template">
             <ControlTemplate>
-                <Border MinHeight="20" 
+                <Border MinHeight="20"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         Background="{TemplateBinding Background}"
@@ -18,9 +18,10 @@
                             <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightColor}" />
                         </Style>
                     </Border.Styles>
-                    
+
                     <Grid>
-                        <Rectangle RadiusX="8" RadiusY="8" Width="16" MinHeight="20" IsVisible="False" Fill="{DynamicResource ThemeAccentBrush}" HorizontalAlignment="Left">
+                        <Rectangle RadiusX="8" RadiusY="8" Width="16" MinHeight="20" IsVisible="False"
+                                   Fill="{DynamicResource ThemeAccentBrush}" HorizontalAlignment="Left">
                             <Rectangle.Styles>
                                 <Style Selector=":selected /template/ Rectangle">
                                     <Setter Property="IsVisible" Value="True"></Setter>
@@ -33,7 +34,7 @@
                                 <TranslateTransform X="-8"></TranslateTransform>
                             </Rectangle.RenderTransform>
                         </Rectangle>
-                        <ContentPresenter Name="PART_ContentPresenter" 
+                        <ContentPresenter Name="PART_ContentPresenter"
                                           Margin="16, 0, 0,0"
                                           Padding="{TemplateBinding Padding}"
                                           HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -44,7 +45,7 @@
                 </Border>
             </ControlTemplate>
         </Setter>
-    <!--
+        <!--
         <Style Selector="^:selected /template/ ContentPresenter">
           <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
         </Style>
@@ -60,5 +61,50 @@
         <Style Selector="^:selected:focus:pointerover /template/ ContentPresenter">
           <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
         </Style>-->
+    </ControlTheme>
+
+    <ControlTheme x:Key="AlternativeListBoxItem"
+                  TargetType="ListBoxItem">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border MinHeight="20"
+                        Name="RootBorder"
+                        Classes="reorder-placeholder"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                    <Border.Styles>
+                        <Style Selector=":pointerover /template/ Border#RootBorder">
+                            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightColor}" />
+                        </Style>
+                        <Style Selector=":selected /template/ Border#RootBorder">
+                            <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}"/>
+                        </Style>
+
+                        <Style Selector="Border#RootBorder.drop-after">
+                            <Setter Property="BorderThickness" Value="0, 0, 0, 1" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+                        </Style>
+                        <Style Selector="Border#RootBorder.drop-before">
+                            <Setter Property="BorderThickness" Value="0, 1, 0, 0" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+                        </Style>
+                    </Border.Styles>
+
+                    <ContentPresenter Name="PART_ContentPresenter"
+                                      Padding="{TemplateBinding Padding}"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
     </ControlTheme>
 </ResourceDictionary>

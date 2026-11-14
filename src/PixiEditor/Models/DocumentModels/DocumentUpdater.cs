@@ -23,6 +23,7 @@ using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
+using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
@@ -258,6 +259,9 @@ internal class DocumentUpdater
                 break;
             case LayerLock_ChangeInfo info:
                 ProcessLayerLock(info);
+                break;
+            case VectorShape_ChangeInfo info:
+                ProcessVectorShape(info);
                 break;
         }
     }
@@ -1164,5 +1168,14 @@ internal class DocumentUpdater
         bool layerLocked = layers.Any(x => x.IsLockedStructurally);
         doc.TransformHandler.LockTransform = layerLocked;
         doc.PathOverlayHandler.LockEditing = layerLocked;
+    }
+
+    private void ProcessVectorShape(VectorShape_ChangeInfo info)
+    {
+        IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.LayerId);
+        if (member is IVectorLayerHandler vectorLayerHandler)
+        {
+            vectorLayerHandler.UpdateLayerTypeIcon();
+        }
     }
 }

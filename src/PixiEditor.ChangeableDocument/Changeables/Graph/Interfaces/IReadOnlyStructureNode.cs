@@ -16,6 +16,7 @@ public interface IReadOnlyStructureNode : IReadOnlyNode, ISceneObject, IIterativ
     public InputProperty<BlendMode> BlendMode { get; }
     public RenderInputProperty CustomMask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
+    public InputProperty<Filter> Filters { get; }
     public string MemberName { get; set; }
     public RectD? GetTightBounds(KeyFrameTime frameTime);
     public ChunkyImage? EmbeddedMask { get; }
