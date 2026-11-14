@@ -133,6 +133,37 @@ public class MathNodeCompatibilityTests : FullPixiEditorTest
             .NodeGraph.AllNodes.OfType<MathNode>(), n => n.Id == importedId).Mode.Value);
     }
 
+    [AvaloniaFact]
+    public void LegacyOpacityStepIsConvertedBeforeEnteringAnImageContext()
+    {
+        var serialized = PixiParser.V5.Deserialize(
+            Path.Combine("TestFiles", "Compatibility", "legacy-step-opacity.pixi"));
+        using var document = serialized.ToDocument();
+        AssertLegacyOpacity(document);
+
+        using var reloaded = PixiParser.V5.Deserialize(
+            PixiParser.V5.Serialize(document.ToSerializable())).ToDocument();
+        AssertLegacyOpacity(reloaded);
+    }
+
+    private static void AssertLegacyOpacity(DocumentViewModel document)
+    {
+        var math = Assert.Single(document.NodeGraph.AllNodes
+            .OfType<PixiEditor.ViewModels.Document.Nodes.MathNodeViewModel>(), node =>
+                node.FindOutputProperty("Result").ConnectedInputs.Any(input => input.PropertyName == "Opacity"));
+        Assert.Equal(MathNodeMode.GreaterThan, math.FindInputProperty("Mode").Value);
+
+        var opacity = Assert.Single(math.FindOutputProperty("Result").ConnectedInputs,
+            input => input.PropertyName == "Opacity");
+        var graph = document.AccessInternalReadOnlyDocument().NodeGraph;
+        var coreMath = Assert.Single(graph.AllNodes.OfType<MathNode>(), node => node.Id == math.Id);
+        var layer = Assert.IsAssignableFrom<LayerNode>(
+            Assert.Single(graph.AllNodes, node => node.Id == opacity.Node.Id));
+        double x = Convert.ToDouble(coreMath.X.Value(new FuncContext()).GetConstant());
+        double y = Convert.ToDouble(coreMath.Y.Value(new FuncContext()).GetConstant());
+        Assert.Equal(x > y ? 1d : 0d, layer.Opacity.Value);
+    }
+
     private static DocumentViewModel LoadAsVersion(DocumentViewModel document, string version)
     {
         var serialized = document.ToSerializable();
