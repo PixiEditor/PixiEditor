@@ -1,5 +1,8 @@
-﻿using Avalonia;
+﻿using System.Collections.ObjectModel;
+using Avalonia;
 using Avalonia.Interactivity;
+using PixiEditor.ChangeableDocument.Changeables;
+using PixiEditor.UI.Common.Converters;
 
 namespace PixiEditor.Views.Dialogs;
 
@@ -11,6 +14,17 @@ public record SizePreset(string Name, int Width, int Height);
 internal partial class NewFilePopup : PixiEditorPopup
 {
     private bool _isUpdatingFromPreset = false;
+    public static readonly StyledProperty<double> DpiProperty =
+        AvaloniaProperty.Register<NewFilePopup, double>(nameof(Dpi), 300);
+
+    public static readonly StyledProperty<MeasurementConverterData> SelectedMeasurementConverterDataProperty =
+        AvaloniaProperty.Register<NewFilePopup, MeasurementConverterData>(nameof(SelectedMeasurementConverterData));
+
+    public static readonly StyledProperty<MeasurementUnit> SelectedMeasurementUnitProperty =
+        AvaloniaProperty.Register<NewFilePopup, MeasurementUnit>(nameof(SelectedMeasurementUnit), MeasurementUnit.Pixels);
+
+    public static readonly StyledProperty<ObservableCollection<MeasurementUnit>> UnitsProperty =
+        AvaloniaProperty.Register<NewFilePopup, ObservableCollection<MeasurementUnit>>(nameof(Units));
 
     public static readonly StyledProperty<int> FileHeightProperty =
         AvaloniaProperty.Register<NewFilePopup, int>(nameof(FileHeight));
@@ -41,6 +55,9 @@ internal partial class NewFilePopup : PixiEditorPopup
 
         FileWidthProperty.Changed.Subscribe(OnDimensionsChanged);
         FileHeightProperty.Changed.Subscribe(OnDimensionsChanged);
+
+        SelectedMeasurementUnitProperty.Changed.Subscribe(MeasurementUnitChanged);
+        DpiProperty.Changed.Subscribe(MeasurementUnitChanged);
     }
 
     public NewFilePopup()
@@ -48,12 +65,26 @@ internal partial class NewFilePopup : PixiEditorPopup
         InitializeComponent();
         DataContext = this;
         Loaded += OnDialogShown;
+
+        Units = new ObservableCollection<MeasurementUnit>(MeasurementUnit.AllKnown);
     }
 
     private void OnDialogShown(object sender, RoutedEventArgs e)
     {
         MinWidth = Width;
         sizePicker.FocusWidthPicker();
+    }
+
+    private static void MeasurementUnitChanged(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e is { Sender: NewFilePopup { SelectedMeasurementUnit: not null } popup })
+        {
+            popup.SelectedMeasurementConverterData = new MeasurementConverterData(
+                () => (float)popup.Dpi,
+                (pixels, dpi) => popup.SelectedMeasurementUnit.FromPixels(pixels, dpi),
+                (value, dpi) => popup.SelectedMeasurementUnit.ToPixels(value, dpi),
+                () => popup.SelectedMeasurementUnit.Decimals);
+        }
     }
 
     private static void OnPresetChanged(AvaloniaPropertyChangedEventArgs e)
@@ -98,5 +129,29 @@ internal partial class NewFilePopup : PixiEditorPopup
     {
         get => GetValue(SelectedPresetProperty);
         set => SetValue(SelectedPresetProperty, value);
+    }
+
+    public ObservableCollection<MeasurementUnit> Units
+    {
+        get { return (ObservableCollection<MeasurementUnit>)GetValue(UnitsProperty); }
+        set { SetValue(UnitsProperty, value); }
+    }
+
+    public MeasurementUnit? SelectedMeasurementUnit
+    {
+        get { return (MeasurementUnit)GetValue(SelectedMeasurementUnitProperty); }
+        set { SetValue(SelectedMeasurementUnitProperty, value); }
+    }
+
+    public MeasurementConverterData SelectedMeasurementConverterData
+    {
+        get { return (MeasurementConverterData)GetValue(SelectedMeasurementConverterDataProperty); }
+        set { SetValue(SelectedMeasurementConverterDataProperty, value); }
+    }
+
+    public double Dpi
+    {
+        get { return (double)GetValue(DpiProperty); }
+        set { SetValue(DpiProperty, value); }
     }
 }

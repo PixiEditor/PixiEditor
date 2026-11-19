@@ -724,6 +724,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             NewDocument(b => b
                 .WithSize(newFile.Width, newFile.Height)
+                .WithDpi((float)newFile.Dpi)
+                .WithMeasurementUnit(newFile.MeasurementUnit.UnitName)
                 .WithGraph(x => x
                     .WithImageLayerNode(
                         new LocalizedString("BASE_LAYER_NAME"),

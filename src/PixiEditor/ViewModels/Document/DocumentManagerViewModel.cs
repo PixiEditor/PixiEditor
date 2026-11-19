@@ -7,6 +7,8 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
+using PixiEditor.UI.Common.Converters;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views;
 using PixiEditor.Views.Overlays.Ruler;
@@ -316,6 +318,11 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
             doc.Height,
             MainWindow.Current!,
             canvas);
+
+        dialog.Unit = new LocalizedString(doc.MeasurementUnitBindable.ShortNameLocalizationKey);
+        dialog.MeasurementConverterData = new MeasurementConverterData(() => doc.DpiBindable,
+            doc.MeasurementUnitBindable.FromPixels, doc.MeasurementUnitBindable.ToPixels, () => doc.MeasurementUnitBindable.Decimals);
+
         if (await dialog.ShowDialog())
         {
             if (canvas)

@@ -47,7 +47,8 @@ internal partial class GuidesDockViewModel : DockableViewModel
         MeasurementConverterData = new MeasurementConverterData(
             () => docManager.ActiveDocument.DpiBindable,
             (val, dpi) => docManager.ActiveDocument.MeasurementUnitBindable.FromPixels(val, dpi),
-            (val, dpi) => docManager.ActiveDocument.MeasurementUnitBindable.ToPixels(val, dpi));
+            (val, dpi) => docManager.ActiveDocument.MeasurementUnitBindable.ToPixels(val, dpi),
+            () => docManager.ActiveDocument.MeasurementUnitBindable.Decimals);
 
         TabCustomizationSettings.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Guides);
     }
@@ -72,7 +73,8 @@ internal partial class GuidesDockViewModel : DockableViewModel
             MeasurementConverterData= new MeasurementConverterData(
                 () => Document.DpiBindable,
                 (val, dpi) => Document.MeasurementUnitBindable.FromPixels(val, dpi),
-                (val, dpi) => Document.MeasurementUnitBindable.ToPixels(val, dpi));
+                (val, dpi) => Document.MeasurementUnitBindable.ToPixels(val, dpi),
+                () => Document.MeasurementUnitBindable.Decimals);
         }
     }
 }

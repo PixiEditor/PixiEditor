@@ -513,7 +513,7 @@ public class RulerOverlay : Overlay
     {
         double minTickSpacing = UnitDensity / docSizePixelSpacing;
         double tickSpacing = unit.GetSpacing(minTickSpacing);
-        if (!unit.AllowFractionalValues)
+        if (unit.Decimals <= 0)
         {
             tickSpacing = Math.Max(1, tickSpacing);
         }

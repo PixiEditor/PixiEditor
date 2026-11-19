@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.UI.Common.Converters;
 
 namespace PixiEditor.Views.Dialogs;
 
@@ -16,6 +17,24 @@ internal class ResizeablePopup : PixiEditorPopup
 
     public static readonly StyledProperty<int> NewAbsoluteWidthProperty =
         AvaloniaProperty.Register<ResizeablePopup, int>(nameof(NewAbsoluteWidth), 0);
+
+    public static readonly StyledProperty<string> UnitProperty = AvaloniaProperty.Register<ResizeCanvasPopup, string>(
+        nameof(Unit));
+
+    public static readonly StyledProperty<MeasurementConverterData?> MeasurementConverterProperty = AvaloniaProperty.Register<ResizeCanvasPopup, MeasurementConverterData?>(
+        nameof(MeasurementConverter));
+
+    public MeasurementConverterData? MeasurementConverter
+    {
+        get => GetValue(MeasurementConverterProperty);
+        set => SetValue(MeasurementConverterProperty, value);
+    }
+
+    public string Unit
+    {
+        get => GetValue(UnitProperty);
+        set => SetValue(UnitProperty, value);
+    }
 
     public int NewPercentageSize
     {

@@ -22,7 +22,8 @@ public abstract class MeasurementUnit
     public abstract string UnitName { get; }
 
     public abstract string ShortNameLocalizationKey { get; }
-    public abstract bool AllowFractionalValues { get; }
+    public abstract int Decimals { get; }
+    public abstract string LongNameLocalizationKey { get; }
 
     public abstract double ToPixels(double value, float dpi);
     public abstract double FromPixels(double pixels, float dpi);
@@ -49,7 +50,8 @@ public sealed class PixelUnit : MeasurementUnit
 {
     public override string UnitName { get; } = "Pixel";
     public override string ShortNameLocalizationKey { get; } = "PX_UNIT_SHORT_NAME";
-    public override bool AllowFractionalValues { get; } = false;
+    public override string LongNameLocalizationKey { get; } = "PX_UNIT_LONG_NAME";
+    public override int Decimals { get; } = 0;
 
     public override double ToPixels(double value, float dpi)
     {
@@ -68,7 +70,8 @@ public sealed class MillimeterUnit : MeasurementUnit
 
     public override string UnitName { get; } = "Millimeter";
     public override string ShortNameLocalizationKey { get; } = "MILLIMETER_UNIT_SHORT_NAME";
-    public override bool AllowFractionalValues { get; } = true;
+    public override string LongNameLocalizationKey { get; } = "MILLIMETER_UNIT_LONG_NAME";
+    public override int Decimals { get; } = 2;
 
     public override double ToPixels(double value, float dpi)
     {
@@ -87,7 +90,8 @@ public sealed class CentimeterUnit : MeasurementUnit
 
     public override string UnitName { get; } = "Centimeter";
     public override string ShortNameLocalizationKey { get; } = "CENTIMETER_UNIT_SHORT_NAME";
-    public override bool AllowFractionalValues { get; } = true;
+    public override string LongNameLocalizationKey { get; } = "CENTIMETER_UNIT_LONG_NAME";
+    public override int Decimals { get; } = 3;
 
     public override double ToPixels(double value, float dpi)
     {
@@ -106,7 +110,8 @@ public sealed class MeterUnit : MeasurementUnit
 
     public override string UnitName { get; } = "Meter";
     public override string ShortNameLocalizationKey { get; } = "METER_UNIT_SHORT_NAME";
-    public override bool AllowFractionalValues { get; } = true;
+    public override string LongNameLocalizationKey { get; } = "METER_UNIT_LONG_NAME";
+    public override int Decimals { get; } = 4;
 
     public override double ToPixels(double value, float dpi)
     {
@@ -123,7 +128,8 @@ public sealed class PointsUnit : MeasurementUnit
 {
     public override string UnitName { get; } = "Points";
     public override string ShortNameLocalizationKey { get; } = "POINTS_UNIT_SHORT_NAME";
-    public override bool AllowFractionalValues { get; } = true;
+    public override string LongNameLocalizationKey { get; } = "POINTS_UNIT_LONG_NAME";
+    public override int Decimals { get; } = 2;
 
     public override double ToPixels(double value, float dpi)
     {
@@ -140,7 +146,8 @@ public sealed class InchesUnit : MeasurementUnit
 {
     public override string UnitName { get; } = "Inches";
     public override string ShortNameLocalizationKey { get; } = "INCHES_UNIT_SHORT_NAME";
-    public override bool AllowFractionalValues { get; } = true;
+    public override string LongNameLocalizationKey { get; } = "INCHES_UNIT_LONG_NAME";
+    public override int Decimals { get; } = 3;
 
     public override double ToPixels(double value, float dpi)
     {
@@ -163,7 +170,8 @@ public sealed class YardUnit : MeasurementUnit
     public const int InchesInYard = 36;
     public override string UnitName { get; } = "Yard";
     public override string ShortNameLocalizationKey => "YARD_UNIT_SHORT_NAME";
-    public override bool AllowFractionalValues => true;
+    public override string LongNameLocalizationKey { get; } = "YARD_UNIT_LONG_NAME";
+    public override int Decimals { get; } = 4;
 
     public override double ToPixels(double value, float dpi)
     {
@@ -180,7 +188,8 @@ public sealed class PicasUnit : MeasurementUnit
 {
     public override string UnitName { get; } = "Picas";
     public override string ShortNameLocalizationKey { get; } = "PICAS_UNIT_SHORT_NAME";
-    public override bool AllowFractionalValues { get; } = true;
+    public override string LongNameLocalizationKey { get; } = "PICAS_UNIT_LONG_NAME";
+    public override int Decimals { get; } = 2;
 
     public override double ToPixels(double value, float dpi)
     {
