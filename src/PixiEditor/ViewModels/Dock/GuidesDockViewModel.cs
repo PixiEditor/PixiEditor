@@ -5,7 +5,9 @@ using PixiEditor.UI.Common.Converters;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.ViewModels.SubViewModels;
+using PixiEditor.Views.Overlays.Ruler;
 
 namespace PixiEditor.ViewModels.Dock;
 
@@ -18,11 +20,18 @@ internal partial class GuidesDockViewModel : DockableViewModel
     public override bool CanClose => true;
 
     private GuidesViewModel guidesViewModel;
+    private GuidesOverlayViewModel overlayViewModel;
 
     public GuidesViewModel GuidesSubViewModel
     {
         get => guidesViewModel;
         set => SetProperty(ref guidesViewModel, value);
+    }
+
+    public GuidesOverlayViewModel OverlayViewModel
+    {
+        get => overlayViewModel;
+        set => SetProperty(ref overlayViewModel, value);
     }
 
     [ObservableProperty]
@@ -40,7 +49,7 @@ internal partial class GuidesDockViewModel : DockableViewModel
             (val, dpi) => docManager.ActiveDocument.MeasurementUnitBindable.FromPixels(val, dpi),
             (val, dpi) => docManager.ActiveDocument.MeasurementUnitBindable.ToPixels(val, dpi));
 
-        TabCustomizationSettings.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.ClosedGrid);
+        TabCustomizationSettings.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Guides);
     }
 
     private void DocManagerOnActiveDocumentChanged(object? sender, DocumentChangedEventArgs e)
@@ -52,6 +61,7 @@ internal partial class GuidesDockViewModel : DockableViewModel
 
         e.NewDocument?.PropertyChanged += NewDocumentOnPropertyChanged;
         GuidesSubViewModel = e.NewDocument?.GuidesViewModel;
+        OverlayViewModel = e.NewDocument?.GuidesOverlayViewModel;
         Document = e.NewDocument;
     }
 

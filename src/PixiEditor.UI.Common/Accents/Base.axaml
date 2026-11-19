@@ -18,7 +18,7 @@
             <Color x:Key="ThemeAccent3Color">DodgerBlue</Color>
 
             <Color x:Key="ThemeForegroundColor">#FFFFFF</Color>
-            <Color x:Key="ThemeForegroundSecondaryColor">#B3FFFFFF</Color>
+            <Color x:Key="ThemeForegroundSecondaryColor">#B0B0B0</Color>
 
             <Color x:Key="ThemeControlLowColor">#252525</Color>
             <Color x:Key="ThemeControlMidColor">#303030</Color>

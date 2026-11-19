@@ -216,6 +216,21 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument.GuidesViewModel.AddGuide(args.isVertical, args.offset);
     }
 
+    [Command.Basic("PixiEditor.Document.DeleteAllGuides", "DELETE_ALL_GUIDES", "DELETE_ALL_GUIDES_DESCRIPTIVE",
+        CanExecute = "PixiEditor.HasDocument",
+        AnalyticsTrack = true)]
+    public void DeleteAllGuides()
+    {
+        if (ActiveDocument is null)
+            return;
+
+        using var block = ActiveDocument.Operations.StartChangeBlock();
+        foreach (var guideHandler in ActiveDocument.GuidesViewModel.Guides)
+        {
+            ActiveDocument.GuidesViewModel.RemoveGuide(guideHandler);
+        }
+    }
+
     [Command.Internal("PixiEditor.Document.RemoveGuide", CanExecute = "PixiEditor.HasDocument",
         AnalyticsTrack = true)]
     public void RemoveGuide(Guid id)
@@ -408,7 +423,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     public void AddDocumentReference(Guid documentId, Guid nodeId, string? originalPath, Guid docReferenceId)
     {
         var existingReference = documentReferences.FirstOrDefault(x =>
-             (!string.IsNullOrEmpty(originalPath) && x.OriginalFilePath == originalPath) || x.ReferenceId == docReferenceId);
+            (!string.IsNullOrEmpty(originalPath) && x.OriginalFilePath == originalPath) ||
+            x.ReferenceId == docReferenceId);
         if (existingReference != null)
         {
             existingReference.AddReferencingNode(documentId, nodeId);

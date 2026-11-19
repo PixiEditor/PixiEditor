@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
+using PixiEditor.ViewModels.Document.TransformOverlays;
 
 namespace PixiEditor.ViewModels.Document;
 
@@ -19,11 +20,48 @@ internal class GuidesViewModel : ViewModelBase, IGuidesHandler
     private ISnappingHandler snappingHandler;
 
     private DocumentInternalParts internals;
+    private GuidesOverlayViewModel overlayViewModel;
 
-    public GuidesViewModel(ISnappingHandler snappingHandler, DocumentInternalParts documentInternals)
+    public GuidesViewModel(ISnappingHandler snappingHandler, GuidesOverlayViewModel overlayViewModel,
+        DocumentInternalParts documentInternals)
     {
         internals = documentInternals;
         this.snappingHandler = snappingHandler;
+        this.overlayViewModel = overlayViewModel;
+    }
+
+    public void InsertVerticalGuide()
+    {
+        if (internals.ChangeController.IsBlockingChangeActive) return;
+
+        overlayViewModel.IsEnabled = true;
+        double offset = VerticalGuides.LastOrDefault()?.OffsetBindable + 1 ??
+                        internals.ChangeController.Document.SizeBindable.Y / 2f;
+        if (VerticalGuides.Count >= 2)
+        {
+            var previous = VerticalGuides.ElementAtOrDefault(VerticalGuides.Count - 1);
+            var previousBeforePrevious = VerticalGuides.ElementAtOrDefault(VerticalGuides.Count - 2);
+            offset = previous.OffsetBindable + (previous.OffsetBindable - previousBeforePrevious.OffsetBindable);
+        }
+
+        internals.ActionAccumulator.AddFinishedActions(new AddGuide_Action(true, offset));
+    }
+
+    public void InsertHorizontalGuide()
+    {
+        if (internals.ChangeController.IsBlockingChangeActive) return;
+
+        overlayViewModel.IsEnabled = true;
+        double offset = HorizontalGuides.LastOrDefault()?.OffsetBindable + 1 ??
+                        internals.ChangeController.Document.SizeBindable.X / 2f;
+        if (HorizontalGuides.Count >= 2)
+        {
+            var previous = HorizontalGuides.ElementAtOrDefault(HorizontalGuides.Count - 1);
+            var previousBeforePrevious = HorizontalGuides.ElementAtOrDefault(HorizontalGuides.Count - 2);
+            offset = previous.OffsetBindable + (previous.OffsetBindable - previousBeforePrevious.OffsetBindable);
+        }
+
+        internals.ActionAccumulator.AddFinishedActions(new AddGuide_Action(false, offset));
     }
 
     public void AddGuide(bool vertical, double offset)
@@ -43,7 +81,8 @@ internal class GuidesViewModel : ViewModelBase, IGuidesHandler
     public void AddGuideInternal(IGuideHandler guideViewModel)
     {
         guides.Add(guideViewModel);
-        snappingHandler.AddFromAxis("guide_" + guideViewModel.Id, guideViewModel.IsVertical, () => guideViewModel.OffsetBindable);
+        snappingHandler.AddFromAxis("guide_" + guideViewModel.Id, guideViewModel.IsVertical,
+            () => guideViewModel.OffsetBindable);
         if (guideViewModel.IsVertical)
         {
             verticalGuides.Add(guideViewModel);
@@ -71,6 +110,7 @@ internal class GuidesViewModel : ViewModelBase, IGuidesHandler
             horizontalGuides.Remove(guide);
             OnPropertyChanged(nameof(HorizontalGuides));
         }
+
         snappingHandler.Remove("guide_" + guide.Id);
         OnPropertyChanged(nameof(Guides));
     }

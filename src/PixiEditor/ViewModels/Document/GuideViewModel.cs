@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.ViewModels.Document;
 
@@ -46,15 +47,20 @@ internal class GuideViewModel : PixiObservableObject, IGuideHandler
         }
     }
 
+    public LocalizedString GuideName { get; }
+    public string AxisName => IsVertical ? "X_AXIS" : "Y_AXIS";
+
     private double offset;
     private DocumentInternalParts internals;
 
-    public GuideViewModel(DocumentInternalParts internals, Guid id, bool isVerticalBindable, double offset)
+    public GuideViewModel(DocumentInternalParts internals, Guid id, bool isVerticalBindable, double offset,
+        LocalizedString name)
     {
         Id = id;
         IsVertical = isVerticalBindable;
         this.offset = offset;
         this.internals = internals;
+        GuideName = name;
     }
 
     public void SetOffsetInternal(double newOffset)

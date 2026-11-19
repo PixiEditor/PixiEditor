@@ -1648,5 +1648,12 @@
   "TOGGLE_GUIDES_DESCRIPTIVE": "Toggle Guides Overlay",
   "TOGGLE_RULERS": "Toggle Rulers",
   "TOGGLE_RULERS_DESCRIPTIVE": "Toggle Rulers Overlay",
-  "GUIDES_TITLE": "Guides"
+  "GUIDES_TITLE": "Guides",
+  "GUIDE_NAME": "Guide {0}",
+  "X_AXIS": "X",
+  "Y_AXIS": "Y",
+  "DELETE_ALL_GUIDES": "Delete all guides",
+  "DELETE_ALL_GUIDES_DESCRIPTIVE": "Delete all guides from active document",
+  "TOGGLE_GUIDES_VISIBILITY_TOOLTIP": "Toggle guides visibility",
+  "DELETE_ALL_GUIDES_TOOLTIP": "Delete all guides"
 }

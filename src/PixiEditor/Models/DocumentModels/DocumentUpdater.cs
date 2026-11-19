@@ -29,6 +29,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Blackboard;
@@ -1207,7 +1208,8 @@ internal class DocumentUpdater
         }
         else
         {
-            doc.GuidesHandler.AddGuideInternal(new GuideViewModel(helper, info.Id, info.IsVertical, info.Offset));
+            LocalizedString name = new LocalizedString("GUIDE_NAME", doc.GuidesHandler.GuidesHandler.Count() + 1);
+            doc.GuidesHandler.AddGuideInternal(new GuideViewModel(helper, info.Id, info.IsVertical, info.Offset, name));
         }
     }
 

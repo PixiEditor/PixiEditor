@@ -372,8 +372,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         SnappingViewModel = new();
         SnappingViewModel.AddFromDocumentSize(SizeBindable);
 
-        GuidesViewModel = new GuidesViewModel(SnappingViewModel, Internals);
         GuidesOverlayViewModel = new GuidesOverlayViewModel(SnappingViewModel.SnappingController);
+        GuidesViewModel = new GuidesViewModel(SnappingViewModel, GuidesOverlayViewModel, Internals);
         ExecutorChanged += UpdateGuidesEditingState;
         ToolSessionFinished += UpdateGuidesEditingState;
         SizeChanged += (_, args) =>
