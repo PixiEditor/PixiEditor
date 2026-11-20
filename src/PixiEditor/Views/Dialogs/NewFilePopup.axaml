@@ -9,24 +9,23 @@
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
     xmlns:changeables="clr-namespace:PixiEditor.ChangeableDocument.Changeables;assembly=PixiEditor.ChangeableDocument"
     xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
-    Width="300" Height="250"
+    Width="320" Height="250"
     SizeToContent="Height"
     CanResize="False"
     CanMinimize="False"
     Name="popup"
     ui:Translator.Key="CREATE_NEW_IMAGE">
-    <StackPanel Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True" Orientation="Vertical"
+    <StackPanel Focusable="True" Orientation="Vertical"
                 Margin="15,15,15,0">
         <Separator Margin="10,15,10,0" Height="0" />
         <Border HorizontalAlignment="Center" Background="{DynamicResource ThemeBackgroundBrush1}"
                 VerticalAlignment="Top" CornerRadius="{DynamicResource ControlCornerRadius}"
                 Margin="0" Padding="0">
             <StackPanel>
-                <Separator Margin="10,15,10,0" Height="0" />
                 <ComboBox ItemsSource="{Binding Presets, ElementName=popup}"
                           SelectedItem="{Binding SelectedPreset, ElementName=popup}"
                           PlaceholderText="{ui:Translate Key=PRESETS}"
-                          Margin="15,0,15,0"
+                          Margin="15,15,15,0"
                           VerticalAlignment="Center">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="dialogs:SizePreset">
@@ -35,9 +34,9 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Spacing="5" Margin="15, 15, 15, 0">
                     <TextBlock ui:Translator.Key="MEASUREMENT_UNIT"/>
-                    <ComboBox ItemsSource="{Binding ElementName=popup, Path=Units}"
+                    <ComboBox ItemsSource="{Binding ElementName=popup, Path=Units}" Width="90"
                               SelectedValue="{Binding ElementName=popup, Path=SelectedMeasurementUnit}">
                         <ComboBox.ItemTemplate>
                             <DataTemplate DataType="changeables:MeasurementUnit">
@@ -47,11 +46,12 @@
                     </ComboBox>
 
                     <TextBlock ui:Translator.Key="DPI"/>
-                    <controls:NumberInput Decimals="2" Value="{Binding ElementName=popup, Path=Dpi, Mode=TwoWay}" />
-                </StackPanel>
+                    <controls:NumberInput Decimals="2" Width="50" Value="{Binding ElementName=popup, Path=Dpi, Mode=TwoWay}" />
 
+                </StackPanel>
                 <input:SizePicker HorizontalAlignment="Center" MinWidth="230" Height="125" Margin="0"
                                   PreserveAspectRatio="False"
+                                  FixedInputSize="100"
                                   Background="{DynamicResource ThemeBackgroundBrush1}"
                                   CornerRadius="{DynamicResource ControlCornerRadius}"
                                   ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=popup}"

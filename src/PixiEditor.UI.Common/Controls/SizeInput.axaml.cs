@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.ComponentModel;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using PixiEditor.UI.Common.Converters;
@@ -10,7 +11,8 @@ namespace PixiEditor.UI.Common.Controls;
 /// </summary>
 public partial class SizeInput : UserControl
 {
-    public static readonly StyledProperty<bool> DraggingGrabberProperty = AvaloniaProperty.Register<SizeInput, bool>("DraggingGrabber");
+    public static readonly StyledProperty<bool> DraggingGrabberProperty =
+        AvaloniaProperty.Register<SizeInput, bool>("DraggingGrabber");
 
     public static readonly StyledProperty<double> SizeProperty =
         AvaloniaProperty.Register<SizeInput, double>(nameof(Size), defaultValue: 1);
@@ -37,8 +39,9 @@ public partial class SizeInput : UserControl
         AvaloniaProperty.Register<SizeInput, double>(
             nameof(DisplaySize));
 
-    public static readonly StyledProperty<MeasurementConverterData?> MeasurementConverterDataProperty = AvaloniaProperty.Register<SizeInput, MeasurementConverterData?>(
-        nameof(MeasurementConverterData));
+    public static readonly StyledProperty<MeasurementConverterData?> MeasurementConverterDataProperty =
+        AvaloniaProperty.Register<SizeInput, MeasurementConverterData?>(
+            nameof(MeasurementConverterData));
 
     public MeasurementConverterData? MeasurementConverterData
     {
@@ -116,10 +119,25 @@ public partial class SizeInput : UserControl
             input.UpdatePixelSize();
         });
 
-        MeasurementConverterDataProperty.Changed.AddClassHandler<SizeInput>((input, _) =>
+        MeasurementConverterDataProperty.Changed.AddClassHandler<SizeInput>((input, val) =>
         {
+            if (val.OldValue is MeasurementConverterData oldConverter)
+            {
+                oldConverter.PropertyChanged -= input.Update;
+            }
+
+            if (val.NewValue is MeasurementConverterData newConverter)
+            {
+                newConverter.PropertyChanged += input.Update;
+            }
+
             input.UpdateDisplaySize();
         });
+    }
+
+    private void Update(object? sender, PropertyChangedEventArgs e)
+    {
+        UpdateDisplaySize();
     }
 
     private void UpdateDisplaySize()

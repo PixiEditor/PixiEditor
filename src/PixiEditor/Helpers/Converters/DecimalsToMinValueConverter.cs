@@ -13,7 +13,7 @@ internal class DecimalsToMinValueConverter : SingleInstanceConverter<DecimalsToM
                 return Math.Pow(10, -decimals);
             }
 
-            return 1;
+            return 1d;
         }
 
         return value;

@@ -102,6 +102,7 @@
                              Decimals="{Binding ElementName=uc, Path=MeasurementUnitConverter.Decimals, FallbackValue=0}"
                              Unit="{Binding ElementName=uc, Path=InputUnit}"
                              MeasurementConverterData="{Binding ElementName=uc, Path=MeasurementUnitConverter}"
+                             Width="{Binding ElementName=uc, Path=FixedInputSize}"
                              MinSize="{Binding ElementName=uc, Path=MeasurementUnitConverter.Decimals, FallbackValue=1, Converter={converters1:DecimalsToMinValueConverter}}"
                              Margin="50,0,0,0">
                     <Interaction.Behaviors>
@@ -119,6 +120,7 @@
                              Unit="{Binding ElementName=uc, Path=InputUnit}"
                              MeasurementConverterData="{Binding ElementName=uc, Path=MeasurementUnitConverter}"
                              Decimals="{Binding ElementName=uc, Path=MeasurementUnitConverter.Decimals, FallbackValue=0}"
+                             Width="{Binding ElementName=uc, Path=FixedInputSize}"
                              MinSize="{Binding ElementName=uc, Path=MeasurementUnitConverter.Decimals, FallbackValue=1, Converter={converters1:DecimalsToMinValueConverter}}"
                              Size="{Binding ChosenHeight, ElementName=uc, Mode=TwoWay}">
                     <Interaction.Behaviors>
