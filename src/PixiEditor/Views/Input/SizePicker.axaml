@@ -70,7 +70,7 @@
 
                 <RadioButton Grid.Row="1" Grid.Column="0"  
                              x:Name="AbsoluteRb" 
-                             Foreground="White" 
+                             Foreground="{DynamicResource ThemeForegroundBrush}"
                              FontSize="12"
                              GroupName="Unit"
                              IsCheckedChanged="AbsoluteRb_Checked"
@@ -94,11 +94,16 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Grid.Row="0" Foreground="Snow" ui:Translator.Key="WIDTH" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                <TextBlock Grid.Column="0" Grid.Row="0" Foreground="{DynamicResource ThemeForegroundBrush}" ui:Translator.Key="WIDTH" VerticalAlignment="Center" HorizontalAlignment="Left" />
                 <controls:SizeInput Grid.Column="1" Grid.Row="0"
                              x:Name="WidthPicker"
                              IsEnabled="{Binding EditingEnabled, ElementName=uc}"
                              Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}"
+                             Decimals="{Binding ElementName=uc, Path=MeasurementUnitConverter.Decimals, FallbackValue=0}"
+                             Unit="{Binding ElementName=uc, Path=InputUnit}"
+                             MeasurementConverterData="{Binding ElementName=uc, Path=MeasurementUnitConverter}"
+                             Width="{Binding ElementName=uc, Path=FixedInputSize}"
+                             MinSize="{Binding ElementName=uc, Path=MeasurementUnitConverter.Decimals, FallbackValue=1, Converter={converters1:DecimalsToMinValueConverter}}"
                              Margin="50,0,0,0">
                     <Interaction.Behaviors>
                         <EventTriggerBehavior EventName="LostFocus">
@@ -107,11 +112,16 @@
                     </Interaction.Behaviors>
                 </controls:SizeInput>
 
-                <TextBlock Grid.Column="0" Grid.Row="1" Foreground="Snow" ui:Translator.Key="HEIGHT" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="0" Grid.Row="1" Foreground="{DynamicResource ThemeForegroundBrush}" ui:Translator.Key="HEIGHT" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                 <controls:SizeInput Grid.Column="1" Grid.Row="1"
                              x:Name="HeightPicker"
                              IsEnabled="{Binding EditingEnabled, ElementName=uc}"
                              Margin="50,0,0,0"
+                             Unit="{Binding ElementName=uc, Path=InputUnit}"
+                             MeasurementConverterData="{Binding ElementName=uc, Path=MeasurementUnitConverter}"
+                             Decimals="{Binding ElementName=uc, Path=MeasurementUnitConverter.Decimals, FallbackValue=0}"
+                             Width="{Binding ElementName=uc, Path=FixedInputSize}"
+                             MinSize="{Binding ElementName=uc, Path=MeasurementUnitConverter.Decimals, FallbackValue=1, Converter={converters1:DecimalsToMinValueConverter}}"
                              Size="{Binding ChosenHeight, ElementName=uc, Mode=TwoWay}">
                     <Interaction.Behaviors>
                         <EventTriggerBehavior EventName="LostFocus">
@@ -125,7 +135,7 @@
                   Name="aspectRatio" 
                   IsChecked="{Binding ElementName=uc, Path=PreserveAspectRatio}"
                   ui:Translator.Key="PRESERVE_ASPECT_RATIO"
-                  Foreground="White" 
+                  Foreground="{DynamicResource ThemeForegroundBrush}"
                   HorizontalAlignment="Left" 
                   VerticalAlignment="Center" />
             </Grid>

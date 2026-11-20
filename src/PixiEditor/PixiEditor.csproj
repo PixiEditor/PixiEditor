@@ -170,6 +170,10 @@
       <DependentUpon>FiltersPopup.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Dock\GuidesDockView.axaml.cs">
+      <DependentUpon>GuidesDockView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

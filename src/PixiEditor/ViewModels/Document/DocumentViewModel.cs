@@ -40,6 +40,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
+using PixiEditor.UI.Common.Converters;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.Nodes.Workspace;
@@ -60,6 +61,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public event Action ToolSessionFinished;
     
     private bool busy = false;
+
+
     public bool Busy
     {
         get => busy;
@@ -142,6 +145,46 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
 
     public bool IsNestedDocument => referenceId != Guid.Empty;
+
+    private float dpi = 300;
+
+    public float DpiBindable
+    {
+        get => dpi;
+        set
+        {
+            if (!Internals.ChangeController.IsBlockingChangeActive)
+                Internals.ActionAccumulator.AddFinishedActions(new DocumentDpi_Action(value));
+        }
+    }
+
+    private MeasurementUnit measurementUnit = new PixelUnit();
+
+    public MeasurementUnit MeasurementUnitBindable
+    {
+        get => measurementUnit;
+        set
+        {
+            if (!Internals.ChangeController.IsBlockingChangeActive)
+                Internals.ActionAccumulator.AddFinishedActions(new DocumentMeasurementUnit_Action(value));
+        }
+    }
+
+    public MeasurementConverterData MeasurementConversionData { get; private set; }
+
+    public void SetMeasurementUnitInternal(MeasurementUnit unit)
+    {
+        measurementUnit = unit;
+        MeasurementConversionData?.NotifyUpdated();
+        OnPropertyChanged(nameof(MeasurementUnitBindable));
+        OnPropertyChanged(nameof(MeasurementConversionData));
+    }
+
+    public void SetDpiInternal(float targetDpi)
+    {
+        this.dpi = targetDpi;
+        OnPropertyChanged(nameof(DpiBindable));
+    }
 
     public Guid ReferenceId
     {
@@ -230,10 +273,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; set; }
     public AnimationDataViewModel AnimationDataViewModel { get; set; }
     public TextOverlayViewModel TextOverlayViewModel { get; set; }
+    public RulerOverlayViewModel RulerOverlayViewModel { get; set; }
+    public GuidesOverlayViewModel GuidesOverlayViewModel { get; set; }
     private DocumentInternalParts Internals { get; }
     public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
     public ContextualOptionsViewModel ContextualOptionsViewModel { get; set; } = new();
+    public GuidesViewModel GuidesViewModel { get; private set; }
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
+    IGuidesHandler IDocument.GuidesHandler => GuidesViewModel;
     INodeGraphHandler IDocument.NodeGraphHandler => NodeGraph;
     IDocumentOperations IDocument.Operations => Operations;
     ITransformHandler IDocument.TransformHandler => TransformViewModel;
@@ -243,8 +290,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
     IContextualOptionsHandler IDocument.ContextualOptionsHandler => ContextualOptionsViewModel;
-
+    IRulerOverlayHandler IDocument.RulerOverlayHandler => RulerOverlayViewModel;
     public bool UsesSrgbBlending { get; private set; }
+
+    public event Action ExecutorChanged;
 
     private bool isDisposed = false;
     private Guid referenceId = Guid.Empty;
@@ -257,6 +306,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         var serviceProvider = ViewModelMain.Current.Services;
         Internals = new DocumentInternalParts(this, serviceProvider);
+
         InitializeViewModel();
     }
 
@@ -286,7 +336,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     private void InitializeViewModel()
     {
+        MeasurementConversionData = new MeasurementConverterData(
+            () => DpiBindable,
+            (pixel, dpi) => MeasurementUnitBindable.FromPixels(pixel, dpi),
+            (value, dpi) => MeasurementUnitBindable.ToPixels(value, dpi),
+            () => MeasurementUnitBindable.Decimals);
+
         Internals.ChangeController.ToolSessionFinished += () => ToolSessionFinished?.Invoke();
+        Internals.ChangeController.ExecutorChanged += () => ExecutorChanged?.Invoke();
 
         Tools = new DocumentToolsModule(this, Internals);
         StructureHelper = new DocumentStructureModule(this);
@@ -313,6 +370,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         LineToolOverlayViewModel.LineMoved += (_, args) =>
             Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
 
+        RulerOverlayViewModel = new();
         TextOverlayViewModel = new TextOverlayViewModel();
         TextOverlayViewModel.TextChanged += text =>
         {
@@ -325,6 +383,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         SnappingViewModel = new();
         SnappingViewModel.AddFromDocumentSize(SizeBindable);
+
+        GuidesOverlayViewModel = new GuidesOverlayViewModel(SnappingViewModel.SnappingController);
+        GuidesViewModel = new GuidesViewModel(SnappingViewModel, GuidesOverlayViewModel, Internals);
+        ExecutorChanged += UpdateGuidesEditingState;
+        ToolSessionFinished += UpdateGuidesEditingState;
         SizeChanged += (_, args) =>
         {
             SnappingViewModel.AddFromDocumentSize(args.NewSize);
@@ -350,6 +413,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         Renderer = new DocumentRenderer(Internals.Tracker.Document);
         SceneRenderer = new SceneRenderer(Internals.Tracker.Document, this);
+    }
+
+    private void UpdateGuidesEditingState()
+    {
+        GuidesOverlayViewModel.CanEdit = IsChangeFeatureActive<IGuidesEditingFeature>();
     }
 
     /// <summary>
@@ -405,8 +473,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 refLayer.ImageSize));
         }
 
+        viewModel.DpiBindable = builderInstance.Dpi;
+        viewModel.MeasurementUnitBindable = MeasurementUnit.AllKnown.FirstOrDefault(x => string.Equals(x.UnitName, builderInstance.MeasurementUnit, StringComparison.OrdinalIgnoreCase), MeasurementUnit.Pixels);
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
+
+        foreach (var builderInstanceGuide in builderInstance.Guides)
+        {
+            viewModel.GuidesViewModel.AddGuide(builderInstanceGuide.IsVertical, builderInstanceGuide.Offset);
+        }
 
         SerializationConfig config =
             new SerializationConfig(BuiltInEncoders.Encoders[builderInstance.ImageEncoderUsed],

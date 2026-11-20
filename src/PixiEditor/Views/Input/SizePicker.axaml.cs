@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Models;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.UI.Common.Converters;
 
 namespace PixiEditor.Views.Input;
 
@@ -30,6 +31,43 @@ internal partial class SizePicker : UserControl
 
     public static readonly StyledProperty<bool> IsSizeUnitSelectionVisibleProperty =
         AvaloniaProperty.Register<SizePicker, bool>(nameof(IsSizeUnitSelectionVisible), false);
+
+    public static readonly StyledProperty<string> InputUnitProperty = AvaloniaProperty.Register<SizePicker, string>(
+        nameof(InputUnit), "px");
+
+    public static readonly StyledProperty<MeasurementConverterData?> MeasurementUnitConverterProperty
+        = AvaloniaProperty.Register<SizePicker, MeasurementConverterData?>(
+        nameof(MeasurementUnitConverter));
+
+    public static readonly StyledProperty<double> FixedInputSizeProperty = AvaloniaProperty.Register<SizePicker, double>(
+        nameof(FixedInputSize), double.NaN);
+
+    public static readonly StyledProperty<double> MinSizeProperty = AvaloniaProperty.Register<SizePicker, double>(
+        nameof(MinSize));
+
+    public double MinSize
+    {
+        get => GetValue(MinSizeProperty);
+        set => SetValue(MinSizeProperty, value);
+    }
+
+    public double FixedInputSize
+    {
+        get => GetValue(FixedInputSizeProperty);
+        set => SetValue(FixedInputSizeProperty, value);
+    }
+
+    public MeasurementConverterData? MeasurementUnitConverter
+    {
+        get => GetValue(MeasurementUnitConverterProperty);
+        set => SetValue(MeasurementUnitConverterProperty, value);
+    }
+
+    public string InputUnit
+    {
+        get => GetValue(InputUnitProperty);
+        set => SetValue(InputUnitProperty, value);
+    }
 
     private System.Drawing.Size? initSize = null;
 

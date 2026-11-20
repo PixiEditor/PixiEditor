@@ -5,7 +5,8 @@ namespace PixiEditor.Extensions.UI.Overlays;
 
 public class OverlayPointerArgs
 {
-    public VecD Point { get; set; }
+    public VecD CanvasPoint { get; set; }
+    public VecD ViewportPoint { get; set; }
     public KeyModifiers Modifiers { get; set; }
     public MouseButton PointerButton { get; set; }
     public MouseButton InitialPressMouseButton { get; set; }

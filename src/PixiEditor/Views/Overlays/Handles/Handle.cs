@@ -179,7 +179,7 @@ public abstract class Handle : IHandle
 
         VecD handlePos = Position;
 
-        if (IsWithinHandle(handlePos, args.Point, ZoomScale) && HitTestVisible)
+        if (IsWithinHandle(handlePos, args.CanvasPoint, ZoomScale) && HitTestVisible)
         {
             args.Handled = true;
             OnPressed(args);
@@ -199,7 +199,7 @@ public abstract class Handle : IHandle
             return;
         }
 
-        bool isWithinHandle = IsWithinHandle(handlePos, args.Point, ZoomScale);
+        bool isWithinHandle = IsWithinHandle(handlePos, args.CanvasPoint, ZoomScale);
 
         if (!isHovered && isWithinHandle)
         {

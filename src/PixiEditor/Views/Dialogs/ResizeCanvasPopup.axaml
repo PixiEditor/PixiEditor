@@ -29,7 +29,9 @@
                                   ChosenHeight="{Binding NewAbsoluteHeight, Mode=TwoWay, ElementName=window}"
                                   ChosenWidth="{Binding NewAbsoluteWidth, Mode=TwoWay, ElementName=window}"
                                   ChosenPercentageSize="{Binding NewPercentageSize, Mode=TwoWay, ElementName=window}"
-                                  SelectedUnit="{ Binding NewSelectedUnit, Mode=TwoWay, ElementName=window}"
+                                  SelectedUnit="{Binding NewSelectedUnit, Mode=TwoWay, ElementName=window}"
+                                  InputUnit="{Binding ElementName=window, Path=Unit}"
+                                  MeasurementUnitConverter="{Binding ElementName=window, Path=MeasurementConverter}"
                                   IsSizeUnitSelectionVisible="True" />
                 <Separator Margin="10,5,10,0" Height="1" />
                 <DockPanel>
