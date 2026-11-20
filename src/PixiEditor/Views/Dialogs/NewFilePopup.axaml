@@ -29,7 +29,7 @@
                           VerticalAlignment="Center">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="dialogs:SizePreset">
-                            <TextBlock Text="{Binding Name}" />
+                            <TextBlock ui:Translator.Key="{Binding Name}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>

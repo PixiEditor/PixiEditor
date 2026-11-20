@@ -9,9 +9,11 @@ using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Handlers;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views.Overlays.Drawables;
 using PixiEditor.Views.Overlays.Handles;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
@@ -201,12 +203,35 @@ internal class TransformOverlay : Overlay
         set => SetValue(LockTransformingProperty, value);
     }
 
+    public static readonly StyledProperty<MeasurementUnit> MeasurementUnitProperty = AvaloniaProperty.Register<TransformOverlay, MeasurementUnit>(
+        nameof(MeasurementUnit), MeasurementUnit.Pixels);
+
+    public MeasurementUnit MeasurementUnit
+    {
+        get => GetValue(MeasurementUnitProperty);
+        set => SetValue(MeasurementUnitProperty, value);
+    }
+
+    public static readonly StyledProperty<double> DpiProperty = AvaloniaProperty.Register<TransformOverlay, double>(
+        nameof(Dpi), 300);
+
+    public double Dpi
+    {
+        get => GetValue(DpiProperty);
+        set => SetValue(DpiProperty, value);
+    }
+
     static TransformOverlay()
     {
         AffectsRender<TransformOverlay>(CornersProperty, ZoomScaleProperty, SideFreedomProperty, CornerFreedomProperty,
             LockRotationProperty, SnapToAnglesProperty, InternalStateProperty, ZoomboxAngleProperty,
             CoverWholeScreenProperty);
         RequestCornersExecutorProperty.Changed.Subscribe(OnCornersExecutorChanged);
+        MeasurementUnitProperty.Changed.Subscribe(args =>
+        {
+            (args.Sender as TransformOverlay).measurementUnitShortName =
+                new LocalizedString(args.NewValue.Value.ShortNameLocalizationKey).Value;
+        });
     }
 
     private bool isMoving = false;
@@ -278,6 +303,7 @@ internal class TransformOverlay : Overlay
         IsAntiAliased = true
     };
 
+    private string formatString;
     private AnchorHandle topLeftHandle;
     private AnchorHandle topRightHandle;
     private AnchorHandle bottomLeftHandle;
@@ -308,8 +334,11 @@ internal class TransformOverlay : Overlay
     private int lastClickCount = 0;
     private bool pressedWithinBounds = false;
 
+    private string measurementUnitShortName = "px";
+
     public TransformOverlay()
     {
+        formatString = new LocalizedString("TRANSFORM_OVERLAY_SIZE_FORMAT");
         topLeftHandle = new AnchorHandle(this);
         topRightHandle = new AnchorHandle(this);
         bottomLeftHandle = new AnchorHandle(this);
@@ -513,7 +542,9 @@ internal class TransformOverlay : Overlay
             else
             {
                 VecD rectSize = Corners.RectSize;
-                string sizeText = $"W: {rectSize.X:0.#} H: {rectSize.Y:0.#} px";
+                var width = $"{MeasurementUnit.FromPixels(rectSize.X, (float)Dpi):0.####}";
+                var height = $"{MeasurementUnit.FromPixels(rectSize.Y, (float)Dpi):0.####}";
+                string sizeText = string.Format(formatString, width, height, measurementUnitShortName);
                 infoBox.DrawInfo(context, sizeText, pos);
             }
 
@@ -555,6 +586,12 @@ internal class TransformOverlay : Overlay
     private void OnMoveHandlePressed(Handle source, OverlayPointerArgs args)
     {
         StartMoving(args.CanvasPoint);
+    }
+
+    protected override void OnOverlayPointerEntered(OverlayPointerArgs args)
+    {
+        base.OnOverlayPointerEntered(args);
+        Refresh();
     }
 
     protected override void OnOverlayPointerExited(OverlayPointerArgs args)

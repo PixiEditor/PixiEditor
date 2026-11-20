@@ -2,11 +2,25 @@
 using Avalonia;
 using Avalonia.Interactivity;
 using PixiEditor.ChangeableDocument.Changeables;
+using PixiEditor.Common;
+using PixiEditor.Models.Config;
 using PixiEditor.UI.Common.Converters;
 
 namespace PixiEditor.Views.Dialogs;
 
-public record SizePreset(string Name, int Width, int Height);
+public record SizePreset(string Name, double Width, double Height, string Unit, double Dpi);
+
+public class SizePresets : List<SizePreset>, IMergeable<SizePresets>
+{
+    public SizePresets TryMergeWith(SizePresets other)
+    {
+        SizePresets presets = new SizePresets();
+        presets.AddRange(other);
+        presets.AddRange(this);
+
+        return presets;
+    }
+}
 
 /// <summary>
 ///     Interaction logic for NewFilePopup.xaml.
@@ -14,6 +28,7 @@ public record SizePreset(string Name, int Width, int Height);
 internal partial class NewFilePopup : PixiEditorPopup
 {
     private bool _isUpdatingFromPreset = false;
+
     public static readonly StyledProperty<double> DpiProperty =
         AvaloniaProperty.Register<NewFilePopup, double>(nameof(Dpi), 300);
 
@@ -21,7 +36,8 @@ internal partial class NewFilePopup : PixiEditorPopup
         AvaloniaProperty.Register<NewFilePopup, MeasurementConverterData>(nameof(SelectedMeasurementConverterData));
 
     public static readonly StyledProperty<MeasurementUnit> SelectedMeasurementUnitProperty =
-        AvaloniaProperty.Register<NewFilePopup, MeasurementUnit>(nameof(SelectedMeasurementUnit), MeasurementUnit.Pixels);
+        AvaloniaProperty.Register<NewFilePopup, MeasurementUnit>(nameof(SelectedMeasurementUnit),
+            MeasurementUnit.Pixels);
 
     public static readonly StyledProperty<ObservableCollection<MeasurementUnit>> UnitsProperty =
         AvaloniaProperty.Register<NewFilePopup, ObservableCollection<MeasurementUnit>>(nameof(Units));
@@ -36,18 +52,7 @@ internal partial class NewFilePopup : PixiEditorPopup
         AvaloniaProperty.Register<NewFilePopup, SizePreset?>(nameof(SelectedPreset));
 
     // Actual presets
-    public List<SizePreset> Presets { get; } = new()
-    {
-        new("32x32", 32, 32),
-        new("64x64", 64, 64),
-        new("128x128", 128, 128),
-        new("256x256", 256, 256),
-        new("512x512", 512, 512),
-        new("1024x1024", 1024, 1024),
-        new("1280x720 (HD)", 1280, 720),
-        new("1920x1080 (FHD)", 1920, 1080),
-        new("2560x1440 (QHD)", 2560, 1440)
-    };
+    public ObservableCollection<SizePreset> Presets { get; } = new ObservableCollection<SizePreset>();
 
     static NewFilePopup()
     {
@@ -69,7 +74,8 @@ internal partial class NewFilePopup : PixiEditorPopup
         Units = new ObservableCollection<MeasurementUnit>(MeasurementUnit.AllKnown);
         SelectedMeasurementConverterData = new MeasurementConverterData(
             () => (float)Dpi,
-            (pixels, dpi) => Math.Round(SelectedMeasurementUnit.FromPixels(pixels, dpi), SelectedMeasurementUnit.Decimals),
+            (pixels, dpi) =>
+                Math.Round(SelectedMeasurementUnit.FromPixels(pixels, dpi), SelectedMeasurementUnit.Decimals),
             (value, dpi) => SelectedMeasurementUnit.ToPixels(value, dpi),
             () => SelectedMeasurementUnit.Decimals);
     }
@@ -94,8 +100,15 @@ internal partial class NewFilePopup : PixiEditorPopup
         {
             popup._isUpdatingFromPreset = true;
 
-            popup.FileWidth = preset.Width;
-            popup.FileHeight = preset.Height;
+            var unit = MeasurementUnit.AllKnown.FirstOrDefault(u =>
+                u.UnitName.Equals(preset.Unit, StringComparison.InvariantCultureIgnoreCase));
+            if (unit != null)
+            {
+                popup.FileWidth = (int)unit.ToPixels(preset.Width, (float)preset.Dpi);
+                popup.FileHeight = (int)unit.ToPixels(preset.Height, (float)preset.Dpi);
+                popup.Dpi = preset.Dpi;
+                popup.SelectedMeasurementUnit = unit;
+            }
 
             popup._isUpdatingFromPreset = false;
         }

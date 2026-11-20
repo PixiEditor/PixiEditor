@@ -428,6 +428,13 @@ internal class ViewportOverlays
             Source = Viewport, Path = "Document.TransformViewModel.LockTransform", Mode = BindingMode.OneWay
         };
 
+        Binding measurementUnitBinding = new()
+        {
+            Source = Viewport, Path = "Document.MeasurementUnitBindable", Mode = BindingMode.OneWay
+        };
+
+        Binding dpiBinding = new() { Source = Viewport, Path = "Document.DpiBindable", Mode = BindingMode.OneWay };
+
         transformOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         transformOverlay.Bind(TransformOverlay.ActionCompletedProperty, actionCompletedBinding);
         transformOverlay.Bind(TransformOverlay.SnappingControllerProperty, snappingBinding);
@@ -449,6 +456,8 @@ internal class ViewportOverlays
         transformOverlay.Bind(TransformOverlay.LockShearProperty, lockShearBinding);
         transformOverlay.Bind(TransformOverlay.LockTransformingProperty, lockTransformBinding);
         transformOverlay.Bind(TransformOverlay.TransformDraggedCommandProperty, transformDraggedBinding);
+        transformOverlay.Bind(TransformOverlay.MeasurementUnitProperty, measurementUnitBinding);
+        transformOverlay.Bind(TransformOverlay.DpiProperty, dpiBinding);
     }
 
     private void BindVectorPathOverlay()
@@ -486,7 +495,16 @@ internal class ViewportOverlays
             Source = Viewport, Path = "Document.SnappingViewModel.SnappingController", Mode = BindingMode.OneWay
         };
 
+        Binding measurementUnitBinding = new()
+        {
+            Source = Viewport, Path = "Document.MeasurementUnitBindable", Mode = BindingMode.OneWay
+        };
+
+        Binding dpiBinding = new() { Source = Viewport, Path = "Document.DpiBindable", Mode = BindingMode.OneWay };
+
         snappingOverlay.Bind(SnappingOverlay.SnappingControllerProperty, snappingControllerBinding);
+        snappingOverlay.Bind(SnappingOverlay.DpiProperty, dpiBinding);
+        snappingOverlay.Bind(SnappingOverlay.MeasurementUnitProperty, measurementUnitBinding);
     }
 
     private void BindMouseOverlayPointer()
