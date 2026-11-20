@@ -43,7 +43,7 @@ public partial class SizeInput : UserControl
         AvaloniaProperty.Register<SizeInput, MeasurementConverterData?>(
             nameof(MeasurementConverterData));
 
-    public MeasurementConverterData? MeasurementConverterData
+    public MeasurementConverterData?  MeasurementConverterData
     {
         get => GetValue(MeasurementConverterDataProperty);
         set => SetValue(MeasurementConverterDataProperty, value);

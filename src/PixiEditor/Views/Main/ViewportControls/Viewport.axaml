@@ -50,7 +50,8 @@
         </Interaction.Behaviors>
         <overlays:TogglableFlyout
             IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
-            Margin="{Binding TopRightHudMargin, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}" Icon="{DynamicResource icon-tool}"
+            Margin="{Binding TopRightHudMargin, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
+            Icon="{DynamicResource icon-tool}"
             ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <overlays:TogglableFlyout.Child>
                 <Border Padding="5"
@@ -160,12 +161,18 @@
                         <Separator />
                         <TextBlock HorizontalAlignment="Center"
                                    ui:Translator.Key="GRIDLINES_SIZE" Margin="0 0 0 10" />
-                        <controls:NumberInput Min="1"
-                                              Max="1024"
-                                              Value="{Binding GridLinesXSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
-                        <controls:NumberInput Min="1"
-                                              Max="1024"
-                                              Value="{Binding GridLinesYSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
+                        <controls:SizeInput
+                            MinSize="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.Decimals, Converter={converters:DecimalsToMinValueConverter}}"
+                            Unit="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.ShortNameLocalizationKey}"
+                            MeasurementConverterData="{Binding $parent[viewportControls:Viewport].Document.MeasurementConversionData}"
+                            Decimals="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.Decimals}"
+                            Size="{Binding GridLinesXSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
+                        <controls:SizeInput
+                            MinSize="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.Decimals, Converter={converters:DecimalsToMinValueConverter}}"
+                            Unit="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.ShortNameLocalizationKey}"
+                            MeasurementConverterData="{Binding $parent[viewportControls:Viewport].Document.MeasurementConversionData}"
+                            Decimals="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.Decimals}"
+                            Size="{Binding GridLinesYSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
                         <Separator />
                         <TextBlock ui:Translator.Key="RENDER_PREVIEW" />
                         <ComboBox

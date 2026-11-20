@@ -40,6 +40,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
+using PixiEditor.UI.Common.Converters;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.Nodes.Workspace;
@@ -169,10 +170,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
+    public MeasurementConverterData MeasurementConversionData { get; private set; }
+
     public void SetMeasurementUnitInternal(MeasurementUnit unit)
     {
         measurementUnit = unit;
+        MeasurementConversionData?.NotifyUpdated();
         OnPropertyChanged(nameof(MeasurementUnitBindable));
+        OnPropertyChanged(nameof(MeasurementConversionData));
     }
 
     public void SetDpiInternal(float targetDpi)
@@ -301,6 +306,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         var serviceProvider = ViewModelMain.Current.Services;
         Internals = new DocumentInternalParts(this, serviceProvider);
+
         InitializeViewModel();
     }
 
@@ -330,6 +336,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     private void InitializeViewModel()
     {
+        MeasurementConversionData = new MeasurementConverterData(
+            () => DpiBindable,
+            (pixel, dpi) => MeasurementUnitBindable.FromPixels(pixel, dpi),
+            (value, dpi) => MeasurementUnitBindable.ToPixels(value, dpi),
+            () => MeasurementUnitBindable.Decimals);
+
         Internals.ChangeController.ToolSessionFinished += () => ToolSessionFinished?.Invoke();
         Internals.ChangeController.ExecutorChanged += () => ExecutorChanged?.Invoke();
 
