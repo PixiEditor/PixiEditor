@@ -182,7 +182,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
         else
         {
-            var rasterCel = new RasterCelViewModel(readOnlyKeyFrame.NodeId, readOnlyKeyFrame.StartFrame,
+            var rasterCel = new LayerCelViewModel(readOnlyKeyFrame.NodeId, readOnlyKeyFrame.StartFrame,
                 readOnlyKeyFrame.Duration, readOnlyKeyFrame.Id, doc, internals);
             AddKeyFrame(rasterCel);
         }

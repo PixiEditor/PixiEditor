@@ -106,7 +106,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
 
     public IReadOnlyShapeVectorData? GetShapeData(KeyFrameTime frameTime)
     {
-        return ((IReadOnlyVectorNode)Internals.Tracker.Document.FindMember(Id))?.ShapeData;
+        return ((IReadOnlyVectorNode)Internals.Tracker.Document.FindMember(Id))?.GetShapeData(frameTime);
     }
 
     public void UpdateLayerTypeIcon()

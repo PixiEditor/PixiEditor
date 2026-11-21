@@ -43,12 +43,12 @@ internal class CreateAnimationDataFromFolder_Change : Change
             {
                 if(frame.StartFrame == 0 && frame.Duration == 0) continue;
                 Guid keyFrameId = frame.KeyFrameGuid;
-                target.AnimationData.AddKeyFrame(new RasterKeyFrame(keyFrameId, node.Id, frame.StartFrame, target)
+                target.AnimationData.AddKeyFrame(new CelKeyFrame(keyFrameId, node.Id, frame.StartFrame, target)
                 {
                     Duration = frame.Duration,
                     IsVisible = frame.IsVisible,
                 });
-                infos.Add(new CreateRasterKeyFrame_ChangeInfo(node.Id, frame.StartFrame, keyFrameId, true));
+                infos.Add(new CreateCelKeyFrame_ChangeInfo(node.Id, frame.StartFrame, keyFrameId, true));
                 infos.Add(new KeyFrameLength_ChangeInfo(keyFrameId, frame.StartFrame, frame.Duration));
                 infos.Add(new KeyFrameVisibility_ChangeInfo(keyFrameId, frame.IsVisible));
             }

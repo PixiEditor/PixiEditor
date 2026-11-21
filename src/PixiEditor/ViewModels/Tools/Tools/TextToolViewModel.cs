@@ -64,6 +64,12 @@ internal class TextToolViewModel : ToolViewModel, ITextToolHandler
         OnSelected(false);
     }
 
+    public override void OnActiveFrameChanged(int newFrame)
+    {
+        OnDeselecting(false);
+        OnSelected(false);
+    }
+
     public override void OnPostUndoInlet()
     {
         OnDeselecting(false);

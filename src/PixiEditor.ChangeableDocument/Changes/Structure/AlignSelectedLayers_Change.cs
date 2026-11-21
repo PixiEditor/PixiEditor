@@ -76,7 +76,7 @@ internal class AlignSelectedLayers_Change : Change
 
             if (member is ITransformableObject transformable)
             {
-                oldTransforms[member.Id] = transformable.TransformationMatrix;
+                oldTransforms[member.Id] = transformable.GetTransformationMatrix(Frame);
             }
             else if (member is FolderNode folderNode)
             {
@@ -196,7 +196,7 @@ internal class AlignSelectedLayers_Change : Change
         {
             var tightLayerArea = AffectedAreasUtility.GetTightLayerArea(member, Frame);
             var translation = Matrix3X3.CreateTranslation(shift.X, shift.Y);
-            transformable.TransformationMatrix = transformable.TransformationMatrix.PostConcat(translation);
+            transformable.SetTransformationMatrix(Frame, transformable.GetTransformationMatrix(Frame).PostConcat(translation));
 
             tightLayerArea.UnionWith(AffectedAreasUtility.GetTightLayerArea(member, Frame));
 
@@ -223,7 +223,7 @@ internal class AlignSelectedLayers_Change : Change
             var transformableNode = target.FindMemberOrThrow(layerGuid.Key);
             if (transformableNode is ITransformableObject transformable)
             {
-                transformable.TransformationMatrix = oldTransforms[layerGuid.Key];
+                transformable.SetTransformationMatrix(Frame, oldTransforms[layerGuid.Key]);
 
                 changes.Add(new TransformObject_ChangeInfo(layerGuid.Key,
                     AffectedAreasUtility.GetTightLayerArea(transformableNode, Frame)));

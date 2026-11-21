@@ -63,9 +63,10 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
             }
             else if (member is ITransformableObject transformableObject)
             {
-                originalTransformations[member.Id] = transformableObject.TransformationMatrix;
+                var originals = transformableObject.GetAllTransformationMatrices();
+                originalTransformations[member.Id] = originals;
                 Matrix3X3 offsetMatrix = Matrix3X3.CreateTranslation(offset.X, offset.Y);
-                transformableObject.TransformationMatrix = offsetMatrix.Concat(transformableObject.TransformationMatrix);
+                transformableObject.SetAllTransformationMatrices(originals.Select(m => offsetMatrix.Concat(m)).ToArray());
             }
 
             if (member.EmbeddedMask is null)

@@ -10,6 +10,7 @@ namespace PixiEditor.ChangeableDocument.Changes.Vectors;
 internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
 {
     public Guid TargetId { get; set; }
+    public int Frame { get; set; }
     public ShapeVectorData Data { get; set; }
     public VectorShapeChangeType ChangeType { get; set; }
 
@@ -18,23 +19,25 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     private AffectedArea lastAffectedArea;
 
     [GenerateUpdateableChangeActions]
-    public SetShapeGeometry_UpdateableChange(Guid targetId, ShapeVectorData data, VectorShapeChangeType changeType)
+    public SetShapeGeometry_UpdateableChange(Guid targetId, ShapeVectorData data, VectorShapeChangeType changeType, int frame)
     {
         TargetId = targetId;
         Data = data;
         ChangeType = changeType;
+        Frame = frame;
     }
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (target.TryFindNode<VectorLayerNode>(TargetId, out var node))
+        if (target.TryFindNode<VectorLayerNode>(TargetId, out var node) && node.CanEditShapeAtFrame(Frame))
         {
-            if (IsIdentical(node.EmbeddedShapeData, Data) || node.IsLocked)
+            var currentShape = node.GetShapeAtFrame(Frame);
+            if (IsIdentical(currentShape, Data) || node.IsLocked)
             {
                 return false;
             }
 
-            originalData = (ShapeVectorData?)node.EmbeddedShapeData?.Clone();
+            originalData = (ShapeVectorData?)currentShape?.Clone();
             return true;
         }
 
@@ -51,8 +54,8 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     {
         var node = target.FindNode<VectorLayerNode>(TargetId);
 
-        AffectedArea affected = GetAffectedArea(node.EmbeddedShapeData, Data);
-        node.EmbeddedShapeData = Data;
+        AffectedArea affected = GetAffectedArea(node.GetShapeAtFrame(Frame), Data);
+        node.SetShapeAtFrame(Frame, Data);
 
         if (lastAffectedArea.Chunks != null)
         {
@@ -74,8 +77,8 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
             return new None();
         }
 
-        AffectedArea affected = GetAffectedArea(node.EmbeddedShapeData, Data);
-        node.EmbeddedShapeData = Data;
+        AffectedArea affected = GetAffectedArea(node.GetShapeAtFrame(Frame), Data);
+        node.SetShapeAtFrame(Frame, Data);
 
         return new VectorShape_ChangeInfo(node.Id, affected);
     }
@@ -84,8 +87,8 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     {
         var node = target.FindNode<VectorLayerNode>(TargetId);
 
-        AffectedArea affected = GetAffectedArea(node.EmbeddedShapeData, originalData);
-        node.EmbeddedShapeData = originalData;
+        AffectedArea affected = GetAffectedArea(node.GetShapeAtFrame(Frame), originalData);
+        node.SetShapeAtFrame(Frame, originalData);
 
         return new VectorShape_ChangeInfo(node.Id, affected);
     }
@@ -134,7 +137,8 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     {
         if (other is SetShapeGeometry_UpdateableChange change)
         {
-            return change.TargetId == TargetId &&
+            return change.Frame == Frame &&
+                   change.TargetId == TargetId &&
                    !ChangeType.HasFlag(VectorShapeChangeType.GeometryData) && ChangeType.HasFlag(change.ChangeType) &&
                    change.Data is not TextVectorData; // text should not be merged into one change
         }

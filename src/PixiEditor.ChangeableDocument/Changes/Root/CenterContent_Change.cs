@@ -89,8 +89,8 @@ internal class CenterContent_Change : Change
             }
             else if (node is ITransformableObject transformable)
             {
-                transformable.TransformationMatrix = transformable.TransformationMatrix.PostConcat(
-                    Matrix3X3.CreateTranslation(shift.X, shift.Y));
+                transformable.SetTransformationMatrix(frame, transformable.GetTransformationMatrix(frame).PostConcat(
+                    Matrix3X3.CreateTranslation(shift.X, shift.Y)));
                 var affectedArea = FromSize(target);
                 changes.Add(new TransformObject_ChangeInfo(layerGuid, affectedArea));
             }
@@ -116,8 +116,8 @@ internal class CenterContent_Change : Change
             }
             else if (layerNode is ITransformableObject transformable)
             {
-                transformable.TransformationMatrix = transformable.TransformationMatrix.PostConcat(
-                    Matrix3X3.CreateTranslation((float)-oldDelta.X, (float)-oldDelta.Y));
+                transformable.SetTransformationMatrix(frame, transformable.GetTransformationMatrix(frame).PostConcat(
+                    Matrix3X3.CreateTranslation((float)-oldDelta.X, (float)-oldDelta.Y)));
                 
                 var affectedArea = FromSize(target);
                 changes.Add(new TransformObject_ChangeInfo(layerGuid, affectedArea));

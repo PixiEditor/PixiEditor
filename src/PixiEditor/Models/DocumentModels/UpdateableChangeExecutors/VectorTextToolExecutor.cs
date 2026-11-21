@@ -226,6 +226,16 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         if (firstLayer is not IVectorLayerHandler layerHandler ||
             layerHandler.GetShapeData(document.AnimationHandler.ActiveFrameTime) is not TextVectorData)
         {
+            if (!isListeningForValidLayer && textHandler.CanBeUsedOnActiveLayer &&
+                string.IsNullOrEmpty(lastText?.RawText))
+            {
+                args.Handled = true;
+                wasDrawingSize = false;
+                position = clickPos;
+                document.TextOverlayHandler.Show(lastText, position, lastMatrix);
+                return;
+            }
+
             args.Handled = false;
             if (document.TextOverlayHandler.IsActive)
             {
@@ -265,7 +275,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             document.TextOverlayHandler.Text = lastText;
             var textData = ConstructTextData(lastText);
             internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id, textData,
-                VectorShapeChangeType.GeometryData));
+                VectorShapeChangeType.GeometryData, document!.AnimationHandler.ActiveFrameBindable));
         }
     }
 
@@ -313,7 +323,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         var constructedText = ConstructTextData(text);
         internals.ActionAccumulator.AddFinishedActions(
-            new SetShapeGeometry_Action(selectedMember.Id, constructedText, VectorShapeChangeType.GeometryData),
+            new SetShapeGeometry_Action(selectedMember.Id, constructedText, VectorShapeChangeType.GeometryData, document!.AnimationHandler.ActiveFrameBindable),
             new EndSetShapeGeometry_Action(),
             new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
 
@@ -431,7 +441,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         var constructedText = ConstructTextData(text);
 
         internals.ActionAccumulator.AddActions(
-            new SetShapeGeometry_Action(selectedMember.Id, constructedText, changeType),
+            new SetShapeGeometry_Action(selectedMember.Id, constructedText, changeType, document!.AnimationHandler.ActiveFrameBindable),
             new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
 
         document.TextOverlayHandler.Text = text;
@@ -664,10 +674,10 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         var constructedText = ConstructTextData(lastText);
         internals.ActionAccumulator.AddFinishedActions(
-            new SetShapeGeometry_Action(selectedMember.Id, constructedText, VectorShapeChangeType.GeometryData),
+            new SetShapeGeometry_Action(selectedMember.Id, constructedText, VectorShapeChangeType.GeometryData, document!.AnimationHandler.ActiveFrameBindable),
             new EndSetShapeGeometry_Action(),
             new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering),
-            new SetShapeGeometry_Action(firstValidLayer.Id, newShape, VectorShapeChangeType.GeometryData),
+            new SetShapeGeometry_Action(firstValidLayer.Id, newShape, VectorShapeChangeType.GeometryData, document!.AnimationHandler.ActiveFrameBindable),
             new EndSetShapeGeometry_Action());
     }
 

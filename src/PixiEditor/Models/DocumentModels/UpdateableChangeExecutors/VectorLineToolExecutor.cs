@@ -39,7 +39,7 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
         startPoint = startDrawingPos;
         endPoint = pos;
 
-        return new SetShapeGeometry_Action(memberId, data, VectorShapeChangeType.GeometryData);
+        return new SetShapeGeometry_Action(memberId, data, VectorShapeChangeType.GeometryData, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction TransformOverlayMoved(VecD start, VecD end)
@@ -49,7 +49,7 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
         startPoint = start;
         endPoint = end;
 
-        return new SetShapeGeometry_Action(memberId, data, VectorShapeChangeType.GeometryData);
+        return new SetShapeGeometry_Action(memberId, data, VectorShapeChangeType.GeometryData, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected IAction SettingsChanged(string name, object value)
@@ -64,7 +64,7 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
             _ => VectorShapeChangeType.All
         };
 
-        return new SetShapeGeometry_Action(memberId, data, changeType);
+        return new SetShapeGeometry_Action(memberId, data, changeType, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)

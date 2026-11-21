@@ -739,7 +739,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
-    public void InternalRaiseKeyFrameCreated(RasterCelViewModel vm)
+    public void InternalRaiseKeyFrameCreated(LayerCelViewModel vm)
     {
         while (queuedKeyFrameReadyToUseActions.Count > 0)
         {

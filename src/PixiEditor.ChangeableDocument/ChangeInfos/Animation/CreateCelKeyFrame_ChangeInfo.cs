@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 
-public record CreateRasterKeyFrame_ChangeInfo(
+public record CreateCelKeyFrame_ChangeInfo(
     Guid TargetLayerGuid,
     int Frame,
     Guid KeyFrameId,

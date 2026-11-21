@@ -132,6 +132,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         }
 
         var kfAtFrame = activeDocument.AnimationDataViewModel.AllCels.FirstOrDefault(x =>
+            x.LayerGuid == activeDocument.SelectedStructureMember.Id &&
             x.IsWithinRange(activeDocument.AnimationDataViewModel.ActiveFrameBindable));
 
         int newFrame = kfAtFrame != null

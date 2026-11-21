@@ -3,9 +3,13 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using Drawie.Backend.Core;
 using Drawie.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changes.Animation;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -33,7 +37,7 @@ internal class RasterizeMember_Change : Change
         if (target.TryFindMember(memberId, out var member) 
             && member is not IReadOnlyImageNode && member is IRasterizable)
         {
-            originalNode = member.Clone();
+            originalNode = member.Clone(true);
             originalConnections = NodeOperations.CreateConnectionsData(member);
             return true;
         }
@@ -53,13 +57,34 @@ internal class RasterizeMember_Change : Change
         imageLayer.Id = createdNodeId;
 
         target.NodeGraph.AddNode(imageLayer);
-        
-        using Surface surface = Surface.ForProcessing(target.Size, target.ProcessingColorSpace);
-        rasterizable.Rasterize(surface.DrawingSurface.Canvas, null, frame);
-        
-        var image = imageLayer.GetLayerImageAtFrame(0);
-        image.EnqueueDrawImage(VecI.Zero, surface);
-        image.CommitChanges();
+
+        if (node is VectorLayerNode vector && vector.KeyFrames.Count > 1)
+        {
+            imageLayer.FallbackAnimationToLayerImage = vector.FallbackAnimationToLayerImage;
+            foreach (var keyFrame in vector.KeyFrames)
+            {
+                ChunkyImage celImage;
+                if (keyFrame == vector.KeyFrames[0])
+                {
+                    celImage = imageLayer.GetLayerImageAtFrame(0);
+                }
+                else
+                {
+                    celImage = (ChunkyImage)imageLayer.CreateEmptyCelData(target.Size);
+                    imageLayer.AddFrame(keyFrame.KeyFrameGuid,
+                        new KeyFrameData(
+                            keyFrame.KeyFrameGuid, keyFrame.StartFrame, keyFrame.Duration, ImageLayerNode.ImageLayerKey)
+                        {
+                            Data = celImage,
+                            IsVisible = keyFrame.IsVisible,
+                        });
+                }
+                DrawInto(target, celImage, canvas => vector.RasterizeKeyFrame(canvas, null, keyFrame));
+            }
+        } else
+        {
+            DrawInto(target, imageLayer.GetLayerImageAtFrame(0), canvas => rasterizable.Rasterize(canvas, null, frame));
+        }
 
         OutputProperty<Painter>? outputConnection = node.OutputProperties.FirstOrDefault(x => x is OutputProperty<Painter>) as OutputProperty<Painter>;
         InputProperty<Painter>? outputConnectedInput =
@@ -69,7 +94,13 @@ internal class RasterizeMember_Change : Change
         OutputProperty<Painter> toAddOutput = imageLayer.Output;
 
         List<IChangeInfo> changeInfos = new();
+        if (target.AnimationData.TryFindKeyFrame<GroupKeyFrame>(memberId, out _))
+        {
+            target.AnimationData.RemoveKeyFrame(memberId);
+            changeInfos.Add(new DeleteKeyFrame_ChangeInfo(memberId));
+        }
         changeInfos.Add(CreateNode_ChangeInfo.CreateFromNode(imageLayer));
+        changeInfos.AddRange(CreateAnimationDataFromLayer_Change.CreateTimelineRow(target, imageLayer));
         changeInfos.AddRange(NodeOperations.AppendMember(outputConnectedInput, toAddOutput, backgroundInput, imageLayer.Id));
 
         List<(string inputPropName, IOutputProperty connection)> connections = new();
@@ -106,6 +137,13 @@ internal class RasterizeMember_Change : Change
         Node node = target.FindMember(createdNodeId);
         
         List<IChangeInfo> changeInfos = new();
+
+        if (target.AnimationData.TryFindKeyFrame<GroupKeyFrame>(createdNodeId, out _))
+        {
+            target.AnimationData.RemoveKeyFrame(createdNodeId);
+            changeInfos.Add(new DeleteKeyFrame_ChangeInfo(createdNodeId));
+        }
+
         changeInfos.AddRange(NodeOperations.DetachNode(node));
         
         node.Dispose();
@@ -113,12 +151,16 @@ internal class RasterizeMember_Change : Change
         
         changeInfos.Add(new DeleteNode_ChangeInfo(node.Id));
         
-        var restoredNode = originalNode.Clone();
+        var restoredNode = originalNode.Clone(true);
         restoredNode.Id = memberId;
-        
+
         target.NodeGraph.AddNode(restoredNode);
-        
+
         changeInfos.Add(CreateNode_ChangeInfo.CreateFromNode(restoredNode));
+        if (restoredNode is LayerNode restoredLayer)
+        {
+            changeInfos.AddRange(CreateAnimationDataFromLayer_Change.CreateTimelineRow(target, restoredLayer));
+        }
         
         changeInfos.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, restoredNode, target.NodeGraph));
         
@@ -128,5 +170,14 @@ internal class RasterizeMember_Change : Change
     public override void Dispose()
     {
         originalNode?.Dispose();
+    }
+
+    private static void DrawInto(Document target, ChunkyImage image, Action<Canvas> rasterize)
+    {
+        using Surface surface = Surface.ForProcessing(target.Size, target.ProcessingColorSpace);
+        rasterize(surface.DrawingSurface.Canvas);
+
+        image.EnqueueDrawImage(VecI.Zero, surface);
+        image.CommitChanges();
     }
 }

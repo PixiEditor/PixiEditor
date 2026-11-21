@@ -79,7 +79,7 @@ internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorElli
 
         lastRect = rect;
 
-        internals!.ActionAccumulator.AddActions(new SetShapeGeometry_Action(memberId, data, VectorShapeChangeType.GeometryData));
+        internals!.ActionAccumulator.AddActions(new SetShapeGeometry_Action(memberId, data, VectorShapeChangeType.GeometryData, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     protected override IAction SettingsChangedAction(string name, object value)
@@ -100,7 +100,7 @@ internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorElli
                 FillPaintable = FillPaintable,
                 StrokeWidth = (float)StrokeWidth,
                 TransformationMatrix = lastMatrix
-            }, changeType);
+            }, changeType, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners)
@@ -136,7 +136,7 @@ internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorElli
         lastRect = rect;
         lastMatrix = matrix;
 
-        return new SetShapeGeometry_Action(memberId, ellipseData, VectorShapeChangeType.GeometryData);
+        return new SetShapeGeometry_Action(memberId, ellipseData, VectorShapeChangeType.GeometryData, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction EndDrawAction()

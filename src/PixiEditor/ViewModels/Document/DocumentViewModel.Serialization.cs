@@ -182,7 +182,7 @@ internal partial class DocumentViewModel
             }
             else if (member is IReadOnlyVectorNode vectorLayerHandler)
             {
-                AddSvgShape(elementContainer, vectorLayerHandler, resizeFactor, defs);
+                AddSvgShape(elementContainer, atTime, vectorLayerHandler, resizeFactor, defs);
             }
             else if (member is NestedDocumentNode nested)
             {
@@ -222,33 +222,32 @@ internal partial class DocumentViewModel
         }
     }
 
-    private static void AddSvgShape(IElementContainer elementContainer, IReadOnlyVectorNode vectorNode,
+    private static void AddSvgShape(IElementContainer elementContainer, KeyFrameTime atTime, IReadOnlyVectorNode vectorNode,
         VecD resizeFactor, SvgDefs defs)
     {
+        IReadOnlyShapeVectorData data = vectorNode.GetShapeData(atTime);
         SvgElement? elementToAdd = null;
 
-        if (vectorNode.ShapeData is IReadOnlyEllipseData ellipseData)
+        if (data is IReadOnlyEllipseData ellipseData)
         {
             elementToAdd = AddEllipse(ellipseData);
         }
-        else if (vectorNode.ShapeData is IReadOnlyRectangleData rectangleData)
+        else if (data is IReadOnlyRectangleData rectangleData)
         {
             elementToAdd = AddRectangle(rectangleData);
         }
-        else if (vectorNode.ShapeData is IReadOnlyLineData lineData)
+        else if (data is IReadOnlyLineData lineData)
         {
             elementToAdd = AddLine(lineData);
         }
-        else if (vectorNode.ShapeData is IReadOnlyPathData shapeData)
+        else if (data is IReadOnlyPathData shapeData)
         {
             elementToAdd = AddVectorPath(shapeData);
         }
-        else if (vectorNode.ShapeData is IReadOnlyTextData textData)
+        else if (data is IReadOnlyTextData textData)
         {
             elementToAdd = AddText(textData, vectorNode);
         }
-
-        IReadOnlyShapeVectorData data = vectorNode.ShapeData;
 
         if (data != null && elementToAdd is SvgPrimitive primitive)
         {
@@ -882,12 +881,12 @@ internal partial class DocumentViewModel
                 {
                     foreach (var child in container.Children)
                     {
-                        if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
+                        if (child is IReadOnlyCelKeyFrame rasterKeyFrame)
                         {
                             if (!nodeIdMap.ContainsKey(rasterKeyFrame.NodeId)) continue;
                             if (!keyFrameIds.ContainsKey(rasterKeyFrame.Id)) continue;
 
-                            BuildRasterKeyFrame(rasterKeyFrame, graph, group, nodeIdMap, keyFrameIds);
+                            BuildCelKeyFrame(rasterKeyFrame, graph, group, nodeIdMap, keyFrameIds);
                         }
                     }
                 }
@@ -897,25 +896,10 @@ internal partial class DocumentViewModel
         }
     }
 
-    private static void BuildRasterKeyFrame(IReadOnlyRasterKeyFrame rasterKeyFrame, IReadOnlyNodeGraph graph,
+    private static void BuildCelKeyFrame(IReadOnlyCelKeyFrame rasterKeyFrame, IReadOnlyNodeGraph graph,
         KeyFrameGroup group,
         Dictionary<Guid, int> idMap, Dictionary<Guid, int> keyFrameIds)
     {
-        IReadOnlyChunkyImage image = rasterKeyFrame.GetTargetImage(graph.AllNodes);
-        var bounds = image?.FindChunkAlignedMostUpToDateBounds();
-
-        DrawingSurface surface = null;
-
-        if (bounds is { Width: > 0, Height: > 0 })
-        {
-            surface = DrawingBackendApi.Current.SurfaceImplementation.Create(
-                new ImageInfo(bounds.Value.Width, bounds.Value.Height));
-
-            image.DrawMostUpToDateRegionOn(
-                new RectD(0, 0, bounds.Value.Width, bounds.Value.Height), ChunkResolution.Full, surface.Canvas,
-                new VecI(0, 0));
-        }
-
         group.Children.Add(new ElementKeyFrame()
         {
             NodeId = idMap[rasterKeyFrame.NodeId], KeyFrameId = keyFrameIds[rasterKeyFrame.Id],

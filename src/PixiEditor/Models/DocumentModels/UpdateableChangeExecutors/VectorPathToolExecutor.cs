@@ -200,7 +200,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             };
 
             internals.ActionAccumulator.AddFinishedActions(
-                new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath), changeType),
+                new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath), changeType, document!.AnimationHandler.ActiveFrameBindable),
                 new EndSetShapeGeometry_Action());
         }
     }
@@ -218,7 +218,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     private void AddToUndo(VectorPath path)
     {
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action(),
-            new SetShapeGeometry_Action(member.Id, ConstructShapeData(path), VectorShapeChangeType.GeometryData),
+            new SetShapeGeometry_Action(member.Id, ConstructShapeData(path), VectorShapeChangeType.GeometryData, document!.AnimationHandler.ActiveFrameBindable),
             new EndSetShapeGeometry_Action());
     }
 
@@ -254,7 +254,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         {
             startingPath = path;
             internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id,
-                ConstructShapeData(startingPath), VectorShapeChangeType.GeometryData));
+                ConstructShapeData(startingPath), VectorShapeChangeType.GeometryData, document!.AnimationHandler.ActiveFrameBindable));
         }
     }
 

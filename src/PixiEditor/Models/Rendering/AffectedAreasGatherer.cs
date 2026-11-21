@@ -144,7 +144,7 @@ internal class AffectedAreasGatherer
                     AddAllToImagePreviews(info.Id, ActiveFrame, true);
                     AddToNodePreviews(info.Id);
                     break;
-                case CreateRasterKeyFrame_ChangeInfo info:
+                case CreateCelKeyFrame_ChangeInfo info:
                     if (info.CloneFromExisting)
                     {
                         AddAllToMainImage(info.TargetLayerGuid, info.Frame);

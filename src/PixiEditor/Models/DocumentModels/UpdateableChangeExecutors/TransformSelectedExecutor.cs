@@ -490,6 +490,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             {
                 newLayerGuids.Add(newGuid);
                 actions.Add(new DuplicateLayer_Action(member, newGuid));
+                actions.Add(new CreateAnimationDataFromLayer_Action(newGuid));
                 if (document.SelectionPathBindable is { IsEmpty: false })
                 {
                     actions.Add(new ClearSelectedArea_Action(newGuid, clearArea, false,
@@ -506,6 +507,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
                 }
 
                 actions.Add(new DuplicateFolder_Action(member, newGuid, newGuidsArray.ToImmutableList()));
+                actions.Add(new CreateAnimationDataFromFolder_Action(newGuid));
 
                 for (int j = 0; j < childCount; j++)
                 {

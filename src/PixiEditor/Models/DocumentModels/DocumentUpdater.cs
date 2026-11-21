@@ -156,8 +156,8 @@ internal class DocumentUpdater
             case ClearSoftSelectedMembers_PassthroughAction info:
                 ProcessClearSoftSelectedMembers(info);
                 break;
-            case CreateRasterKeyFrame_ChangeInfo info:
-                ProcessCreateRasterKeyFrame(info);
+            case CreateCelKeyFrame_ChangeInfo info:
+                ProcessCreateCelKeyFrame(info);
                 break;
             case DeleteKeyFrame_ChangeInfo info:
                 ProcessDeleteKeyFrame(info);
@@ -600,11 +600,11 @@ internal class DocumentUpdater
         doc.AnimationHandler.SetPlayingState(info.Play);
     }
 
-    private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)
+    private void ProcessCreateCelKeyFrame(CreateCelKeyFrame_ChangeInfo info)
     {
         if (info.Frame <= 0) return;
 
-        var vm = new RasterCelViewModel(info.TargetLayerGuid, info.Frame, 1,
+        var vm = new LayerCelViewModel(info.TargetLayerGuid, info.Frame, 1,
             info.KeyFrameId,
             (DocumentViewModel)doc, helper);
 

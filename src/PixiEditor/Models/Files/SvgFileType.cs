@@ -17,7 +17,7 @@ internal class SvgFileType : IoFileType
         ExportConfig config, ExportJob? job)
     {
         job?.Report(0, string.Empty);
-        SvgDocument svgDocument = document.ToSvgDocument(0, config.ExportSize, config.VectorExportConfig);
+        SvgDocument svgDocument = document.ToSvgDocument(document.AnimationDataViewModel.ActiveFrameTime, config.ExportSize, config.VectorExportConfig);
 
         job?.Report(0.5, string.Empty);
         string xml = svgDocument.ToXml();
@@ -37,7 +37,7 @@ internal class SvgFileType : IoFileType
         ExportJob? job)
     {
         job?.Report(0, string.Empty);
-        SvgDocument svgDocument = document.ToSvgDocument(0, config.ExportSize, config.VectorExportConfig);
+        SvgDocument svgDocument = document.ToSvgDocument(document.AnimationDataViewModel.ActiveFrameTime, config.ExportSize, config.VectorExportConfig);
 
         job?.Report(0.5, string.Empty);
         string xml = svgDocument.ToXml();
