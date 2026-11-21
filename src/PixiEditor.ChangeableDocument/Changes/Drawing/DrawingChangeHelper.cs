@@ -54,7 +54,8 @@ internal static class DrawingChangeHelper
             throw new InvalidOperationException("Trying to draw on a non-raster layer member");
         }
 
-        return layer.GetLayerImageByKeyFrameGuid(targetKeyFrameGuid) ?? throw new InvalidOperationException("Trying to draw on a frame that doesn't exist");
+        return layer.GetLayerImageByKeyFrameGuid(targetKeyFrameGuid) ??
+               throw new InvalidOperationException("Trying to draw on a frame that doesn't exist");
     }
 
     public static ChunkyImage? GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask, int frame)
@@ -100,7 +101,7 @@ internal static class DrawingChangeHelper
 
     public static bool IsValidForDrawing(Document target, Guid memberGuid, bool drawOnMask, int frame)
     {
-        if (!target.TryFindMember(memberGuid, out var member) || member.IsLocked)
+        if (!target.TryFindMember(memberGuid, out var member) || IsLockedStructurally(member))
         {
             return false;
         }
@@ -130,7 +131,7 @@ internal static class DrawingChangeHelper
 
     public static bool IsValidForDrawing(Document target, Guid memberGuid, bool drawOnMask, Guid targetKeyFrameGuid)
     {
-        if (!target.TryFindMember(memberGuid, out var member) || member.IsLocked)
+        if (!target.TryFindMember(memberGuid, out var member) || IsLockedStructurally(member))
         {
             return false;
         }
@@ -148,5 +149,25 @@ internal static class DrawingChangeHelper
             false when member is not ImageLayerNode => false,
             _ => true
         };
+    }
+
+    private static bool IsLockedStructurally(StructureNode member)
+    {
+        if (member.IsLocked)
+            return true;
+
+        bool locked = false;
+        member.TraverseForwards((node, input, output) =>
+        {
+            if (node is FolderNode parent && input is { InternalPropertyName: FolderNode.ContentInternalName })
+            {
+                locked = parent.IsLocked;
+                return !locked;
+            }
+
+            return true;
+        });
+
+        return locked;
     }
 }

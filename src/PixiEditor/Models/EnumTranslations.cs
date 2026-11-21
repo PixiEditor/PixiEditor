@@ -1,4 +1,5 @@
-﻿using Drawie.Backend.Core.Shaders.Generation;
+﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
@@ -201,3 +202,8 @@ using DrawingBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 [assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.Expanded, "EXPANDED_FONT_STYLE_WIDTH")]
 [assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.ExtraExpanded, "EXTRAEXPANDED_FONT_STYLE_WIDTH")]
 [assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.UltraExpanded, "ULTRAEXPANDED_FONT_STYLE_WIDTH")]
+
+[assembly: LocalizeEnum<ColorChannel>(ColorChannel.R, "RED_COLOR_CHANNEL")]
+[assembly: LocalizeEnum<ColorChannel>(ColorChannel.G, "GREEN_COLOR_CHANNEL")]
+[assembly: LocalizeEnum<ColorChannel>(ColorChannel.B, "BLUE_COLOR_CHANNEL")]
+[assembly: LocalizeEnum<ColorChannel>(ColorChannel.A, "ALPHA_COLOR_CHANNEL")]

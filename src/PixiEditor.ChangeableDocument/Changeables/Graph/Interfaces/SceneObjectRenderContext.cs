@@ -11,9 +11,9 @@ public class SceneObjectRenderContext : RenderContext
     public RectD LocalBounds { get; set; }
     public bool RenderSurfaceIsScene { get; }
     public bool UntransformedSampling { get; set; } = false;
-    public RenderOutputProperty TargetPropertyOutput { get; set; }
+    public RenderOutputProperty? TargetPropertyOutput { get; set; }
 
-    public SceneObjectRenderContext(RenderOutputProperty targetPropertyOutput, Canvas surface, RectD localBounds, KeyFrameTime frameTime,
+    public SceneObjectRenderContext(RenderOutputProperty? targetPropertyOutput, Canvas surface, RectD localBounds, KeyFrameTime frameTime,
         ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, bool renderSurfaceIsScene, ColorSpace processingColorSpace, SamplingOptions desiredSampling, IReadOnlyNodeGraph graph, double opacity) : base(surface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, graph, opacity)
     {
         TargetPropertyOutput = targetPropertyOutput;

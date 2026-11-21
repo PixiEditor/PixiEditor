@@ -62,6 +62,8 @@ internal partial class NestedDocumentNodeViewModel :
     public bool IsFileLinked => !string.IsNullOrEmpty(_linkedDocumentPath);
 
     public Type? QuickEditTool => typeof(MoveToolViewModel);
+    public string LayerTypeIcon { get; } = PixiPerfectIcons.File;
+    public bool CanLockTransparency { get; } = false;
 
     public bool IsLinked => _linkedDocumentPath != null || (referenceId != null && referenceId != Guid.Empty);
     public string? LinkedDocumentPath => LinkedPathExists() ? _linkedDocumentPath : referenceId?.ToString();

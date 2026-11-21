@@ -147,7 +147,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             existingInputConnection.OutputProperty.ConnectedInputs.Remove(existingInputConnection.InputProperty);
         }
 
-        if(connection.InputProperty == null || connection.OutputProperty == null)
+        if (connection.InputProperty == null || connection.OutputProperty == null)
             return;
 
         connection.InputProperty.ConnectedOutput = connection.OutputProperty;
@@ -436,13 +436,15 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         Internals.ActionAccumulator.AddFinishedActions(new EndNodePosition_Action());
     }
 
-    public void CreateNode(Type nodeType, VecD pos = default)
+    public Guid CreateNode(Type nodeType, VecD pos = default)
     {
         IAction change;
 
         PairNodeAttribute? pairAttribute = nodeType.GetCustomAttribute<PairNodeAttribute>(true);
 
         List<IAction> changes = new();
+
+        Guid toReturn;
 
         if (pairAttribute != null)
         {
@@ -457,6 +459,8 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
                 changes.Add(new NodePosition_Action([endId], new VecD(pos.X + 400, pos.Y)));
                 changes.Add(new EndNodePosition_Action());
             }
+
+            toReturn = startId;
         }
         else
         {
@@ -468,9 +472,49 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
                 changes.Add(new NodePosition_Action([nodeId], pos));
                 changes.Add(new EndNodePosition_Action());
             }
+
+            toReturn = nodeId;
         }
 
         Internals.ActionAccumulator.AddFinishedActions(changes.ToArray());
+        return toReturn;
+    }
+
+    public void RemoveNode(Guid selectedNode, bool autoconnect)
+    {
+        List<IAction> actions = new();
+
+        if (autoconnect)
+        {
+            var incoming = Connections
+                .Where(x => x.InputNode.Id == selectedNode)
+                .ToList();
+
+            var outgoing = Connections
+                .Where(x => x.OutputNode.Id == selectedNode)
+                .ToList();
+
+            foreach (var output in outgoing)
+            {
+                var matchingInput = incoming.FirstOrDefault(x =>
+                    x.OutputProperty.PropertyName == output.InputProperty.PropertyName);
+
+                matchingInput ??= incoming.FirstOrDefault();
+
+                if (matchingInput == null)
+                    continue;
+
+                actions.Add(new ConnectProperties_Action(
+                    output.InputNode.Id,
+                    matchingInput.OutputNode.Id,
+                    output.InputProperty.PropertyName,
+                    matchingInput.OutputProperty.PropertyName));
+            }
+        }
+
+        actions.Insert(0, new DeleteNode_Action(selectedNode));
+
+        Internals.ActionAccumulator.AddFinishedActions(actions.ToArray());
     }
 
     public void RemoveNodes(Guid[] selectedNodes)
@@ -532,6 +576,34 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             : new DisconnectProperty_Action(inputNode.Id, inputProperty);
 
         Internals.ActionAccumulator.AddFinishedActions(action);
+    }
+
+    public void ConnectProperties(Guid? outputNodeId, string? outputProp, Guid? inputNodeId, string? inputProp)
+    {
+        if (outputNodeId == null && inputNodeId == null) return;
+
+        INodePropertyHandler? inputPropHandler = null, outputPropHandler = null;
+
+        if (outputNodeId != null && NodeLookup.TryGetValue(outputNodeId.Value, out var outputNode))
+        {
+            outputNode.OutputPropertyMap.TryGetValue(outputProp, out outputPropHandler);
+        }
+
+        if (inputNodeId != null && NodeLookup.TryGetValue(inputNodeId.Value, out var inputNode))
+        {
+            inputNode.InputPropertyMap.TryGetValue(inputProp, out inputPropHandler);
+        }
+
+        if (inputNodeId == null || outputNodeId == null)
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new DisconnectProperty_Action(inputNodeId.HasValue ? inputNodeId.Value : outputNodeId.Value, inputNodeId.HasValue ? inputProp : outputProp));
+        }
+        else
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new ConnectProperties_Action(inputNodeId.Value,
+                outputNodeId.Value,
+                inputProp, outputProp));
+        }
     }
 
     public void UpdateAvailableRenderOutputs()
