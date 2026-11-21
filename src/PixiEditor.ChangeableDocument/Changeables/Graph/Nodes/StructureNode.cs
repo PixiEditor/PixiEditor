@@ -76,6 +76,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         set => DisplayName = value;
     }
 
+
     protected Paint maskPaint = new Paint()
     {
         BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.DstIn, ColorFilter = Nodes.Filters.MaskFilter

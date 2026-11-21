@@ -1,0 +1,112 @@
+<dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                         xmlns:layers="clr-namespace:PixiEditor.ViewModels.Layers"
+                         xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                         xmlns:nodes="clr-namespace:PixiEditor.ViewModels.Nodes"
+                         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+                         xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+                         xmlns:filterNodes="clr-namespace:PixiEditor.ViewModels.Document.Nodes.FilterNodes"
+                         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI;assembly=PixiEditor.UI.Common"
+                         xmlns:filters="clr-namespace:PixiEditor.Views.Dialogs.Filters"
+                         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                         x:Class="PixiEditor.Views.Dialogs.FiltersPopup"
+                         x:DataType="layers:FiltersPopupViewModel"
+                         Width="600"
+                         Height="400"
+                         localization:Translator.Key="FILTERS_WINDOW_TITLE">
+    <Design.DataContext>
+        <layers:FiltersPopupViewModel />
+    </Design.DataContext>
+
+    <Grid Background="{DynamicResource ThemeBackgroundBrush1}">
+        <Grid.ColumnDefinitions>200,*</Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>34,*,34</Grid.RowDefinitions>
+        <Border
+            BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+            BorderThickness="0, 1, 0, 0">
+            <StackPanel Margin="12, 0" VerticalAlignment="Center" Spacing="3" Orientation="Horizontal">
+                <Border
+                    Width="24" Height="24"
+                    RenderOptions.BitmapInterpolationMode="None">
+                    <Border.Background>
+                        <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                            <ImageBrush.Transform>
+                                <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+                            </ImageBrush.Transform>
+                        </ImageBrush>
+                    </Border.Background>
+                    <visuals:PreviewTextureControl
+                        ClipToBounds="True"
+                        TexturePreview="{Binding StructureMember.Preview}"
+                        Width="24" Height="24"
+                        RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
+                </Border>
+                <TextBlock FontSize="14" Text="{Binding StructureMember.NodeNameBindable}" />
+            </StackPanel>
+        </Border>
+        <ListBox Grid.Column="0" Grid.Row="1" ItemsSource="{Binding LayerFilters}"
+                 Background="{DynamicResource ThemeBackgroundBrush}"
+                 BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                 Padding="12"
+                 BorderThickness="1, 1, 0, 1"
+                 ItemContainerTheme="{DynamicResource AlternativeListBoxItem}"
+                 SelectedItem="{Binding SelectedFilter, Mode=TwoWay}">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" Spacing="4" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="layers:FilterNodeViewModel">
+                    <Grid ui:Juice.Animations="Loaded:PopIn">
+                        <Grid ColumnDefinitions="24,*,24" ColumnSpacing="4" VerticalAlignment="Center">
+                            <TextBlock Grid.Column="0" HorizontalAlignment="Right" Classes="pixi-icon"
+                                       Text="{Binding Node.Icon}" />
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Left" MaxWidth="115" TextTrimming="CharacterEllipsis"
+                                       localization:Translator.Key="{Binding Node.DisplayName}" />
+                            <CheckBox Grid.Column="2"
+                                      AttachedToVisualTree="Visual_OnAttachedToVisualTree"
+                                      Classes="ImageCheckBox"
+                                      Background="Transparent"
+                                      IsThreeState="False"
+                                      IsChecked="{Binding IsFilterEnabled, Mode=TwoWay}" />
+                        </Grid>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+
+            <Interaction.Behaviors>
+                <behaviours:ListBoxReorderBehavior x:TypeArguments="layers:FilterNodeViewModel"/>
+            </Interaction.Behaviors>
+        </ListBox>
+        <StackPanel Grid.Row="2" Grid.Column="0" Spacing="5" Margin="12, 4, 12, 6" Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Classes="pixi-icon" Name="AddFilterButton" Content="{DynamicResource icon-plus-square}">
+                <Button.Flyout>
+                    <Flyout Placement="TopEdgeAlignedLeft">
+                        <Flyout.Content>
+                            <filters:FilterPicker DataContext="{Binding}"/>
+                        </Flyout.Content>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+            <Button Classes="pixi-icon"
+                    Content="{DynamicResource icon-duplicate}"
+                    Command="{Binding DuplicateFilterCommand}" />
+            <Button Classes="pixi-icon"
+                    Content="{DynamicResource icon-trash}"
+                    Command="{Binding RemoveFilterCommand}" />
+        </StackPanel>
+        <Panel
+            Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" ClipToBounds="True">
+            <Border
+                BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                BorderThickness="1">
+                <ItemsControl ItemsSource="{Binding SelectedFilter.InputsToEdit}" Margin="5" Padding="-10, 0, 0, 0" />
+            </Border>
+        </Panel>
+    </Grid>
+</dialogs:PixiEditorPopup>

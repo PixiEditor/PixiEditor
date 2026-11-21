@@ -94,7 +94,7 @@ public static class GraphUtils
         return hash.ToHashCode();
     }
 
-     public static bool IsLoop(IInputProperty input, OutputProperty output)
+     public static bool IsLoop(IInputProperty input, IOutputProperty output)
     {
         if (input.Node == output.Node)
         {

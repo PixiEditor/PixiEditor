@@ -40,6 +40,9 @@ internal class ImageLayerNodeViewModel : StructureMemberViewModel<ImageLayerNode
     }
 
     public Type? QuickEditTool { get; } = typeof(PenToolViewModel);
+    public string LayerTypeIcon { get; } = PixiPerfectIcons.Checker;
+    public bool CanLockTransparency { get; } = true;
+
     public override bool CanQuickColorChange()
     {
         return false;

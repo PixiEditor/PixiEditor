@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:filters="clr-namespace:PixiEditor.Views.Dialogs.Filters"
+             xmlns:layers="clr-namespace:PixiEditor.ViewModels.Layers"
+             xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+             x:DataType="layers:FiltersPopupViewModel"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Dialogs.Filters.FilterPicker">
+    <Design.DataContext>
+        <layers:FiltersPopupViewModel/>
+    </Design.DataContext>
+    <Border Background="{DynamicResource ThemeBackgroundBrush}"
+            CornerRadius="{DynamicResource ControlCornerRadius}">
+        <StackPanel Orientation="Vertical">
+            <TextBox PlaceholderText="{localization:Translate Key=SEARCH}"
+                     KeyDown="InputElement_OnKeyDown"
+                     AttachedToVisualTree="Search_OnAttachedToVisualTree"
+                     Text="{Binding $parent[filters:FilterPicker].((layers:FiltersPopupViewModel)DataContext).SearchText, Mode=TwoWay}">
+                <Interaction.Behaviors>
+                    <behaviours:GlobalShortcutFocusBehavior />
+                </Interaction.Behaviors>
+                <TextBox.InnerLeftContent>
+                    <TextBlock Classes="pixi-icon"
+                               Text="{DynamicResource icon-search}"
+                               Margin="0, 0, 5, 0" />
+                </TextBox.InnerLeftContent>
+            </TextBox>
+
+            <ScrollViewer HorizontalScrollBarVisibility="Hidden"
+                          Height="200"
+                          Width="200"
+                          VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding FilteredFilters}" Name="ItemsControl"
+                              XYFocus.NavigationModes="Enabled"
+                              KeyboardNavigation.TabNavigation="Cycle">
+                    <ItemsControl.Styles>
+                        <Style Selector="Button">
+                            <Setter Property="Background" Value="Transparent" />
+                        </Style>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background"
+                                    Value="{DynamicResource ThemeBorderHighBrush}" />
+                        </Style>
+                        <Style Selector="Button.selected">
+                            <Setter Property="Background"
+                                    Value="{DynamicResource ThemeBorderHighBrush}" />
+                        </Style>
+                        <Style Selector="Border.reorder-placeholder">
+                            <Setter Property="BorderThickness" Value="0" />
+                        </Style>
+                    </ItemsControl.Styles>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="layers:FilterMetadata">
+                            <Button
+                                BorderThickness="0"
+                                BorderBrush="Transparent"
+                                CornerRadius="0"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                AttachedToVisualTree="Button_OnAttachedToVisualTree"
+                                Command="{Binding $parent[filters:FilterPicker].((layers:FiltersPopupViewModel)DataContext).AddFilterCommand}"
+                                CommandParameter="{Binding}">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Classes="pixi-icon" Text="{Binding Icon}" />
+                                    <TextBlock localization:Translator.Key="{Binding Name}" />
+                                </StackPanel>
+                                <Interaction.Behaviors>
+                                    <ButtonHideFlyoutOnClickBehavior />
+                                </Interaction.Behaviors>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </StackPanel>
+    </Border>
+</UserControl>

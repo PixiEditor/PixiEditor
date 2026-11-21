@@ -7,7 +7,7 @@ public struct SvgLinkUnit : ISvgUnit
     public string? ObjectReference { get; set; } 
     public string ToXml(DefStorage defs)
     {
-        return ObjectReference != null ? $"url(#{ObjectReference}" : string.Empty;
+        return ObjectReference != null ? $"url(#{ObjectReference})" : string.Empty;
     }
 
     public void ValuesFromXml(string? readerValue, SvgDefs defs)

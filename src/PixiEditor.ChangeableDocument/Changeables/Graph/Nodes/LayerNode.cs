@@ -33,7 +33,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         blendPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver;
 
         RenderContent(sceneContext, sceneContext.RenderSurface,
-            sceneContext.TargetPropertyOutput == Output);
+            sceneContext.TargetPropertyOutput == Output || sceneContext.TargetPropertyOutput == null);
     }
 
     private void RenderContent(SceneObjectRenderContext context, Canvas renderOnto, bool useFilters)

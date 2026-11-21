@@ -20,6 +20,11 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     {
         var activeFrameProp = InputPropertyMap[StructureNode.CustomActiveFrameProperty];
         var activeNormalizedFrameProp = InputPropertyMap[StructureNode.CustomNormalizedTimeProperty];
+        InputPropertyMap[StructureNode.FiltersPropertyName].ConnectedOutputChanged += (sender, args) =>
+        {
+            OnPropertyChanged(nameof(HasFilters));
+        };
+
         activeFrameProp.IsVisible = false;
         activeNormalizedFrameProp.IsVisible = false;
 
@@ -125,6 +130,8 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
             return locked;
         }
     }
+
+    public bool HasFilters => InputPropertyMap.TryGetValue(StructureNode.FiltersPropertyName, out var value) && value.ConnectedOutput != null;
 
     public void SetMaskIsVisible(bool maskIsVisible)
     {

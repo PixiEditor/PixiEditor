@@ -68,4 +68,10 @@ public class KernelFilterNode : FilterNode
     }
 
     public override Node CreateCopy() => new KernelFilterNode();
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        filter?.Dispose();
+    }
 }

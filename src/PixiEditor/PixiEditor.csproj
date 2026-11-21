@@ -166,6 +166,10 @@
       <DependentUpon>ListSettingView.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Dialogs\Filters\FiltersPopup.axaml.cs">
+      <DependentUpon>FiltersPopup.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
