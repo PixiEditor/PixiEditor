@@ -97,21 +97,6 @@ internal class CreateCel_Change : Change
         LayerNode targetNode = target.FindMemberOrThrow<LayerNode>(_targetLayerGuid);
         ICelLayer celLayer = (ICelLayer)targetNode;
 
-        object? celData = null;
-        if (_cloneFromCel is not null)
-        {
-            celData = celLayer.CloneCelData(_cloneFromCel);
-        }
-        else if (_cloneFromLayer is not null)
-        {
-            celData = ((ICelLayer)_cloneFromLayer).CloneCelDataAtFrame(cloneFromFrame ?? 0);
-        }
-
-        if (celData == null)
-        {
-            celData = celLayer.CreateEmptyCelData(target.Size);
-        }
-
         var keyFrame =
             new CelKeyFrame(createdKeyFrameId, targetNode.Id, _frame, target);
 
@@ -141,6 +126,21 @@ internal class CreateCel_Change : Change
                 {
                     duration = frameToCloneFrom.Duration;
                 }
+            }
+
+            object? celData = null;
+            if (_cloneFromCel is not null)
+            {
+                celData = celLayer.CloneCelData(_cloneFromCel);
+            }
+            else if (_cloneFromLayer is not null)
+            {
+                celData = ((ICelLayer)_cloneFromLayer).CloneCelDataAtFrame(cloneFromFrame ?? 0);
+            }
+
+            if (celData == null)
+            {
+                celData = celLayer.CreateEmptyCelData(target.Size);
             }
 
             targetNode.AddFrame(

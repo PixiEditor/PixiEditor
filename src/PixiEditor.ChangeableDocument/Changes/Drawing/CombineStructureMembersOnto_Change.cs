@@ -326,14 +326,31 @@ internal class CombineStructureMembersOnto_Change : Change
         if (hasKeyframe)
             return;
 
-        if (layer is not (ImageLayerNode or VectorLayerNode) || layer.GetType() != targetLayer.GetType())
+        if (layer is not (ImageLayerNode or VectorLayerNode))
             return;
 
         var keyFrameData = layer.KeyFrames.FirstOrDefault(x => x.IsInFrame(frame));
         if (keyFrameData is null)
             return;
 
-        var clonedData = keyFrameData.Clone(true);
+        KeyFrameData clonedData;
+        if (layer.GetType() == targetLayer.GetType())
+        {
+            clonedData = keyFrameData.Clone(true);
+        }
+        else if (targetLayer is ImageLayerNode imageTarget)
+        {
+            clonedData = new KeyFrameData(Guid.NewGuid(), keyFrameData.StartFrame, keyFrameData.Duration,
+                ImageLayerNode.ImageLayerKey)
+            {
+                Data = imageTarget.CreateEmptyCelData(target.Size),
+                IsVisible = keyFrameData.IsVisible,
+            };
+        }
+        else
+        {
+            return;
+        }
 
         targetLayer.AddFrame(keyFrameData.KeyFrameGuid, clonedData);
 

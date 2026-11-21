@@ -406,7 +406,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode, ICelLayer
             LockTransparency = this.LockTransparency,
             ClipToPreviousMember = this.ClipToPreviousMember,
             EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted(),
-            IsLocked = this.IsLocked
+            IsLocked = this.IsLocked,
+            FallbackAnimationToLayerImage = this.FallbackAnimationToLayerImage
         };
 
         image.keyFrames.Clear();

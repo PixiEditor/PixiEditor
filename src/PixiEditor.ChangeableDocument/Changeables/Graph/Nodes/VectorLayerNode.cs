@@ -367,6 +367,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted(),
             AllowHighDpiRendering = this.AllowHighDpiRendering,
             IsLocked = this.IsLocked,
+            FallbackAnimationToLayerImage = this.FallbackAnimationToLayerImage,
         };
         copy.keyFrames.Clear();
         return copy;
