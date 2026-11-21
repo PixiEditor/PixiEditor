@@ -20,6 +20,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode, ICelLayer
     public string CelDataKey => ImageLayerKey;
     public object? CreateEmptyCelData(VecI documentSize) => new ChunkyImage(documentSize);
     public object? CloneCelDataAtFrame(int frame) => GetLayerImageAtFrame(frame)?.CloneFromCommitted();
+    public object? CloneCelData(KeyFrameData cel) => (cel.Data as ChunkyImage)?.CloneFromCommitted();
 
     public override VecD GetScenePosition(KeyFrameTime time) => layerImage?.CommittedSize / 2f ?? VecD.Zero;
     public override VecD GetSceneSize(KeyFrameTime time) => layerImage?.CommittedSize ?? VecD.Zero;
@@ -255,13 +256,10 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode, ICelLayer
             return base.GetPreviewBounds(context, elementFor);
         }
 
-        if (Guid.TryParse(elementFor, out Guid guid))
-        {
-            if (guid == Id)
-            {
-                return new RectD(0, 0, layerImage.CommittedSize.X, layerImage.CommittedSize.Y);
-            }
+        Guid? forElement = Guid.TryParse(elementFor, out Guid guid) ? guid : null;
 
+        if (forElement.HasValue && forElement.Value != Id)
+        {
             var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
 
             if (keyFrame != null)
@@ -278,7 +276,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode, ICelLayer
 
         try
         {
-            var kf = GetLayerImageAtFrame(context.FrameTime.Frame);
+            var kf = GetLayerImageAtFrame(forElement != null ? 0 : context.FrameTime.Frame);
             if (kf == null)
             {
                 return null;
@@ -407,7 +405,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode, ICelLayer
             MemberName = this.MemberName,
             LockTransparency = this.LockTransparency,
             ClipToPreviousMember = this.ClipToPreviousMember,
-            EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted()
+            EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted(),
+            IsLocked = this.IsLocked
         };
 
         image.keyFrames.Clear();

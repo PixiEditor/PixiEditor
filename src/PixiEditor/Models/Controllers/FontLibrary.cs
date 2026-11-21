@@ -1,5 +1,6 @@
 ﻿using Avalonia.Media;
 using Drawie.Backend.Core.Text;
+using FontStyle = Drawie.Backend.Core.Text.FontStyle;
 
 namespace PixiEditor.Models.Controllers;
 
@@ -39,5 +40,32 @@ public static class FontLibrary
         }
         
         return false;
+    }
+
+    public static FontStyle[] GetAvailableFontStyles(string fontFamily)
+    {
+        return Font.GetAvailableFontStyles(fontFamily);
+    }
+
+    public static FontStyle GetClosestMatchingFontStyle(string familyName, FontStyleWeight fontWeight, FontStyleSlant fontSlant, FontStyleWidth fontWidth)
+    {
+        var styles = Font.GetAvailableFontStyles(familyName);
+
+        FontStyle closestMatchingStyle = styles.FirstOrDefault();
+        int closestDistance = int.MaxValue;
+
+        foreach (var style in styles)
+        {
+            int distance = Math.Abs((int)style.Weight - (int)fontWeight) +
+                           Math.Abs((int)style.Slant - (int)fontSlant) +
+                           Math.Abs((int)style.Width - (int)fontWidth);
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestMatchingStyle = style;
+            }
+        }
+        return closestMatchingStyle;
     }
 }

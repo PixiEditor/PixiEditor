@@ -50,6 +50,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     public bool VerticalSymmetryAxisEnabled { get; set; }
     public double HorizontalSymmetryAxisY { get; set; }
     public double VerticalSymmetryAxisX { get; set; }
+    public VecD? LastBrushToolUseEndPosition { get; set; } = null;
     public bool IsDisposed { get; private set; }
 
 
@@ -193,7 +194,8 @@ internal class Document : IChangeable, IReadOnlyDocument
             ReferenceLayer = ReferenceLayer?.Clone(),
             NodeGraph = NodeGraph?.Clone() as NodeGraph,
             AnimationData = AnimationData?.Clone() as AnimationData,
-            Selection = Selection != null ? new Selection() { SelectionPath = Selection.SelectionPath != null ? new VectorPath(Selection.SelectionPath) : null } : null
+            Selection = Selection != null ? new Selection() { SelectionPath = Selection.SelectionPath != null ? new VectorPath(Selection.SelectionPath) : null } : null,
+            LastBrushToolUseEndPosition = LastBrushToolUseEndPosition,
         };
 
         if (preserveDocumentId)
@@ -207,13 +209,13 @@ internal class Document : IChangeable, IReadOnlyDocument
     public IReadOnlyStructureNode[] GetStructureTreeInOrder()
     {
         var list = new List<IReadOnlyStructureNode>();
-        ForEveryReadonlyMember(NodeGraph, member => list.Add(member));
+        ForEveryReadonlyMember(NodeGraph, list.Add);
         return list.ToArray();
     }
 
     private void ForEveryReadonlyMember(IReadOnlyNodeGraph graph, Action<IReadOnlyStructureNode> action)
     {
-        graph.TryTraverse((node) =>
+        graph.TryTraverse(node =>
         {
             if (node is not IReadOnlyStructureNode structureNode)
             {

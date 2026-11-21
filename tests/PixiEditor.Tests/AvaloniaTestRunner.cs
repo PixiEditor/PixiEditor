@@ -19,6 +19,6 @@ namespace PixiEditor.Tests
             {
                 UseHeadlessDrawing = true,
                 FrameBufferFormat = PixelFormat.Rgba8888,
-            }).WithDrawie();
+            }).WithDrawie(() => {});
     }
 }

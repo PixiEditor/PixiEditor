@@ -29,9 +29,9 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <Panel  Margin="20,0,0,0"
-                    ui:AdvisorSlot.AdviceName="AddEmptyFrame"
-                    ui:AdvisorSlot.Direction="Up"/>
+                    <Panel Margin="20,0,0,0"
+                           ui:AdvisorSlot.AdviceName="AddEmptyFrame"
+                           ui:AdvisorSlot.Direction="Up" />
 
                     <Border DockPanel.Dock="Left"
                             BorderThickness="0 0 1 0"
@@ -48,10 +48,10 @@
                                     <Flyout Placement="Top">
                                         <Grid>
                                             <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
@@ -74,9 +74,10 @@
                                                                 MaxSize="100" Unit="%"
                                                                 Size="{Binding OnionOpacity, RelativeSource={RelativeSource TemplatedParent},
                                                     Mode=TwoWay}" />
-                                            <CheckBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Margin="0, 5" VerticalAlignment="Center"
+                                            <CheckBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Margin="0, 5"
+                                                      VerticalAlignment="Center"
                                                       ui1:Translator.Key="FALLBACK_FRAMES_TO_LAYER_IMAGE"
-                                                      IsChecked="{Binding FallbackFramesToLayerImage, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"/>
+                                                      IsChecked="{Binding FallbackFramesToLayerImage, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
                                         </Grid>
                                     </Flyout>
                                 </Button.Flyout>
@@ -288,12 +289,9 @@
                                       Name="PART_TimelineKeyFramesScroll" Grid.Column="1">
                             <Grid Background="{DynamicResource ThemeBackgroundBrush}" Name="PART_ContentGrid">
                                 <Interaction.Behaviors>
-                                    <EventTriggerBehavior EventName="PointerPressed">
-                                        <InvokeCommandAction
-                                            Command="{Binding ClearSelectedKeyFramesCommand,
+                                    <behaviours:PrimaryPointerPressedTriggerBehavior Command="{Binding ClearSelectedKeyFramesCommand,
                                                         RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
                                             CommandParameter="{x:Null}" />
-                                    </EventTriggerBehavior>
                                 </Interaction.Behaviors>
                                 <ItemsControl ClipToBounds="False" Name="PART_KeyFramesHost"
                                               ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
@@ -372,6 +370,13 @@
                                                             CommandParameter="{Binding}" />
                                                     </EventTriggerBehavior>
                                                 </Interaction.Behaviors>
+                                                <animations:KeyFrame.ContextMenu>
+                                                    <ContextMenu>
+                                                        <MenuItem ui1:Translator.Key="DELETE_SELECTED_CELS" Command="{xaml:Command Name=PixiEditor.Animation.DeleteCels}"/>
+                                                        <MenuItem ui1:Translator.Key="DUPLICATE_SELECTED_CELS"
+                                                                  Command="{xaml:Command Name=PixiEditor.Animation.DuplicateCels}" />
+                                                    </ContextMenu>
+                                                </animations:KeyFrame.ContextMenu>
                                             </animations:KeyFrame>
                                         </DataTemplate>
                                     </ItemsControl.DataTemplates>

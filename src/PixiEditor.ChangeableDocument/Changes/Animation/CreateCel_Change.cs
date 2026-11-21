@@ -14,13 +14,17 @@ internal class CreateCel_Change : Change
     private LayerNode? _layer;
     private Guid createdKeyFrameId;
     private bool shiftKeyframesAfter;
+    private bool inheritDuration;
+
+    private KeyFrameData? _cloneFromCel;
+    private LayerNode? _cloneFromLayer;
 
     private Dictionary<Guid, int> originalStartFrames = new Dictionary<Guid, int>();
 
     [GenerateMakeChangeAction]
     public CreateCel_Change(Guid targetLayerGuid, Guid newKeyFrameGuid, int frame,
         int cloneFromFrame = -1,
-        Guid cloneFromExisting = default)
+        Guid cloneFromExisting = default, bool inheritDuration = false)
     {
         _targetLayerGuid = targetLayerGuid;
         _frame = frame;
@@ -28,6 +32,7 @@ internal class CreateCel_Change : Change
         createdKeyFrameId = newKeyFrameGuid;
         this.cloneFromFrame = cloneFromFrame < 0 ? null : cloneFromFrame;
         shiftKeyframesAfter = frame > 0;
+        this.inheritDuration = inheritDuration;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -37,6 +42,24 @@ internal class CreateCel_Change : Change
         if (targetLayer is null)
         {
             return false;
+        }
+
+        if (cloneFrom.HasValue)
+        {
+            var cloneFromMember = cloneFrom.HasValue ? target.FindMember(cloneFrom.Value) : null;
+
+            _cloneFromLayer = cloneFromMember as LayerNode;
+
+            if (_cloneFromLayer is null)
+            {
+                _cloneFromCel =
+                    targetLayer.KeyFrames.FirstOrDefault(x => x.KeyFrameGuid == cloneFrom.Value) as KeyFrameData;
+            }
+
+            if (_cloneFromCel is null && _cloneFromLayer is null)
+            {
+                return false;
+            }
         }
 
         if (_frame == -1)
@@ -57,8 +80,7 @@ internal class CreateCel_Change : Change
             return false;
         }
 
-        if (cloneFrom.HasValue && 
-            (!target.TryFindMember(cloneFrom.Value, out LayerNode? source) || source.GetType() != _layer.GetType()))
+        if (_cloneFromLayer is not null && _cloneFromLayer.GetType() != _layer.GetType())
         {
             return false;
         }
@@ -72,12 +94,18 @@ internal class CreateCel_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
         out bool ignoreInUndo)
     {
-        object? celData = cloneFrom.HasValue
-            ? ((ICelLayer)target.FindMemberOrThrow<LayerNode>(cloneFrom.Value)).CloneCelDataAtFrame(cloneFromFrame ?? 0)
-            : null;
-
         LayerNode targetNode = target.FindMemberOrThrow<LayerNode>(_targetLayerGuid);
         ICelLayer celLayer = (ICelLayer)targetNode;
+
+        object? celData = null;
+        if (_cloneFromCel is not null)
+        {
+            celData = celLayer.CloneCelData(_cloneFromCel);
+        }
+        else if (_cloneFromLayer is not null)
+        {
+            celData = ((ICelLayer)_cloneFromLayer).CloneCelDataAtFrame(cloneFromFrame ?? 0);
+        }
 
         if (celData == null)
         {
@@ -100,8 +128,27 @@ internal class CreateCel_Change : Change
                 return new None();
             }
 
-            targetNode.AddFrame(createdKeyFrameId,
-                new KeyFrameData(createdKeyFrameId, _frame, 1, celLayer.CelDataKey) { Data = celData, });
+            if (_cloneFromCel is not null)
+            {
+                duration = _cloneFromCel.Duration;
+            }
+            else if (inheritDuration && cloneFromFrame.HasValue)
+            {
+                var frameToCloneFrom = targetNode.KeyFrames
+                    .FirstOrDefault(x => x.IsInFrame(cloneFromFrame.Value));
+
+                if (frameToCloneFrom is not null)
+                {
+                    duration = frameToCloneFrom.Duration;
+                }
+            }
+
+            targetNode.AddFrame(
+                createdKeyFrameId,
+                new KeyFrameData(createdKeyFrameId, _frame, duration, celLayer.CelDataKey)
+                {
+                    Data = celData,
+                });
         }
         else
         {
@@ -120,7 +167,7 @@ internal class CreateCel_Change : Change
         if (rootCelGroup != null)
         {
             bool isCelAtFrame = target.AnimationData.TryGetKeyFrameAtFrame(targetNode.Id, _frame) != null;
-            if (isCelAtFrame && shiftKeyframesAfter)
+            if ((isCelAtFrame || inheritDuration) && shiftKeyframesAfter)
             {
                 var celsAfter = rootCelGroup.Children.OfType<CelKeyFrame>().Where(x => x.EndFrame >= _frame).ToList();
 

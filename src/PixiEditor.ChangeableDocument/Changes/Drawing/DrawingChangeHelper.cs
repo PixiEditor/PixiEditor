@@ -100,7 +100,7 @@ internal static class DrawingChangeHelper
 
     public static bool IsValidForDrawing(Document target, Guid memberGuid, bool drawOnMask, int frame)
     {
-        if (!target.TryFindMember(memberGuid, out var member))
+        if (!target.TryFindMember(memberGuid, out var member) || member.IsLocked)
         {
             return false;
         }
@@ -130,7 +130,7 @@ internal static class DrawingChangeHelper
 
     public static bool IsValidForDrawing(Document target, Guid memberGuid, bool drawOnMask, Guid targetKeyFrameGuid)
     {
-        if (!target.TryFindMember(memberGuid, out var member))
+        if (!target.TryFindMember(memberGuid, out var member) || member.IsLocked)
         {
             return false;
         }

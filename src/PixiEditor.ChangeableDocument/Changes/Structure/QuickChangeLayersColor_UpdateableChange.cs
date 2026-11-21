@@ -1,21 +1,25 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
+using PixiEditor.ChangeableDocument.Helpers;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
 internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateableChange
 {
     public Guid[] LayerGuids { get; }
-    public int Frame {  get; }
     public Color Color { get; set; }
     private Dictionary<Guid, Color?[]> originalColors;
+    private Dictionary<Guid, IReadOnlyShapeVectorData> originalShapes;
+    private int frame;
 
     [GenerateUpdateableChangeActions]
-    public QuickChangeLayersColor_UpdateableChange(IReadOnlyCollection<Guid> layerGuids, Color color, int frame)
+    public QuickChangeLayersColor_UpdateableChange(int frame, IReadOnlyCollection<Guid> layerGuids, Color color)
     {
+        this.frame = frame;
         LayerGuids = layerGuids.ToArray();
         Color = color;
-        Frame = frame;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -26,11 +30,17 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
             if (!target.HasMember(guid))
                 return false;
 
-            if (target.FindMember(guid) is IQuickColorChangeable changeable)
+            var member = target.FindMember(guid);
+            if (member is IQuickColorChangeable changeable)
             {
                 quickColorChangeable++;
                 originalColors ??= new Dictionary<Guid, Color?[]>();
-                originalColors[guid] = changeable.GetColors(Frame);
+                originalColors[guid] = changeable.GetColors(frame);
+                if (member is VectorLayerNode vectorNode)
+                {
+                    originalShapes ??= new Dictionary<Guid, IReadOnlyShapeVectorData>();
+                    originalShapes[guid] = vectorNode.GetShapeAtFrame(frame)?.Clone() as IReadOnlyShapeVectorData;
+                }
             }
         }
 
@@ -52,7 +62,7 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
         {
             if (target.FindMember(guid) is IQuickColorChangeable quickColorChangeable)
             {
-                var changes = quickColorChangeable.ChangeColor(Frame,Color);
+                var changes = quickColorChangeable.ChangeColor(frame,Color);
                 if (changes != null)
                 {
                     changeInfos.AddRange(changes);
@@ -70,7 +80,7 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
         {
             if (target.FindMember(guid) is IQuickColorChangeable quickColorChangeable)
             {
-                var changes = quickColorChangeable.ChangeColor(Frame,Color);
+                var changes = quickColorChangeable.ChangeColor(frame,Color);
                 if (changes != null)
                 {
                     changeInfos.AddRange(changes);
@@ -86,9 +96,15 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
         List<IChangeInfo> changeInfos = new List<IChangeInfo>();
         foreach (Guid guid in LayerGuids)
         {
-            if (target.FindMember(guid) is IQuickColorChangeable quickColorChangeable && originalColors.TryGetValue(guid, out Color?[] colors))
+            var member = target.FindMember(guid);
+            if (member is VectorLayerNode vectorNode)
             {
-                var changes = quickColorChangeable.ChangeColor(Frame,colors);
+                vectorNode.SetShapeAtFrame(frame, originalShapes[guid]?.Clone());
+                changeInfos.Add(new VectorShape_ChangeInfo(guid, AffectedAreasUtility.GetTightLayerArea(member, frame)));
+            }
+            else if (member is IQuickColorChangeable quickColorChangeable && originalColors.TryGetValue(guid, out Color?[] colors))
+            {
+                var changes = quickColorChangeable.ChangeColor(frame,colors);
                 if (changes != null)
                 {
                     changeInfos.AddRange(changes);

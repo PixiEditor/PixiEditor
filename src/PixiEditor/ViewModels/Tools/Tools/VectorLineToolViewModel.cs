@@ -90,4 +90,10 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
         OnDeselecting(false);
         OnToolSelected(false);
     }
+
+    public override void OnActiveFrameChanged(int newFrame)
+    {
+        OnDeselecting(false);
+        OnToolSelected(false);
+    }
 }

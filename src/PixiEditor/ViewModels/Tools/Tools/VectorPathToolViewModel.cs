@@ -152,6 +152,12 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         OnDeselecting(false);
         OnToolSelected(false);
     }
+
+    public override void OnActiveFrameChanged(int newFrame)
+    {
+        OnDeselecting(false);
+        OnToolSelected(false);
+    }
 }
 
 enum VectorPathFillType

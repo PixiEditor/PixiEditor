@@ -522,9 +522,15 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding lockEditingBinding = new()
+        {
+            Source = Viewport, Path = "Document.PathOverlayViewModel.LockEditing", Mode = BindingMode.OneWay
+        };
+
         vectorPathOverlay.Bind(VectorPathOverlay.PathProperty, pathBinding);
         vectorPathOverlay.Bind(VectorPathOverlay.AddToUndoCommandProperty, addToUndoCommandBinding);
         vectorPathOverlay.Bind(VectorPathOverlay.SnappingControllerProperty, snappingBinding);
+        vectorPathOverlay.Bind(VectorPathOverlay.LockEditingProperty, lockEditingBinding);
     }
 
     private void BindSnappingOverlay()
@@ -610,6 +616,13 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding lastBrushToolUseEndPositionBinding = new()
+        {
+            Source = ViewModelMain.Current.DocumentManagerSubViewModel,
+            Path = "ActiveDocument.LastBrushToolUseEndPositionBindable",
+            Mode = BindingMode.OneWay
+        };
+        
         Binding lastAppliedPointBinding = new()
         {
             Source = ViewModelMain.Current.ToolsSubViewModel,
@@ -630,6 +643,7 @@ internal class ViewportOverlays
         brushShapeOverlay.Bind(BrushShapeOverlay.EditorDataProperty, editorDataBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.StabilizationModeProperty, stabilizationModeBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.StabilizationProperty, stabilizationBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.LastBrushToolUseEndPositionProperty, lastBrushToolUseEndPositionBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.LastAppliedPointProperty, lastAppliedPointBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.BrushSettingChangedTriggerProperty, settingChangedTrigger);
     }
@@ -654,13 +668,6 @@ internal class ViewportOverlays
         {
             Source = Viewport,
             Path = "Document.TextOverlayViewModel.Position",
-            Mode = BindingMode.OneWay
-        };
-
-        Binding fontBinding = new()
-        {
-            Source = Viewport,
-            Path = "Document.TextOverlayViewModel.Font",
             Mode = BindingMode.OneWay
         };
 
@@ -706,16 +713,23 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding currentlyEditingInlineIndexBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TextOverlayViewModel.CurrentlyEditingInlineIndex",
+            Mode = BindingMode.TwoWay
+        };
+
         textOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         textOverlay.Bind(TextOverlay.TextProperty, textBinding);
         textOverlay.Bind(TextOverlay.PositionProperty, positionBinding);
-        textOverlay.Bind(TextOverlay.FontProperty, fontBinding);
         textOverlay.Bind(TextOverlay.RequestEditTextProperty, requestEditTextBinding);
         textOverlay.Bind(TextOverlay.MatrixProperty, matrixBinding);
         textOverlay.Bind(TextOverlay.SpacingProperty, spacingBinding);
         textOverlay.Bind(TextOverlay.CursorPositionProperty, cursorPositionBinding);
         textOverlay.Bind(TextOverlay.SelectionEndProperty, selectionEndBinding);
         textOverlay.Bind(TextOverlay.PreviewSizeProperty, previewSizeBinding);
+        textOverlay.Bind(TextOverlay.CurrentlyEditingInlineIndexProperty, currentlyEditingInlineIndexBinding);
     }
 
     private void BindColorPickerPreviewOverlay()

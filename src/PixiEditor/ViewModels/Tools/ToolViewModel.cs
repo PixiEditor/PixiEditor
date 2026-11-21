@@ -22,6 +22,7 @@ namespace PixiEditor.ViewModels.Tools;
 internal abstract class ToolViewModel : ObservableObject, IToolHandler
 {
     private bool canBeUsedOnActiveLayerOnActiveLayer = true;
+    private bool canDrawIntoActiveCel;
     private VectorPath? brushShape;
     public bool IsTransient { get; set; } = false;
     public KeyCombination Shortcut { get; set; }
@@ -45,10 +46,23 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     public bool CanBeUsedOnActiveLayer
     {
-        get => canBeUsedOnActiveLayerOnActiveLayer;
+        get => canBeUsedOnActiveLayerOnActiveLayer || canDrawIntoActiveCel;
         private set
         {
             canBeUsedOnActiveLayerOnActiveLayer = value;
+            OnPropertyChanged(nameof(CanBeUsedOnActiveLayer));
+        }
+    }
+
+    internal bool CanDrawIntoActiveCel
+    {
+        get => canDrawIntoActiveCel;
+        set
+        {
+            if (canDrawIntoActiveCel == value)
+                return;
+
+            canDrawIntoActiveCel = value;
             OnPropertyChanged(nameof(CanBeUsedOnActiveLayer));
         }
     }
@@ -161,7 +175,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     private bool IsMaskSelectedAndRasterSupported(IStructureMemberHandler layer)
     {
-        return SupportedLayerTypes.Contains(typeof(IRasterLayerHandler)) && layer is IFolderHandler or ILayerHandler
+        return SupportedLayerTypes.Contains(typeof(IRasterLayerHandler)) && layer is IFolderHandler { HasMaskBindable: true } or ILayerHandler
         {
             ShouldDrawOnMask: true
         };

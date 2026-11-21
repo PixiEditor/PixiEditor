@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Vulkan;
 using Drawie.Interop.VulkanAvalonia;
 using PixiEditor.Helpers;
@@ -9,12 +11,19 @@ namespace PixiEditor.Desktop;
 
 public class Program
 {
+    private static IClassicDesktopStyleApplicationLifetime? currentLifetime;
+    
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
     [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+    public static void Main(string[] args)
+    {
+        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, lifetime =>
+        {
+            currentLifetime = lifetime;
+        });
+    }
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
@@ -74,7 +83,35 @@ public class Program
                 },
             })
             .WithDeveloperTools()
-            .WithDrawie()
+            .WithDrawie(() => RebootWithOpengl(openGlPreferred))
             .LogToTrace();
+    }
+
+    private static void RebootWithOpengl(bool openGlPreferred)
+    {
+        if (openGlPreferred)
+        {
+            Console.WriteLine($"OpenGL driver failed, something could be corrupted. You can try running with Vulkan backend by setting 'Vulkan' inside {RenderApiPreferenceManager.ConfigPath} (omit apostrophe)");
+            return;
+        }
+
+        RenderApiPreferenceManager.UpdateRenderApiPreference("OpenGL");
+        var readVal = RenderApiPreferenceManager.TryReadRenderApiPreference();
+        if (!string.Equals(readVal, "OpenGL", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("Something went wrong, while switching the render api to OpenGL. Exiting.");
+            return;
+        }
+        
+        var process = Process.GetCurrentProcess().MainModule.FileName;
+        var createdProc = Process.Start(new ProcessStartInfo(process)
+        {
+            UseShellExecute = true
+        });
+
+        createdProc.WaitForExitAsync().ContinueWith(_ =>
+        {
+            Environment.Exit(0);
+        });
     }
 }

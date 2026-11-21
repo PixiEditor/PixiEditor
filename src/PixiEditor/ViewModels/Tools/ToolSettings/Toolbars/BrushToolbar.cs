@@ -13,7 +13,7 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         get => GetSetting<BoolSettingViewModel>(nameof(AntiAliasing)).Value;
         set => GetSetting<BoolSettingViewModel>(nameof(AntiAliasing)).Value = value;
     }
-
+    
     public double ToolSize
     {
         get => GetSetting<SizeSettingViewModel>(nameof(ToolSize)).Value;
@@ -89,7 +89,7 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         });
         AddSetting(new EnumSettingViewModel<StabilizationMode>(nameof(StabilizationMode), "STABILIZATION_MODE_SETTING")
         {
-            IsExposed = true, PickerType = EnumSettingPickerType.IconButtons, IsLabelVisible = false
+            IsExposed = true, PickerType = ListSettingPickerType.IconButtons, IsLabelVisible = false
         });
         var stabilizationSetting =
             new SizeSettingViewModel(nameof(Stabilization), "STABILIZATION_SETTING", 10, min: 0, max: 128)

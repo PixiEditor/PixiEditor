@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Text;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -56,6 +57,8 @@ internal partial class PaletteColorControl : UserControl
         get { return (ICommand)GetValue(DropCommandProperty); }
         set { SetValue(DropCommandProperty, value); }
     }
+    
+    private PointerPressedEventArgs? lastPointerPressed;
 
 
     public static readonly StyledProperty<CornerRadius> CornerRadiusProperty =
@@ -77,15 +80,8 @@ internal partial class PaletteColorControl : UserControl
         DropCommand?.Execute(e);
     }
 
-    private void PaletteColor_OnMouseDown(object? sender, PointerPressedEventArgs e)
+    private void PaletteColor_OnMouseMove(object? sender, PointerEventArgs e)
     {
-        var leftPressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
-        if (leftPressed)
-        {
-            clickPoint = e.GetPosition(this);
-            e.Pointer.Capture(this);
-        }
-
         PaletteColorControl colorControl = sender as PaletteColorControl;
 
         bool isLeftButtonPressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
@@ -100,9 +96,9 @@ internal partial class PaletteColorControl : UserControl
                 {
                     DataTransfer data = new DataTransfer();
                     DataTransferItem item = new DataTransferItem();
-                    item.Set(ClipboardDataFormats.PaletteColorDaoFormat, colorControl.Color.ToString());
+                    item.Set(ClipboardDataFormats.PaletteColorDaoFormat, Encoding.UTF8.GetBytes(colorControl.Color.ToString()));
                     data.Add(item);
-                    DragDrop.DoDragDropAsync(e, data, DragDropEffects.Move);
+                    DragDrop.DoDragDropAsync(lastPointerPressed, data, DragDropEffects.Move);
                 }
                 catch
                 {
@@ -117,5 +113,16 @@ internal partial class PaletteColorControl : UserControl
     private void PaletteColor_OnMouseUp(object? sender, PointerReleasedEventArgs e)
     {
         e.Pointer.Capture(null);
+    }
+
+    private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        var leftPressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
+        if (leftPressed)
+        {
+            clickPoint = e.GetPosition(this);
+            e.Pointer.Capture(this);
+        }
+        lastPointerPressed = e;
     }
 }
