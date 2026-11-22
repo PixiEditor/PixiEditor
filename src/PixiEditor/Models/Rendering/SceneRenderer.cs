@@ -142,7 +142,7 @@ internal class SceneRenderer : IDisposable
         };
 
         var rendered = RenderScene(previewGenerationViewport, affectedArea, graphCacheHash, false, previewTextures);
-        rendered.Dispose();
+        rendered?.Dispose();
     }
 
     public Texture? RenderScene(ViewportInfo viewport, AffectedArea affectedArea,
