@@ -139,7 +139,7 @@ public class MathNode : Node, IIterativeRenderSupport
             MathNodeMode.Modulo => xConst % yConst,
             MathNodeMode.Min => Math.Min(xConst, yConst),
             MathNodeMode.Max => Math.Max(xConst, yConst),
-            MathNodeMode.Step => xConst > yConst ? 1 : 0,
+            MathNodeMode.Step => xConst <= yConst ? 1 : 0,
             MathNodeMode.SmoothStep => MathEx.SmoothStep(xConst, yConst, zConst),
             MathNodeMode.Asin => Math.Asin(xConst),
             MathNodeMode.Acos => Math.Acos(xConst),
