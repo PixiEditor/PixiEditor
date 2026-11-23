@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Intrinsics.Arm;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -38,7 +39,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     public ColorSpace ProcessingColorSpace { get; internal set; } = ColorSpace.CreateSrgbLinear();
     public float Dpi { get; set; } = 300;
     public MeasurementUnit MeasurementUnit { get; set; } = new PixelUnit();
-    public List<Guide> Guides { get; } = new List<Guide>();
+    public List<Guide> Guides { get; internal set; } = new List<Guide>();
 
     /// <summary>
     /// The default size for a new document
@@ -200,6 +201,9 @@ internal class Document : IChangeable, IReadOnlyDocument
             AnimationData = AnimationData?.Clone() as AnimationData,
             Selection = Selection != null ? new Selection() { SelectionPath = Selection.SelectionPath != null ? new VectorPath(Selection.SelectionPath) : null } : null,
             LastBrushToolUseEndPosition = LastBrushToolUseEndPosition,
+            Dpi = Dpi,
+            Guides = new List<Guide>(Guides),
+            MeasurementUnit = MeasurementUnit,
         };
 
         if (preserveDocumentId)

@@ -234,6 +234,19 @@ public class SnappingController
         {
             VerticalSnapPoints.Remove(key);
         }
+
+        var toRemoveDisabledHorizontal = disabledHorizontalSnapPoints.Where(x => x.Key.StartsWith(id)).ToList();
+        var toRemoveDisabledVertical = disabledVerticalSnapPoints.Where(x => x.Key.StartsWith(id)).ToList();
+
+        foreach (var key in toRemoveDisabledHorizontal)
+        {
+            disabledHorizontalSnapPoints.Remove(key.Key);
+        }
+
+        foreach (var key in toRemoveDisabledVertical)
+        {
+            disabledVerticalSnapPoints.Remove(key.Key);
+        }
     }
 
     public VecD GetSnapDeltaForPoints(VecD[] points, out string xAxis, out string yAxis, out VecD? snapSource)

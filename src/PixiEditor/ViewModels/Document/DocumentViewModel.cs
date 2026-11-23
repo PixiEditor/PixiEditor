@@ -59,7 +59,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public event EventHandler<MaskChangedEventArgs>? MaskChanged;
     public event EventHandler<DocumentSizeChangedEventArgs>? SizeChanged;
     public event Action ToolSessionFinished;
-    
+
     private bool busy = false;
 
 
@@ -71,6 +71,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
 
     private string coordinatesString = "";
+
     public string CoordinatesString
     {
         get => coordinatesString;
@@ -78,6 +79,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     }
 
     private string? fullFilePath = null;
+
     public string? FullFilePath
     {
         get => fullFilePath;
@@ -259,11 +261,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             SetProperty(ref palette, value);
         }
     }
+
     PaletteColor[] Extensions.CommonApi.Documents.IDocument.Palette
     {
         get => Palette.ToArray();
         set => Palette = new ObservableRangeCollection<PaletteColor>(value);
     }
+
     public SnappingViewModel SnappingViewModel { get; set; }
     ISnappingHandler IDocument.SnappingHandler => SnappingViewModel;
     public IReadOnlyCollection<Guid> SelectedMembers => GetSelectedMembers().AsReadOnly();
@@ -322,6 +326,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         SetVerticalSymmetryAxisEnabled(document.VerticalSymmetryAxisEnabled);
         SetHorizontalSymmetryAxisY(document.HorizontalSymmetryAxisY);
         SetVerticalSymmetryAxisX(document.VerticalSymmetryAxisX);
+        SetDpiInternal(document.Dpi);
+        foreach (var documentGuide in document.Guides)
+        {
+            LocalizedString name = new LocalizedString("GUIDE_NAME", GuidesViewModel.Guides.Count() + 1);
+            GuidesViewModel.AddGuideInternal(
+                new GuideViewModel(Internals, Guid.NewGuid(), documentGuide.IsVertical, documentGuide.Offset, name));
+        }
 
         NodeGraph.InitFrom(document.NodeGraph);
         AnimationDataViewModel.InitFrom(document.AnimationData);
@@ -474,7 +485,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
 
         viewModel.DpiBindable = builderInstance.Dpi;
-        viewModel.MeasurementUnitBindable = MeasurementUnit.AllKnown.FirstOrDefault(x => string.Equals(x.UnitName, builderInstance.MeasurementUnit, StringComparison.OrdinalIgnoreCase), MeasurementUnit.Pixels);
+        viewModel.MeasurementUnitBindable = MeasurementUnit.AllKnown.FirstOrDefault(
+            x => string.Equals(x.UnitName, builderInstance.MeasurementUnit, StringComparison.OrdinalIgnoreCase),
+            MeasurementUnit.Pixels);
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
 
@@ -605,7 +618,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 var serializedNode = graph.AllNodes.First(x => x.Id == node.Id);
 
                 var additionalData = serializedNode.AdditionalData ?? new Dictionary<string, object>();
-                CompatibilityUtility.UpgradeNodeAdditionalDataToCurrentVersion(additionalData, serializerVersion, serializedNode.UniqueNodeName,
+                CompatibilityUtility.UpgradeNodeAdditionalDataToCurrentVersion(additionalData, serializerVersion,
+                    serializedNode.UniqueNodeName,
                     serializedNode.InputValues);
                 acc.AddActions(new DeserializeNodeAdditionalData_Action(nodeGuid,
                     SerializationUtil.DeserializeDict(additionalData, config, allFactories,
@@ -1333,7 +1347,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         SelectedStructureMember = member;
         Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
         OnPropertyChanged(nameof(SelectedStructureMember));
-        
+
         if (queuedLayerReadyToUseActions.Count > 0)
         {
             foreach (var action in queuedLayerReadyToUseActions)
@@ -1705,7 +1719,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 CrashHelper.SendExceptionInfo(ex);
                 continue;
             }
-
         }
     }
 

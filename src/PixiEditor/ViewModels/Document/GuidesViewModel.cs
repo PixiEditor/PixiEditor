@@ -36,7 +36,7 @@ internal class GuidesViewModel : ViewModelBase, IGuidesHandler
 
         overlayViewModel.IsEnabled = true;
         double offset = VerticalGuides.LastOrDefault()?.OffsetBindable + 1 ??
-                        internals.ChangeController.Document.SizeBindable.Y / 2f;
+                        internals.ChangeController.Document.SizeBindable.X / 2f;
         if (VerticalGuides.Count >= 2)
         {
             var previous = VerticalGuides.ElementAtOrDefault(VerticalGuides.Count - 1);
@@ -53,7 +53,7 @@ internal class GuidesViewModel : ViewModelBase, IGuidesHandler
 
         overlayViewModel.IsEnabled = true;
         double offset = HorizontalGuides.LastOrDefault()?.OffsetBindable + 1 ??
-                        internals.ChangeController.Document.SizeBindable.X / 2f;
+                        internals.ChangeController.Document.SizeBindable.Y / 2f;
         if (HorizontalGuides.Count >= 2)
         {
             var previous = HorizontalGuides.ElementAtOrDefault(HorizontalGuides.Count - 1);
@@ -81,16 +81,27 @@ internal class GuidesViewModel : ViewModelBase, IGuidesHandler
     public void AddGuideInternal(IGuideHandler guideViewModel)
     {
         guides.Add(guideViewModel);
-        snappingHandler.AddFromAxis("guide_" + guideViewModel.Id, guideViewModel.IsVertical,
+        string id = "guide_" + guideViewModel.Id;
+        snappingHandler.AddFromAxis(id, guideViewModel.IsVertical,
             () => guideViewModel.OffsetBindable);
         if (guideViewModel.IsVertical)
         {
             verticalGuides.Add(guideViewModel);
+            if (!overlayViewModel.IsEnabled)
+            {
+                snappingHandler.SnappingController.DisableVerticalStartingWith(id);
+            }
+
             OnPropertyChanged(nameof(VerticalGuides));
         }
         else
         {
             horizontalGuides.Add(guideViewModel);
+            if (!overlayViewModel.IsEnabled)
+            {
+                snappingHandler.SnappingController.DisableHorizontalStartingWith(id);
+            }
+
             OnPropertyChanged(nameof(HorizontalGuides));
         }
 

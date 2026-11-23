@@ -103,7 +103,7 @@
                              Unit="{Binding ElementName=uc, Path=InputUnit}"
                              MeasurementConverterData="{Binding ElementName=uc, Path=MeasurementUnitConverter}"
                              Width="{Binding ElementName=uc, Path=FixedInputSize}"
-                             MinSize="{Binding ElementName=uc, Path=MeasurementUnitConverter.Decimals, FallbackValue=1, Converter={converters1:DecimalsToMinValueConverter}}"
+                             MinSize="{Binding ElementName=uc, Path=MeasurementUnitConverter, Converter={converters1:MeasurementUnitToMinValueConverter}}"
                              Margin="50,0,0,0">
                     <Interaction.Behaviors>
                         <EventTriggerBehavior EventName="LostFocus">
@@ -121,7 +121,7 @@
                              MeasurementConverterData="{Binding ElementName=uc, Path=MeasurementUnitConverter}"
                              Decimals="{Binding ElementName=uc, Path=MeasurementUnitConverter.Decimals, FallbackValue=0}"
                              Width="{Binding ElementName=uc, Path=FixedInputSize}"
-                             MinSize="{Binding ElementName=uc, Path=MeasurementUnitConverter.Decimals, FallbackValue=1, Converter={converters1:DecimalsToMinValueConverter}}"
+                             MinSize="{Binding ElementName=uc, Path=MeasurementUnitConverter, Converter={converters1:MeasurementUnitToMinValueConverter}}"
                              Size="{Binding ChosenHeight, ElementName=uc, Mode=TwoWay}">
                     <Interaction.Behaviors>
                         <EventTriggerBehavior EventName="LostFocus">

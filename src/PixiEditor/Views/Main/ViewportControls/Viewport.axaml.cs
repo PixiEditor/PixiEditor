@@ -557,6 +557,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
                 viewport.GridLinesYSize = Math.Max(newDoc.SizeBindable.Y / 12f, 1);
 
             newDoc.RulerOverlayViewModel.PropertyChanged += viewport.OnRulerOverlayChanged;
+            viewport.OnRulerOverlayChanged(newDoc.RulerOverlayViewModel,
+                new PropertyChangedEventArgs(nameof(newDoc.RulerOverlayViewModel.IsEnabled)));
         }
 
         oldDoc?.Operations.RemoveViewport(viewport.GuidValue);

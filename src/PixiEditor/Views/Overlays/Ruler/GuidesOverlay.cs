@@ -100,13 +100,13 @@ public class GuidesOverlay : Overlay
     }
 
     private Paint guidePaint;
-    private const double HitDistance = 0.5;
+    private double HitDistance => 5 / ZoomScale;
 
     private IGuideHandler? capturedGuide;
     private Matrix3X3 lastMatrix;
     private InfoBox infoBox;
     private string unitText;
-    private VecD lastCanvasPointer;
+    private VecD lastViewportPoint;
 
     static GuidesOverlay()
     {
@@ -164,16 +164,18 @@ public class GuidesOverlay : Overlay
     protected override void OnRenderOverlay(Canvas context, RectD canvasBounds)
     {
         DrawGuides(context);
+        lastMatrix = context.TotalMatrix;
+        int saved = context.Save();
+        context.SetMatrix(Matrix3X3.Identity);
         if (capturedGuide != null)
         {
-            infoBox.ZoomScale = ZoomScale;
             infoBox.DrawInfo(context,
                 (Unit.FromPixels(capturedGuide.OffsetBindable, Dpi)).ToString("0.####", CultureInfo.CurrentCulture) +
                 $" {unitText}",
-                lastCanvasPointer);
+                lastViewportPoint);
         }
 
-        lastMatrix = context.TotalMatrix;
+        context.RestoreToCount(saved);
     }
 
     protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
@@ -211,10 +213,8 @@ public class GuidesOverlay : Overlay
         }
 
         DragGuideCommand?.Execute(new GuideDragInfo(capturedGuide.Id, offset));
-        Cursor = new Cursor(capturedGuide.IsVertical
-            ? StandardCursorType.SizeWestEast
-            : StandardCursorType.SizeNorthSouth);
-        lastCanvasPointer = args.CanvasPoint;
+        UpdateCursor(capturedGuide);
+        lastViewportPoint = args.ViewportPoint;
 
         args.Handled = true;
     }
@@ -226,7 +226,25 @@ public class GuidesOverlay : Overlay
             (x.IsVertical && Math.Abs(canvasPoint.X - x.OffsetBindable) < HitDistance) ||
             (!x.IsVertical && Math.Abs(canvasPoint.Y - x.OffsetBindable) < HitDistance));
 
-        Cursor = new Cursor(guide.IsVertical ? StandardCursorType.SizeWestEast : StandardCursorType.SizeNorthSouth);
+        UpdateCursor(guide);
+    }
+
+    private void UpdateCursor(IGuideHandler? guide)
+    {
+        VecD origin = lastMatrix.MapPoint(new VecD(0, 0));
+
+        VecD axisPoint = lastMatrix.MapPoint(
+            guide.IsVertical
+                ? new VecD(0, 1)
+                : new VecD(1, 0));
+
+        double dx = axisPoint.X - origin.X;
+        double dy = axisPoint.Y - origin.Y;
+
+        Cursor = new Cursor(
+            Math.Abs(dx) >= Math.Abs(dy)
+                ? StandardCursorType.SizeNorthSouth
+                : StandardCursorType.SizeWestEast);
     }
 
     protected override void OnOverlayPointerReleased(OverlayPointerArgs args)

@@ -72,7 +72,12 @@ internal partial class NewFilePopup : PixiEditorPopup
         Loaded += OnDialogShown;
 
         Units = new ObservableCollection<MeasurementUnit>(MeasurementUnit.AllKnown);
-        SelectedMeasurementConverterData = new MeasurementConverterData(
+        SelectedMeasurementConverterData = CreateMeasurementConverterData();
+    }
+
+    private MeasurementConverterData CreateMeasurementConverterData()
+    {
+        return new MeasurementConverterData(
             () => (float)Dpi,
             (pixels, dpi) =>
                 Math.Round(SelectedMeasurementUnit.FromPixels(pixels, dpi), SelectedMeasurementUnit.Decimals),
@@ -90,6 +95,7 @@ internal partial class NewFilePopup : PixiEditorPopup
     {
         if (e is { Sender: NewFilePopup { SelectedMeasurementUnit: not null } popup })
         {
+            popup.SelectedMeasurementConverterData = popup.CreateMeasurementConverterData();
             popup.SelectedMeasurementConverterData.NotifyUpdated();
         }
     }
@@ -108,6 +114,7 @@ internal partial class NewFilePopup : PixiEditorPopup
                 popup.FileHeight = (int)unit.ToPixels(preset.Height, (float)preset.Dpi);
                 popup.Dpi = preset.Dpi;
                 popup.SelectedMeasurementUnit = unit;
+                popup.SelectedMeasurementConverterData = popup.CreateMeasurementConverterData();
             }
 
             popup._isUpdatingFromPreset = false;

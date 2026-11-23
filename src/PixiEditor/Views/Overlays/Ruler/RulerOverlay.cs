@@ -209,6 +209,7 @@ public class RulerOverlay : Overlay
                 else if (args.ViewportPoint is { X: < Offset } or { Y: < Offset })
                 {
                     previewGuideIsVertical = args.ViewportPoint.Y < Offset;
+                    previewGuide = previewGuideIsVertical ? args.CanvasPoint.X : args.CanvasPoint.Y;
                     GuidesVisible = true;
                     args.Pointer.Capture(this);
                     isDraggingPreviewGuide = true;
@@ -495,28 +496,80 @@ public class RulerOverlay : Overlay
 
     internal static double GetYTickSpacing(Matrix3X3 previousMatrix, MeasurementUnit unit, float dpi, out double tickSpacing)
     {
-        double zeroY = previousMatrix.MapPoint(new VecD(0, 0)).Y;
-        double docSizePixelSpacing = previousMatrix.MapPoint(new VecD(0, unit.ToPixels(1, dpi))).Y - zeroY;
+        VecD origin = previousMatrix.MapPoint(new VecD(0, 0));
+
+        VecD yPoint = previousMatrix.MapPoint(
+            new VecD(0, unit.ToPixels(1, dpi)));
+
+        double dx = yPoint.X - origin.X;
+        double dy = yPoint.Y - origin.Y;
+
+        double docSizePixelSpacing = Hypot(dx, dy);
+
+        if (!double.IsFinite(docSizePixelSpacing) || docSizePixelSpacing <= 0)
+        {
+            tickSpacing = 0;
+            return 0;
+        }
+
         tickSpacing = GetTickSpacing(docSizePixelSpacing, unit);
+
         return docSizePixelSpacing;
     }
 
     internal static double GetXTickSpacing(Matrix3X3 previousMatrix, MeasurementUnit unit, float dpi, out double tickSpacing)
     {
-        double zeroX = previousMatrix.MapPoint(new VecD(0, 0)).X;
-        double docSizePixelSpacing = previousMatrix.MapPoint(new VecD(unit.ToPixels(1, dpi), 0)).X - zeroX;
+        VecD origin = previousMatrix.MapPoint(new VecD(0, 0));
+
+        VecD xPoint = previousMatrix.MapPoint(
+            new VecD(unit.ToPixels(1, dpi), 0));
+
+        double dx = xPoint.X - origin.X;
+        double dy = xPoint.Y - origin.Y;
+
+        double docSizePixelSpacing = Hypot(dx, dy);
+
+        if (!double.IsFinite(docSizePixelSpacing) || docSizePixelSpacing <= 0)
+        {
+            tickSpacing = 0;
+            return 0;
+        }
+
         tickSpacing = GetTickSpacing(docSizePixelSpacing, unit);
+
         return docSizePixelSpacing;
+    }
+
+    private static double Hypot(double x, double y)
+    {
+        x = Math.Abs(x);
+        y = Math.Abs(y);
+
+        double max = Math.Max(x, y);
+
+        if (max == 0)
+            return 0;
+
+        x /= max;
+        y /= max;
+
+        return max * Math.Sqrt(x * x + y * y);
     }
 
     private static double GetTickSpacing(double docSizePixelSpacing, MeasurementUnit unit)
     {
         double minTickSpacing = UnitDensity / docSizePixelSpacing;
+
+        if (!double.IsFinite(minTickSpacing) || minTickSpacing <= 0)
+            return 0;
+
         double tickSpacing = unit.GetSpacing(minTickSpacing);
+
+        if (!double.IsFinite(tickSpacing) || tickSpacing <= 0)
+            return 0;
+
         if (unit.Decimals <= 0)
-        {
             tickSpacing = Math.Max(1, tickSpacing);
-        }
 
         return tickSpacing;
     }

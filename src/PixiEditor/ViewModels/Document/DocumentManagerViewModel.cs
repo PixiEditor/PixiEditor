@@ -274,6 +274,10 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
             return;
 
         ActiveDocument.EventInlet.OnGuideDragEnded(id);
+        // Restore move tool after ending the drag, so next handle can be dragged too
+        // Generally this might cause problems IF BeginDragGuide and EndDragGuide are not called when Move Tool is selected
+        // but this is a requirement for now and shouldn't happen. In any other case, this needs to be revised
+        ActiveDocument.Operations.TransformSelectedArea(true);
     }
 
     [Command.Basic("PixiEditor.Document.DeleteSelected", "DELETE_SELECTED", "DELETE_SELECTED_DESCRIPTIVE",

@@ -46,7 +46,7 @@
                     </ComboBox>
 
                     <TextBlock ui:Translator.Key="DPI"/>
-                    <controls:NumberInput Decimals="2" Width="50" Value="{Binding ElementName=popup, Path=Dpi, Mode=TwoWay}" />
+                    <controls:NumberInput Decimals="2" Width="50" Min="0.01" Value="{Binding ElementName=popup, Path=Dpi, Mode=TwoWay}" />
 
                 </StackPanel>
                 <input:SizePicker HorizontalAlignment="Center" MinWidth="230" Height="125" Margin="0"

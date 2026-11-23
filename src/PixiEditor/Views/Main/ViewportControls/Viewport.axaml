@@ -162,13 +162,13 @@
                         <TextBlock HorizontalAlignment="Center"
                                    ui:Translator.Key="GRIDLINES_SIZE" Margin="0 0 0 10" />
                         <controls:SizeInput
-                            MinSize="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.Decimals, Converter={converters:DecimalsToMinValueConverter}}"
+                            MinSize="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.Decimals, Converter={converters:MeasurementUnitToMinValueConverter}}"
                             Unit="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.ShortNameLocalizationKey}"
                             MeasurementConverterData="{Binding $parent[viewportControls:Viewport].Document.MeasurementConversionData}"
                             Decimals="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.Decimals}"
                             Size="{Binding GridLinesXSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
                         <controls:SizeInput
-                            MinSize="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.Decimals, Converter={converters:DecimalsToMinValueConverter}}"
+                            MinSize="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.Decimals, Converter={converters:MeasurementUnitToMinValueConverter}}"
                             Unit="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.ShortNameLocalizationKey}"
                             MeasurementConverterData="{Binding $parent[viewportControls:Viewport].Document.MeasurementConversionData}"
                             Decimals="{Binding $parent[viewportControls:Viewport].Document.MeasurementUnitBindable.Decimals}"

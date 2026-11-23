@@ -30,6 +30,9 @@ public abstract class MeasurementUnit
 
     public virtual double GetSpacing(double minSpacing)
     {
+        if (!double.IsFinite(minSpacing) || minSpacing <= 0)
+            return 1;
+
         double[] preferredSteps = { 1, 2, 5 };
 
         double exponent = Math.Floor(Math.Log10(minSpacing));
@@ -42,7 +45,7 @@ public abstract class MeasurementUnit
                 return step * magnitude;
         }
 
-        return preferredSteps[0] * magnitude * 10;
+        return magnitude * 10;
     }
 }
 
@@ -161,6 +164,9 @@ public sealed class InchesUnit : MeasurementUnit
 
     public override double GetSpacing(double minSpacing)
     {
+        if (!double.IsFinite(minSpacing) || minSpacing <= 0)
+            return 1;
+
         return Math.Pow(2, Math.Ceiling(Math.Log2(minSpacing * 128))) / 128;
     }
 }
