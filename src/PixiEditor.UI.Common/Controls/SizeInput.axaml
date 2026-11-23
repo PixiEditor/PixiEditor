@@ -33,7 +33,7 @@
                      Margin="0,0,5,0" VerticalAlignment="Center"
                      Decimals="{Binding Decimals, RelativeSource={RelativeSource FindAncestor, AncestorType=controls:SizeInput}}"
                      x:Name="input"
-                     Value="{Binding Size, RelativeSource={RelativeSource FindAncestor, AncestorType=controls:SizeInput}, Mode=TwoWay}"
+                     Value="{Binding DisplaySize, RelativeSource={RelativeSource FindAncestor, AncestorType=controls:SizeInput}, Mode=TwoWay}"
                      Min="{Binding MinSize, RelativeSource={RelativeSource FindAncestor, AncestorType=controls:SizeInput}}"
                      Max="{Binding MaxSize, RelativeSource={RelativeSource FindAncestor, AncestorType=controls:SizeInput}}"
                      d:Value="22"
@@ -41,7 +41,7 @@
                      SelectOnMouseClick="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}"
                      ConfirmOnEnter="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}"
                      DraggingGrabber="{Binding DraggingGrabber, ElementName=uc, Mode=TwoWay}"
-                     Width="53"/>
+                     MinWidth="53"/>
             <Grid Grid.Column="1" Background="{Binding BorderBrush, ElementName=border}"
                   d:Background="{DynamicResource ThemeAccentBrush}"/>
             <TextBlock localization:Translator.Key="{Binding Unit, ElementName=uc}"

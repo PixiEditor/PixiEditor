@@ -263,7 +263,7 @@ internal class SymmetryOverlay : Overlay
         drawingContext.DrawText(text, new VecD(textX, textY), TextAlign.Center, font, textPaint);
     }
 
-    public override bool TestHit(VecD point)
+    public override bool TestHit(VecD point, VecD viewportPoint)
     {
         return IsTouchingHandle(point) is not null;
     }
@@ -306,7 +306,7 @@ internal class SymmetryOverlay : Overlay
         if (args.PointerButton != MouseButton.Left)
             return;
 
-        var dir = IsTouchingHandle(args.Point);
+        var dir = IsTouchingHandle(args.CanvasPoint);
         if (dir is null)
             return;
         
@@ -314,25 +314,25 @@ internal class SymmetryOverlay : Overlay
         args.Pointer.Capture(this);
         CallSymmetryDragStartCommand(dir.Value);
 
-        args.Handled = TestHit(args.Point);
+        args.Handled = TestHit(args.CanvasPoint, args.ViewportPoint);
     }
 
     protected override void OnOverlayPointerEntered(OverlayPointerArgs args)
     {
-        pointerPosition = args.Point;
+        pointerPosition = args.CanvasPoint;
         var dir = IsTouchingHandle(pointerPosition);
         UpdateHovered(dir);
     }
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
-        UpdateHovered(IsTouchingHandle(args.Point));
+        UpdateHovered(IsTouchingHandle(args.CanvasPoint));
 
         if (capturedDirection is null)
             return;
         if (capturedDirection == SymmetryAxisDirection.Horizontal)
         {
-            horizontalAxisY = Math.Round(Math.Clamp(args.Point.Y, 0, lastSize.Y) * 2) / 2;
+            horizontalAxisY = Math.Round(Math.Clamp(args.CanvasPoint.Y, 0, lastSize.Y) * 2) / 2;
 
             if (args.Modifiers.HasFlag(KeyModifiers.Shift))
             {
@@ -344,7 +344,7 @@ internal class SymmetryOverlay : Overlay
         }
         else if (capturedDirection == SymmetryAxisDirection.Vertical)
         {
-            verticalAxisX = Math.Round(Math.Clamp(args.Point.X, 0, lastSize.X) * 2) / 2;
+            verticalAxisX = Math.Round(Math.Clamp(args.CanvasPoint.X, 0, lastSize.X) * 2) / 2;
 
             if (args.Modifiers.HasFlag(KeyModifiers.Control))
             {
@@ -377,7 +377,7 @@ internal class SymmetryOverlay : Overlay
         CallSymmetryDragEndCommand((SymmetryAxisDirection)capturedDirection);
 
         capturedDirection = null;
-        UpdateHovered(IsTouchingHandle(e.Point));
+        UpdateHovered(IsTouchingHandle(e.CanvasPoint));
         // Not calling invalidate visual might result in ruler not disappearing when releasing the mouse over the canvas
         Refresh();
     }

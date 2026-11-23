@@ -19,14 +19,17 @@ using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.ChangeableDocument.ChangeInfos.Guides;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Blackboard;
@@ -262,6 +265,18 @@ internal class DocumentUpdater
                 break;
             case VectorShape_ChangeInfo info:
                 ProcessVectorShape(info);
+                break;
+            case DocumentDpi_ChangeInfo info:
+                ProcessDocumentDpi(info);
+                break;
+            case Guide_ChangeInfo guideChangeInfo:
+                ProcessGuide(guideChangeInfo);
+                break;
+            case RemoveGuide_ChangeInfo info:
+                ProcessRemoveGuide(info);
+                break;
+            case DocumentMeasurement_ChangeInfo info:
+                ProcessDocumentMeasurement(info);
                 break;
         }
     }
@@ -1177,5 +1192,38 @@ internal class DocumentUpdater
         {
             vectorLayerHandler.UpdateLayerTypeIcon();
         }
+    }
+
+    private void ProcessDocumentDpi(DocumentDpi_ChangeInfo info)
+    {
+        doc.SetDpiInternal(info.Dpi);
+    }
+
+    private void ProcessGuide(Guide_ChangeInfo info)
+    {
+        var foundGuide = doc.GuidesHandler.GuidesHandler.FirstOrDefault(x => x.Id == info.Id);
+        if (foundGuide != null)
+        {
+            foundGuide.SetOffsetInternal(info.Offset);
+        }
+        else
+        {
+            LocalizedString name = new LocalizedString("GUIDE_NAME", doc.GuidesHandler.GuidesHandler.Count() + 1);
+            doc.GuidesHandler.AddGuideInternal(new GuideViewModel(helper, info.Id, info.IsVertical, info.Offset, name));
+        }
+    }
+
+    private void ProcessRemoveGuide(RemoveGuide_ChangeInfo info)
+    {
+        var found = doc.GuidesHandler.GuidesHandler.FirstOrDefault(x => x.Id == info.Id);
+        if (found != null)
+        {
+            doc.GuidesHandler.RemoveGuideInternal(found);
+        }
+    }
+
+    private void ProcessDocumentMeasurement(DocumentMeasurement_ChangeInfo info)
+    {
+        doc.SetMeasurementUnitInternal(info.Unit);
     }
 }

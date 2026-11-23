@@ -30,6 +30,11 @@ public class SnappingViewModel : PixiObservableObject, ISnappingHandler
         SnappingController.AddXYAxis(id, func);
     }
 
+    public void AddFromAxis(string id, bool vertical, Func<double> func)
+    {
+        SnappingController.AddAxis(id, vertical, func);
+    }
+
     public void Remove(string id)
     {
         SnappingController.RemoveAll(id);

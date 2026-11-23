@@ -24,6 +24,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Extensions.CommonApi.Documents;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Models.Config;
 using PixiEditor.Models.DocumentModels.Autosave;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO.CustomDocumentFormats;
@@ -58,6 +59,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     public IReadOnlyList<IDocumentBuilder> DocumentBuilders => documentBuilders;
 
     private static List<IDocumentBuilder> documentBuilders;
+
+    private SizePresets? loadedPresets = null;
+
 
     public FileViewModel(ViewModelMain owner)
         : base(owner)
@@ -717,13 +721,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         MenuItemPath = "FILE/NEW_FILE", MenuItemOrder = 0, Icon = PixiPerfectIcons.File)]
     public async Task CreateFromNewFileDialog()
     {
+        loadedPresets ??= Owner.Config.GetConfig<SizePresets>("FilePresets");
         Window mainWindow = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)
             .MainWindow;
-        NewFileDialog newFile = new NewFileDialog(mainWindow);
+        NewFileDialog newFile = new NewFileDialog(mainWindow, loadedPresets);
         if (await newFile.ShowDialog())
         {
             NewDocument(b => b
                 .WithSize(newFile.Width, newFile.Height)
+                .WithDpi((float)newFile.Dpi)
+                .WithMeasurementUnit(newFile.MeasurementUnit.UnitName)
                 .WithGraph(x => x
                     .WithImageLayerNode(
                         new LocalizedString("BASE_LAYER_NAME"),

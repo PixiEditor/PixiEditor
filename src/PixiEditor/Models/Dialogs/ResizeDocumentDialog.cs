@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.UI.Common.Converters;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.Dialogs;
@@ -8,6 +9,9 @@ internal class ResizeDocumentDialog : CustomDialog
 {
     private int height;
     private int width;
+
+    private string sizeUnit = "px";
+    private MeasurementConverterData? unitConverter;
 
     public ResizeDocumentDialog(int currentWidth, int currentHeight, Window owner, bool openResizeCanvas = false) : base(owner)
     {
@@ -46,6 +50,24 @@ internal class ResizeDocumentDialog : CustomDialog
         }
     }
 
+    public string Unit
+    {
+        get => sizeUnit;
+        set
+        {
+            SetProperty(ref sizeUnit, value);
+        }
+    }
+
+    public MeasurementConverterData? MeasurementConverterData
+    {
+        get => unitConverter;
+        set
+        {
+            SetProperty(ref unitConverter, value);
+        }
+    }
+
     public ResamplingMethod SelectedSamplingMethod { get; set; } = ResamplingMethod.NearestNeighbor;
 
     public override async Task<bool> ShowDialog()
@@ -61,7 +83,9 @@ internal class ResizeDocumentDialog : CustomDialog
             NewAbsoluteHeight = Height,
             NewAbsoluteWidth = Width,
             NewPercentageSize = 100,
-            NewSelectedUnit = SizeUnit.Pixel
+            NewSelectedUnit = SizeUnit.Pixel,
+            Unit = Unit,
+            MeasurementConverter =  MeasurementConverterData,
         };
 
         var result = await popup.ShowDialog<bool>(OwnerWindow);

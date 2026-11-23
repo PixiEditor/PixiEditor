@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Intrinsics.Arm;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -20,6 +21,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     IReadOnlyNodeGraph IReadOnlyDocument.NodeGraph => NodeGraph;
     IReadOnlySelection IReadOnlyDocument.Selection => Selection;
     IReadOnlyAnimationData IReadOnlyDocument.AnimationData => AnimationData;
+    IReadOnlyCollection<IReadOnlyGuide> IReadOnlyDocument.Guides => Guides;
     IReadOnlyStructureNode? IReadOnlyDocument.FindMember(Guid guid) => FindMember(guid);
 
     bool IReadOnlyDocument.TryFindMember(Guid guid, [NotNullWhen(true)] out IReadOnlyStructureNode? member) =>
@@ -35,6 +37,9 @@ internal class Document : IChangeable, IReadOnlyDocument
     public DocumentRenderer Renderer { get; }
     public IReadOnlyBlackboard Blackboard => NodeGraph.Blackboard;
     public ColorSpace ProcessingColorSpace { get; internal set; } = ColorSpace.CreateSrgbLinear();
+    public float Dpi { get; set; } = 300;
+    public MeasurementUnit MeasurementUnit { get; set; } = new PixelUnit();
+    public List<Guide> Guides { get; internal set; } = new List<Guide>();
 
     /// <summary>
     /// The default size for a new document
@@ -196,6 +201,9 @@ internal class Document : IChangeable, IReadOnlyDocument
             AnimationData = AnimationData?.Clone() as AnimationData,
             Selection = Selection != null ? new Selection() { SelectionPath = Selection.SelectionPath != null ? new VectorPath(Selection.SelectionPath) : null } : null,
             LastBrushToolUseEndPosition = LastBrushToolUseEndPosition,
+            Dpi = Dpi,
+            Guides = new List<Guide>(Guides),
+            MeasurementUnit = MeasurementUnit,
         };
 
         if (preserveDocumentId)

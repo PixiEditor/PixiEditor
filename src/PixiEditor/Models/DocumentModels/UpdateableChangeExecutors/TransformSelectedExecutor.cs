@@ -21,7 +21,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
 internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransformableExecutor, ITransformDraggedEvent,
     IMidChangeUndoableExecutor,
-    ITransformStoppedEvent
+    ITransformStoppedEvent, IGuidesEditingFeature
 {
     private Dictionary<Guid, ShapeCorners> memberCorners = new();
     private IMoveToolHandler? tool;
@@ -671,6 +671,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         Type feature = typeof(T);
         return feature == typeof(ITransformableExecutor) && IsTransforming ||
                feature == typeof(IMidChangeUndoableExecutor) ||
-               feature == typeof(ITransformStoppedEvent) || feature == typeof(ITransformDraggedEvent);
+               feature == typeof(ITransformStoppedEvent) || feature == typeof(ITransformDraggedEvent)
+               || feature == typeof(IGuidesEditingFeature);
     }
 }

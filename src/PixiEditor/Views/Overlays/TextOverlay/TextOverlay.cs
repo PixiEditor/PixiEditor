@@ -332,7 +332,7 @@ internal class TextOverlay : Overlay
         context.RestoreToCount(saved);
     }
 
-    public override bool TestHit(VecD point)
+    public override bool TestHit(VecD point, VecD viewportPoint)
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
 
@@ -346,23 +346,23 @@ internal class TextOverlay : Overlay
         clickHandled = args.ClickCount == 2;
         if (args.ClickCount == 2)
         {
-            SelectWordAtPosition(args.Point);
+            SelectWordAtPosition(args.CanvasPoint);
         }
 
         movedDistance = VecD.Zero;
-        initialPos = args.Point;
+        initialPos = args.CanvasPoint;
         isLmbPressed = args.PointerButton == MouseButton.Left;
         args.Pointer.Capture(this);
     }
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
-        movedDistance = args.Point - initialPos;
+        movedDistance = args.CanvasPoint - initialPos;
         if (isLmbPressed && !clickHandled)
         {
             if (movedDistance.Length > 2)
             {
-                SetCursorPosToPosition(args.Point);
+                SetCursorPosToPosition(args.CanvasPoint);
                 SetSelectionEndToPosition(initialPos);
             }
         }
@@ -379,7 +379,7 @@ internal class TextOverlay : Overlay
                     IsEditing = true;
                 }
 
-                SetCursorPosToPosition(args.Point);
+                SetCursorPosToPosition(args.CanvasPoint);
             }
         }
 

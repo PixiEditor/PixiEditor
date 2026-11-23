@@ -166,6 +166,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     public PointerInfo LastPointerInfo => lastPointerInfo;
     public KeyboardInfo LastKeyboardInfo => lastKeyboardInfo;
+    public Overlay? CapturedOverlay => capturedOverlay;
 
     private Overlay? capturedOverlay;
 
@@ -546,17 +547,17 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    private bool IsOverlayHit(Overlay overlay, VecD point)
+    private bool IsOverlayHit(Overlay overlay, VecD canvasPoint, VecD viewportPoint)
     {
         return overlay.IsVisible &&
                overlay.IsHitTestVisible &&
-               overlay.TestHit(point);
+               overlay.TestHit(canvasPoint, viewportPoint);
     }
 
-    private bool ShouldReceivePointerEvent(Overlay overlay, VecD point)
+    private bool ShouldReceivePointerEvent(Overlay overlay, VecD point, VecD argsViewportPoint)
     {
         return overlay.IsVisible &&
-               (overlay.AlwaysPassPointerEvents || IsOverlayHit(overlay, point));
+               (overlay.AlwaysPassPointerEvents || IsOverlayHit(overlay, point, argsViewportPoint));
     }
 
     private void PropagatePointerMove(
@@ -575,7 +576,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 continue;
 
             bool hit = overlay.IsHitTestVisible &&
-                       overlay.TestHit(args.Point);
+                       overlay.TestHit(args.CanvasPoint, args.ViewportPoint);
 
             bool receives = !propagationStopped &&
                             (hit || overlay.AlwaysPassPointerEvents);
@@ -618,7 +619,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             var overlay = AllOverlays[i];
 
-            if (!ShouldReceivePointerEvent(overlay, args.Point))
+            if (!ShouldReceivePointerEvent(overlay, args.CanvasPoint, args.ViewportPoint))
                 continue;
 
             handler(overlay, args);
@@ -638,7 +639,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             OverlayPointerArgs args = ConstructPointerArgs(e);
             foreach (Overlay overlay in AllOverlays)
             {
-                if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) &&
+                if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.CanvasPoint, args.ViewportPoint)) &&
                     !overlay.AlwaysPassPointerEvents) continue;
                 overlay.EnterPointer(args);
                 mouseOverOverlays.Add(overlay);
@@ -661,7 +662,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 return;
 
             OverlayPointerArgs args = ConstructPointerArgs(e);
-            lastMousePositionOnCanvas = args.Point;
+            lastMousePositionOnCanvas = args.CanvasPoint;
 
             if (capturedOverlay != null)
             {
@@ -894,9 +895,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private OverlayPointerArgs ConstructPointerArgs(PointerEventArgs e)
     {
+        var viewportPoint = e.GetPosition(this);
         return new OverlayPointerArgs
         {
-            Point = ToCanvasSpace(e.GetPosition(this)),
+            CanvasPoint = ToCanvasSpace(viewportPoint),
+            ViewportPoint = new VecD(viewportPoint.X, viewportPoint.Y),
             Modifiers = e.KeyModifiers,
             Pointer = new MouseOverlayPointer(e.Pointer, CaptureOverlay),
             PointerButton = e.GetMouseButton(this),

@@ -25,11 +25,11 @@ public partial class NumberInput : TextBox
 
     public static readonly StyledProperty<double> MinProperty =
         AvaloniaProperty.Register<NumberInput, double>(
-            nameof(Min), float.NegativeInfinity, coerce: CoerceValue);
+            nameof(Min), double.NegativeInfinity);
 
     public static readonly StyledProperty<double> MaxProperty =
         AvaloniaProperty.Register<NumberInput, double>(
-            nameof(Max), double.PositiveInfinity, coerce: CoerceValue);
+            nameof(Max), double.PositiveInfinity);
 
     public static readonly StyledProperty<string> FormattedValueProperty =
         AvaloniaProperty.Register<NumberInput, string>(
@@ -159,6 +159,12 @@ public partial class NumberInput : TextBox
     static NumberInput()
     {
         ValueProperty.Changed.Subscribe(OnValueChanged);
+
+        MinProperty.Changed.Subscribe(e =>
+            ((NumberInput)e.Sender).CoerceValue(ValueProperty));
+
+        MaxProperty.Changed.Subscribe(e =>
+            ((NumberInput)e.Sender).CoerceValue(ValueProperty));
     }
 
     public NumberInput()

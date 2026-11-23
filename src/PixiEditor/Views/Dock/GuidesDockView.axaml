@@ -1,0 +1,99 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+    xmlns:avalonia="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
+    xmlns:commands="clr-namespace:PixiEditor.Models.Commands.Attributes.Commands"
+    xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+    xmlns:document="clr-namespace:PixiEditor.ViewModels.Document"
+    xmlns:dock="clr-namespace:PixiEditor.ViewModels.Dock"
+    xmlns:ui="clr-namespace:PixiEditor.Helpers.UI;assembly=PixiEditor.UI.Common"
+    xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+    xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+    xmlns:dock1="clr-namespace:PixiEditor.Views.Dock"
+    xmlns:input="clr-namespace:PixiEditor.Views.Input"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="450"
+    x:DataType="dock:GuidesDockViewModel"
+    x:Class="PixiEditor.Views.Dock.GuidesDockView">
+
+    <Design.DataContext>
+        <dock:GuidesDockViewModel />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="40, *">
+        <Panel Background="{DynamicResource ThemeBackgroundBrush1}">
+            <StackPanel Orientation="Horizontal" Margin="8" Spacing="8">
+                <CheckBox Classes="ImageCheckBoxNormal"
+                          localization:Translator.TooltipKey="TOGGLE_GUIDES_VISIBILITY_TOOLTIP"
+                          IsChecked="{Binding OverlayViewModel.IsEnabled, Mode=TwoWay}" />
+                <Button
+                    Command="{xaml:Command Name=PixiEditor.Document.DeleteAllGuides}"
+                    localization:Translator.TooltipKey="DELETE_ALL_GUIDES_TOOLTIP"
+                    Content="{DynamicResource icon-ruler-close}" Classes="pixi-icon" />
+            </StackPanel>
+        </Panel>
+        <ScrollViewer
+            Grid.Row="1"
+            VerticalScrollBarVisibility="Auto">
+            <Grid RowDefinitions="Auto,16,Auto" RowSpacing="8" Margin="8">
+                <Grid RowDefinitions="Auto,*">
+                    <DockPanel LastChildFill="False">
+                        <TextBlock
+                            Classes="h5"
+                            DockPanel.Dock="Left"
+                            localization:Translator.Key="VERTICAL_GUIDES_HEADING" />
+                        <Button
+                            Classes="pixi-icon"
+                            Command="{Binding GuidesSubViewModel.InsertVerticalGuide}"
+                            Content="{DynamicResource icon-plus-square}"
+                            DockPanel.Dock="Right" />
+                    </DockPanel>
+
+                    <ItemsControl
+                        ItemsSource="{Binding GuidesSubViewModel.VerticalGuides}"
+                        Grid.Row="1"
+                        Margin="0,8,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="document:GuideViewModel">
+                                <input:GuideItem Margin="0, 2"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+
+                <Separator Grid.Row="1"/>
+
+                <Grid Grid.Row="2" RowDefinitions="Auto,*">
+                    <DockPanel LastChildFill="False">
+                        <TextBlock
+                            Classes="h5"
+                            DockPanel.Dock="Left"
+                            localization:Translator.Key="HORIZONTAL_GUIDES_HEADING" />
+
+                        <Button
+                            Classes="pixi-icon"
+                            Command="{Binding GuidesSubViewModel.InsertHorizontalGuide}"
+                            Content="{DynamicResource icon-plus-square}"
+                            DockPanel.Dock="Right" />
+                    </DockPanel>
+                    <ItemsControl
+                        ItemsSource="{Binding GuidesSubViewModel.HorizontalGuides}"
+                        Grid.Row="1"
+                        Margin="0,8,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="document:GuideViewModel">
+                                <input:GuideItem Margin="0, 2"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

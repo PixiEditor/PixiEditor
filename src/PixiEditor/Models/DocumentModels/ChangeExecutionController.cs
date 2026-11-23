@@ -13,6 +13,7 @@ using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Events;
 using PixiEditor.ViewModels;
+using PixiEditor.Views.Overlays.Ruler;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels;
@@ -32,6 +33,7 @@ internal class ChangeExecutionController
     public bool IsChangeActive => currentSession is not null;
     public EditorData EditorData => GetEditorData();
 
+    public event Action ExecutorChanged;
     public event Action ToolSessionFinished;
 
     public IDocument Document => document;
@@ -116,10 +118,12 @@ internal class ChangeExecutionController
         currentSession = brandNewExecutor;
         if (brandNewExecutor.Start() == ExecutionState.Success)
         {
+            ExecutorChanged?.Invoke();
             return true;
         }
 
         currentSession = null;
+        ExecutorChanged?.Invoke();
         return false;
     }
 
@@ -231,6 +235,10 @@ internal class ChangeExecutionController
     {
         currentSession?.OnSymmetryDragged(info);
     }
+
+    public void GuideDragStartedInlet(Guid id) => currentSession?.OnGuideDragStarted(id);
+    public void GuideDragInlet(GuideDragInfo info) => currentSession?.OnGuideDragged(info);
+    public void GuideDragEndedInlet(Guid id) => currentSession?.OnGuideDragEnded(id);
 
     public void SymmetryDragEndedInlet(SymmetryAxisDirection dir) => currentSession?.OnSymmetryDragEnded(dir);
 

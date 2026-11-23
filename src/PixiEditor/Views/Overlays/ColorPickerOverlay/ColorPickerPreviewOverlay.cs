@@ -76,7 +76,7 @@ internal class ColorPickerPreviewOverlay : Overlay
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
         if (ColorSampler != null)
-            SampleAndCache(args.Point);
+            SampleAndCache(args.CanvasPoint);
         Refresh();
     }
 
@@ -92,7 +92,7 @@ internal class ColorPickerPreviewOverlay : Overlay
         _cachedPopupWidth = ColorPreviewSize + Padding * 3 + _cachedTextWidth;
     }
 
-    public override bool TestHit(VecD point) => false;
+    public override bool TestHit(VecD point, VecD viewportPoint) => false;
 
     private void DrawCheckerboard(Canvas context, float x, float y)
     {

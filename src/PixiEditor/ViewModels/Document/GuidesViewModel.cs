@@ -1,0 +1,128 @@
+﻿using System.Collections.ObjectModel;
+using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.Handlers;
+using PixiEditor.ViewModels.Document.TransformOverlays;
+
+namespace PixiEditor.ViewModels.Document;
+
+internal class GuidesViewModel : ViewModelBase, IGuidesHandler
+{
+    public IReadOnlyList<IGuideHandler> Guides => guides;
+    public IReadOnlyList<IGuideHandler> VerticalGuides => verticalGuides;
+    public IReadOnlyList<IGuideHandler> HorizontalGuides => horizontalGuides;
+
+    IEnumerable<IGuideHandler> IGuidesHandler.GuidesHandler => Guides;
+
+    private ObservableCollection<IGuideHandler> guides = new ObservableCollection<IGuideHandler>();
+    private ObservableCollection<IGuideHandler> verticalGuides = new ObservableCollection<IGuideHandler>();
+    private ObservableCollection<IGuideHandler> horizontalGuides = new ObservableCollection<IGuideHandler>();
+    private ISnappingHandler snappingHandler;
+
+    private DocumentInternalParts internals;
+    private GuidesOverlayViewModel overlayViewModel;
+
+    public GuidesViewModel(ISnappingHandler snappingHandler, GuidesOverlayViewModel overlayViewModel,
+        DocumentInternalParts documentInternals)
+    {
+        internals = documentInternals;
+        this.snappingHandler = snappingHandler;
+        this.overlayViewModel = overlayViewModel;
+    }
+
+    public void InsertVerticalGuide()
+    {
+        if (internals.ChangeController.IsBlockingChangeActive) return;
+
+        overlayViewModel.IsEnabled = true;
+        double offset = VerticalGuides.LastOrDefault()?.OffsetBindable + 1 ??
+                        internals.ChangeController.Document.SizeBindable.X / 2f;
+        if (VerticalGuides.Count >= 2)
+        {
+            var previous = VerticalGuides.ElementAtOrDefault(VerticalGuides.Count - 1);
+            var previousBeforePrevious = VerticalGuides.ElementAtOrDefault(VerticalGuides.Count - 2);
+            offset = previous.OffsetBindable + (previous.OffsetBindable - previousBeforePrevious.OffsetBindable);
+        }
+
+        internals.ActionAccumulator.AddFinishedActions(new AddGuide_Action(true, offset));
+    }
+
+    public void InsertHorizontalGuide()
+    {
+        if (internals.ChangeController.IsBlockingChangeActive) return;
+
+        overlayViewModel.IsEnabled = true;
+        double offset = HorizontalGuides.LastOrDefault()?.OffsetBindable + 1 ??
+                        internals.ChangeController.Document.SizeBindable.Y / 2f;
+        if (HorizontalGuides.Count >= 2)
+        {
+            var previous = HorizontalGuides.ElementAtOrDefault(HorizontalGuides.Count - 1);
+            var previousBeforePrevious = HorizontalGuides.ElementAtOrDefault(HorizontalGuides.Count - 2);
+            offset = previous.OffsetBindable + (previous.OffsetBindable - previousBeforePrevious.OffsetBindable);
+        }
+
+        internals.ActionAccumulator.AddFinishedActions(new AddGuide_Action(false, offset));
+    }
+
+    public void AddGuide(bool vertical, double offset)
+    {
+        if (internals.ChangeController.IsBlockingChangeActive) return;
+
+        internals.ActionAccumulator.AddFinishedActions(new AddGuide_Action(vertical, offset));
+    }
+
+    public void RemoveGuide(IGuideHandler guide)
+    {
+        if (internals.ChangeController.IsBlockingChangeActive) return;
+
+        internals.ActionAccumulator.AddFinishedActions(new RemoveGuide_Action(guide.Id));
+    }
+
+    public void AddGuideInternal(IGuideHandler guideViewModel)
+    {
+        guides.Add(guideViewModel);
+        string id = "guide_" + guideViewModel.Id;
+        snappingHandler.AddFromAxis(id, guideViewModel.IsVertical,
+            () => guideViewModel.OffsetBindable);
+        if (guideViewModel.IsVertical)
+        {
+            verticalGuides.Add(guideViewModel);
+            if (!overlayViewModel.IsEnabled)
+            {
+                snappingHandler.SnappingController.DisableVerticalStartingWith(id);
+            }
+
+            OnPropertyChanged(nameof(VerticalGuides));
+        }
+        else
+        {
+            horizontalGuides.Add(guideViewModel);
+            if (!overlayViewModel.IsEnabled)
+            {
+                snappingHandler.SnappingController.DisableHorizontalStartingWith(id);
+            }
+
+            OnPropertyChanged(nameof(HorizontalGuides));
+        }
+
+        OnPropertyChanged(nameof(Guides));
+    }
+
+    public void RemoveGuideInternal(IGuideHandler guide)
+    {
+        guides.Remove(guide);
+        if (guide.IsVertical)
+        {
+            verticalGuides.Remove(guide);
+            OnPropertyChanged(nameof(VerticalGuides));
+        }
+        else
+        {
+            horizontalGuides.Remove(guide);
+            OnPropertyChanged(nameof(HorizontalGuides));
+        }
+
+        snappingHandler.Remove("guide_" + guide.Id);
+        OnPropertyChanged(nameof(Guides));
+    }
+}

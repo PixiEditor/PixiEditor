@@ -6,7 +6,9 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using PixiEditor.Models.Controllers.InputDevice;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.Helpers;
+using PixiEditor.UI.Common.Localization;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Views.Overlays;
@@ -15,6 +17,25 @@ internal class SnappingOverlay : Overlay
 {
     public static readonly StyledProperty<SnappingController?> SnappingControllerProperty = AvaloniaProperty.Register<SnappingOverlay, SnappingController?>(
         nameof(SnappingController));
+
+    public static readonly StyledProperty<MeasurementUnit> MeasurementUnitProperty = AvaloniaProperty.Register<SnappingOverlay, MeasurementUnit>(
+        nameof(MeasurementUnit), ChangeableDocument.Changeables.MeasurementUnit.Pixels);
+
+    public static readonly StyledProperty<double> DpiProperty = AvaloniaProperty.Register<SnappingOverlay, double>(
+        nameof(Dpi), 300);
+
+    public double Dpi
+    {
+        get => GetValue(DpiProperty);
+        set => SetValue(DpiProperty, value);
+    }
+
+    public MeasurementUnit MeasurementUnit
+    {
+        get => GetValue(MeasurementUnitProperty);
+        set => SetValue(MeasurementUnitProperty, value);
+    }
+
 
     public SnappingController? SnappingController
     {
@@ -29,14 +50,23 @@ internal class SnappingOverlay : Overlay
     private Paint distanceTextPaint;
     private Font distanceFont = Font.CreateDefault();
 
+    private string currentUnitPostfix = "px";
+
     private const float startSize = 1;
     
     static SnappingOverlay()
     {
         AffectsRender<SnappingOverlay>(SnappingControllerProperty);
         SnappingControllerProperty.Changed.Subscribe(SnappingControllerChanged);
+        MeasurementUnitProperty.Changed.Subscribe(UnitChanged);
     }
-    
+
+    private static void UnitChanged(AvaloniaPropertyChangedEventArgs<MeasurementUnit> obj)
+    {
+        (obj.Sender as SnappingOverlay).currentUnitPostfix =
+            new LocalizedString(obj.NewValue.Value.ShortNameLocalizationKey).Value;
+    }
+
     public SnappingOverlay()
     {
         /*TODO: Theme variant is not present, that's why Dark is hardcoded*/        
@@ -101,10 +131,11 @@ internal class SnappingOverlay : Overlay
         distanceTextPaint.Style = PaintStyle.Stroke;
         distanceTextPaint.StrokeWidth = 2f / (float)ZoomScale;
 
-        context.DrawText($"{distance.Length.ToString("0.##", CultureInfo.CurrentCulture)} px", center + drawOffset, distanceFont, distanceTextPaint);
+        double unitValue = MeasurementUnit.FromPixels(distance.Length, (float)Dpi);
+        context.DrawText($"{unitValue.ToString("0.####", CultureInfo.CurrentCulture)} {currentUnitPostfix}", center + drawOffset, distanceFont, distanceTextPaint);
         distanceTextPaint.Color = Colors.White;
         distanceTextPaint.Style = PaintStyle.Fill;
-        context.DrawText($"{distance.Length.ToString("0.##", CultureInfo.CurrentCulture)} px", center + drawOffset, distanceFont, distanceTextPaint);
+        context.DrawText($"{unitValue.ToString("0.####", CultureInfo.CurrentCulture)} {currentUnitPostfix}", center + drawOffset, distanceFont, distanceTextPaint);
     }
 
     protected override void ZoomChanged(double newZoom)
