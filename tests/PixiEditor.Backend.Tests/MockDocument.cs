@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -18,6 +19,7 @@ public class MockDocument : IReadOnlyDocument
     public IReadOnlyNodeGraph NodeGraph { get; }
     public IReadOnlySelection Selection { get; }
     public IReadOnlyAnimationData AnimationData { get; }
+    public IReadOnlyCollection<IReadOnlyGuide> Guides { get; }
     public VecI Size { get; } = new VecI(16, 16);
     public bool HorizontalSymmetryAxisEnabled { get; }
     public bool VerticalSymmetryAxisEnabled { get; }
@@ -77,6 +79,9 @@ public class MockDocument : IReadOnlyDocument
     public DocumentRenderer Renderer { get; }
     public IReadOnlyBlackboard Blackboard { get; }
     public ColorSpace ProcessingColorSpace { get; }
+    public float Dpi { get; }
+    public MeasurementUnit MeasurementUnit { get; }
+
     public void InitProcessingColorSpace(ColorSpace processingColorSpace)
     {
         throw new NotImplementedException();
