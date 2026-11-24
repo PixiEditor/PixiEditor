@@ -116,6 +116,7 @@
             <system:String x:Key="icon-grid">&#xE94F;</system:String>
             <system:String x:Key="icon-grid-round">&#xE9D9;</system:String>
             <system:String x:Key="icon-gridlines">&#xE961;</system:String>
+            <system:String x:Key="icon-guides">&#xEA0B;</system:String>
             <system:String x:Key="icon-hand">&#xE9C9;</system:String>
             <system:String x:Key="icon-hard-drive">&#xE98C;</system:String>
             <system:String x:Key="icon-heart-handshake">&#xE902;</system:String>
@@ -201,6 +202,7 @@
             <system:String x:Key="icon-resize">&#xE96B;</system:String>
             <system:String x:Key="icon-rotate-view">&#xE96C;</system:String>
             <system:String x:Key="icon-ruler">&#xE9DF;</system:String>
+            <system:String x:Key="icon-ruler-close">&#xEA0A;</system:String>
             <system:String x:Key="icon-salad">&#xE9C7;</system:String>
             <system:String x:Key="icon-save">&#xE96E;</system:String>
             <system:String x:Key="icon-scan-search">&#xE9E5;</system:String>

@@ -103,6 +103,13 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
                 // internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)));
             }
+            else if (wasNull && toolbar.SyncWithPrimaryColor)
+            {
+                preventSettingsChange = true;
+                toolbar.StrokeBrush = new SolidColorBrush(colorHandler.PrimaryColor.ToColor());
+                toolbar.FillBrush = new SolidColorBrush(colorHandler.PrimaryColor.ToColor());
+                preventSettingsChange = false;
+            }
         }
         else
         {

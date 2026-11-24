@@ -7,8 +7,11 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
+using PixiEditor.UI.Common.Converters;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views;
+using PixiEditor.Views.Overlays.Ruler;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.ViewModels.Document;
@@ -205,6 +208,78 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument.EventInlet.OnSymmetryDragEnded(dir);
     }
 
+    [Command.Internal("PixiEditor.Document.CreateGuide", CanExecute = "PixiEditor.HasDocument",
+        AnalyticsTrack = true)]
+    public void CreateGuide((bool isVertical, double offset) args)
+    {
+        if (ActiveDocument is null)
+            return;
+
+        ActiveDocument.GuidesViewModel.AddGuide(args.isVertical, args.offset);
+    }
+
+    [Command.Basic("PixiEditor.Document.DeleteAllGuides", "DELETE_ALL_GUIDES", "DELETE_ALL_GUIDES_DESCRIPTIVE",
+        CanExecute = "PixiEditor.HasDocument",
+        AnalyticsTrack = true)]
+    public void DeleteAllGuides()
+    {
+        if (ActiveDocument is null)
+            return;
+
+        using var block = ActiveDocument.Operations.StartChangeBlock();
+        foreach (var guideHandler in ActiveDocument.GuidesViewModel.Guides)
+        {
+            ActiveDocument.GuidesViewModel.RemoveGuide(guideHandler);
+        }
+    }
+
+    [Command.Internal("PixiEditor.Document.RemoveGuide", CanExecute = "PixiEditor.HasDocument",
+        AnalyticsTrack = true)]
+    public void RemoveGuide(Guid id)
+    {
+        if (ActiveDocument is null)
+            return;
+
+        var guide = ActiveDocument.GuidesViewModel.Guides.FirstOrDefault(x => x.Id == id);
+        if (guide == null) return;
+
+        ActiveDocument.GuidesViewModel.RemoveGuide(guide);
+    }
+
+    [Command.Internal("PixiEditor.Document.StartDragGuide", CanExecute = "PixiEditor.HasDocument",
+        AnalyticsTrack = true)]
+    public void StartDragGuide(Guid id)
+    {
+        if (ActiveDocument is null || ActiveDocument.GuidesViewModel.Guides.All(x => x.Id != id))
+            return;
+
+        ActiveDocument.Tools.UseGuide(id);
+        ActiveDocument.EventInlet.OnGuideDragStarted(id);
+    }
+
+    [Command.Internal("PixiEditor.Document.DragGuide", CanExecute = "PixiEditor.HasDocument",
+        AnalyticsTrack = true)]
+    public void DragGuide(GuideDragInfo info)
+    {
+        if (ActiveDocument is null)
+            return;
+
+        ActiveDocument.EventInlet.OnGuideDragged(info);
+    }
+
+    [Command.Internal("PixiEditor.Document.EndDragGuide", CanExecute = "PixiEditor.HasDocument")]
+    public void EndDragGuide(Guid id)
+    {
+        if (ActiveDocument is null)
+            return;
+
+        ActiveDocument.EventInlet.OnGuideDragEnded(id);
+        // Restore move tool after ending the drag, so next handle can be dragged too
+        // Generally this might cause problems IF BeginDragGuide and EndDragGuide are not called when Move Tool is selected
+        // but this is a requirement for now and shouldn't happen. In any other case, this needs to be revised
+        ActiveDocument.Operations.TransformSelectedArea(true);
+    }
+
     [Command.Basic("PixiEditor.Document.DeleteSelected", "DELETE_SELECTED", "DELETE_SELECTED_DESCRIPTIVE",
         Key = Key.Delete,
         ShortcutContexts = [typeof(ViewportWindowViewModel)],
@@ -247,6 +322,11 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
             doc.Height,
             MainWindow.Current!,
             canvas);
+
+        dialog.Unit = new LocalizedString(doc.MeasurementUnitBindable.ShortNameLocalizationKey);
+        dialog.MeasurementConverterData = new MeasurementConverterData(() => doc.DpiBindable,
+            doc.MeasurementUnitBindable.FromPixels, doc.MeasurementUnitBindable.ToPixels, () => doc.MeasurementUnitBindable.Decimals);
+
         if (await dialog.ShowDialog())
         {
             if (canvas)
@@ -354,7 +434,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     public void AddDocumentReference(Guid documentId, Guid nodeId, string? originalPath, Guid docReferenceId)
     {
         var existingReference = documentReferences.FirstOrDefault(x =>
-             (!string.IsNullOrEmpty(originalPath) && x.OriginalFilePath == originalPath) || x.ReferenceId == docReferenceId);
+            (!string.IsNullOrEmpty(originalPath) && x.OriginalFilePath == originalPath) ||
+            x.ReferenceId == docReferenceId);
         if (existingReference != null)
         {
             existingReference.AddReferencingNode(documentId, nodeId);

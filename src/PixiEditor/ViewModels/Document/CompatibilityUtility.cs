@@ -36,6 +36,12 @@ internal static class CompatibilityUtility
             upgraders.Add(upgrader);
         }
 
+        // 2.2.0.5 is the first version that saves the corrected CPU Step semantics.
+        if (serializerVersion is not null && serializerVersion < new Version(2, 2, 0, 5))
+        {
+            new StepToGreaterThanConverter(viewModel).PerformImmediateCompatibilityConversion();
+        }
+
         return upgraders.ToArray();
     }
 

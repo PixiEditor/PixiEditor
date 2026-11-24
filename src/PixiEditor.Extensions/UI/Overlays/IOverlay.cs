@@ -13,7 +13,7 @@ public interface IOverlay
     public void PressPointer(OverlayPointerArgs args);
     public void ReleasePointer(OverlayPointerArgs args);
     public void Refresh();
-    public bool TestHit(VecD point);
+    public bool TestHit(VecD canvasPoint, VecD viewportPoint);
 
     public event PointerEvent PointerEnteredOverlay;
     public event PointerEvent PointerExitedOverlay;

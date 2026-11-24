@@ -31,6 +31,23 @@
         </Setter>
     </Style>
 
+    <Style Selector="CheckBox.ImageCheckBoxNormal">
+        <Setter Property="Content" Value="{DynamicResource icon-eye-off}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border Cursor="Hand" Background="{TemplateBinding Background}">
+                        <TextBlock Text="{TemplateBinding Content}" FontSize="24" Classes="pixi-icon" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style Selector="CheckBox.ImageCheckBoxNormal:checked">
+        <Setter Property="Content" Value="{DynamicResource icon-eye}" />
+    </Style>
+
     <Style Selector="CheckBox.ImageCheckBox">
         <Setter Property="Content" Value="{DynamicResource icon-eye-off}" />
         <Setter Property="Template">

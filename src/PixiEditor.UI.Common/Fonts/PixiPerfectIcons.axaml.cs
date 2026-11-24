@@ -112,6 +112,7 @@ public static partial class PixiPerfectIcons
     public const string Grid = "\uE94F";
     public const string GridRound = "\uE9D9";
     public const string Gridlines = "\uE961";
+    public const string Guides = "\uEA0B";
     public const string Hand = "\uE9C9";
     public const string HardDrive = "\uE98C";
     public const string HeartHandshake = "\uE902";
@@ -197,6 +198,7 @@ public static partial class PixiPerfectIcons
     public const string Resize = "\uE96B";
     public const string RotateView = "\uE96C";
     public const string Ruler = "\uE9DF";
+    public const string RulerClose = "\uEA0A";
     public const string Salad = "\uE9C7";
     public const string Save = "\uE96E";
     public const string ScanSearch = "\uE9E5";
