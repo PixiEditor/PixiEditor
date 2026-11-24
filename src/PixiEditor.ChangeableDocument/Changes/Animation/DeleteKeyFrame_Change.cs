@@ -63,7 +63,7 @@ internal class DeleteKeyFrame_Change : Change
         target.AnimationData.AddKeyFrame(clonedKeyFrame.Clone());
         List<IChangeInfo> changes =
         [
-            new CreateRasterKeyFrame_ChangeInfo(clonedKeyFrame.NodeId, clonedKeyFrame.StartFrame, clonedKeyFrame.Id,
+            new CreateCelKeyFrame_ChangeInfo(clonedKeyFrame.NodeId, clonedKeyFrame.StartFrame, clonedKeyFrame.Id,
                 false),
 
             new KeyFrameVisibility_ChangeInfo(clonedKeyFrame.Id, clonedKeyFrame.IsVisible),

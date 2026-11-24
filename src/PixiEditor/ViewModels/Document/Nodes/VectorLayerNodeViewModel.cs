@@ -77,7 +77,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
     {
         get
         {
-            var shapeData = GetShapeData(0);
+            var shapeData = GetShapeData(Document.AnimationDataViewModel.ActiveFrameTime);
             if (shapeData is LineVectorData)
             {
                 return PixiPerfectIcons.Line;
@@ -106,7 +106,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
 
     public IReadOnlyShapeVectorData? GetShapeData(KeyFrameTime frameTime)
     {
-        return ((IReadOnlyVectorNode)Internals.Tracker.Document.FindMember(Id))?.ShapeData;
+        return ((IReadOnlyVectorNode)Internals.Tracker.Document.FindMember(Id))?.GetShapeData(frameTime);
     }
 
     public void UpdateLayerTypeIcon()

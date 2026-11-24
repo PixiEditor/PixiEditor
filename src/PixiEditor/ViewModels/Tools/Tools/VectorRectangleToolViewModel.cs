@@ -93,4 +93,13 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
         OnDeselecting(false);
         OnToolSelected(false);
     }
+
+    public override void OnActiveFrameChanged(int newFrame)
+    {
+        OnDeselecting(false);
+        if (ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.AnimationDataViewModel.IsPlayingBindable == true)
+            return;
+
+        OnToolSelected(false);
+    }
 }

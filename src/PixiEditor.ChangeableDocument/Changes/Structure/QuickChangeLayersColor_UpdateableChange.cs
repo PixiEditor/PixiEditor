@@ -35,11 +35,11 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
             {
                 quickColorChangeable++;
                 originalColors ??= new Dictionary<Guid, Color?[]>();
-                originalColors[guid] = changeable.GetColors();
+                originalColors[guid] = changeable.GetColors(frame);
                 if (member is VectorLayerNode vectorNode)
                 {
                     originalShapes ??= new Dictionary<Guid, IReadOnlyShapeVectorData>();
-                    originalShapes[guid] = vectorNode.EmbeddedShapeData?.Clone() as IReadOnlyShapeVectorData;
+                    originalShapes[guid] = vectorNode.GetShapeAtFrame(frame)?.Clone() as IReadOnlyShapeVectorData;
                 }
             }
         }
@@ -62,7 +62,7 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
         {
             if (target.FindMember(guid) is IQuickColorChangeable quickColorChangeable)
             {
-                var changes = quickColorChangeable.ChangeColor(Color);
+                var changes = quickColorChangeable.ChangeColor(frame,Color);
                 if (changes != null)
                 {
                     changeInfos.AddRange(changes);
@@ -80,7 +80,7 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
         {
             if (target.FindMember(guid) is IQuickColorChangeable quickColorChangeable)
             {
-                var changes = quickColorChangeable.ChangeColor(Color);
+                var changes = quickColorChangeable.ChangeColor(frame,Color);
                 if (changes != null)
                 {
                     changeInfos.AddRange(changes);
@@ -99,12 +99,12 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
             var member = target.FindMember(guid);
             if (member is VectorLayerNode vectorNode)
             {
-                vectorNode.EmbeddedShapeData = originalShapes[guid]?.Clone();
+                vectorNode.SetShapeAtFrame(frame, originalShapes[guid]?.Clone());
                 changeInfos.Add(new VectorShape_ChangeInfo(guid, AffectedAreasUtility.GetTightLayerArea(member, frame)));
             }
             else if (member is IQuickColorChangeable quickColorChangeable && originalColors.TryGetValue(guid, out Color?[] colors))
             {
-                var changes = quickColorChangeable.ChangeColor(colors);
+                var changes = quickColorChangeable.ChangeColor(frame,colors);
                 if (changes != null)
                 {
                     changeInfos.AddRange(changes);

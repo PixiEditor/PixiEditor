@@ -78,10 +78,19 @@ internal partial class ExportFilePopup : PixiEditorPopup
     public static readonly StyledProperty<bool> FolderExportProperty = AvaloniaProperty.Register<ExportFilePopup, bool>(
         nameof(FolderExport));
 
+    public static readonly StyledProperty<int> ExportFrameProperty = AvaloniaProperty.Register<ExportFilePopup, int>(
+        nameof(ExportFrame));
+
     public bool FolderExport
     {
         get => GetValue(FolderExportProperty);
         set => SetValue(FolderExportProperty, value);
+    }
+
+    public int ExportFrame
+    {
+        get => GetValue(ExportFrameProperty);
+        set => SetValue(ExportFrameProperty, value);
     }
     public string SizeHint
     {
@@ -204,6 +213,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         SpriteSheetColumnsProperty.Changed.Subscribe(RerenderPreview);
         SpriteSheetRowsProperty.Changed.Subscribe(RerenderPreview);
         SelectedExportIndexProperty.Changed.Subscribe(RerenderPreview);
+        ExportFrameProperty.Changed.Subscribe(RerenderPreview);
         ExportOutputProperty.Changed.Subscribe(UpdateOutput);
     }
 
@@ -212,6 +222,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         SaveWidth = imageWidth;
         SaveHeight = imageHeight;
         QualityPresetValues = Enum.GetValues(typeof(QualityPreset));
+        ExportFrame = document.AnimationDataViewModel.ActiveFrameBindable;
 
         InitializeComponent();
 
@@ -323,9 +334,10 @@ internal partial class ExportFilePopup : PixiEditorPopup
                 }
 
                 VecI size = new VecI(SaveWidth, SaveHeight);
+                int frame = ExportFrame;
                 Task.Run(() =>
                 {
-                    var rendered = document.TryRenderWholeImage(0, size, exportOutput.OriginalSize,
+                    var rendered = document.TryRenderWholeImage(frame, size, exportOutput.OriginalSize,
                         exportOutput.Name);
                     if (rendered.IsT1)
                     {

@@ -6,6 +6,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.AnalyticsAPI;
@@ -561,11 +562,22 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public bool NeedsNewLayerForActiveTool()
     {
+        if (ActiveTool is ToolViewModel activeTool)
+        {
+            activeTool.CanDrawIntoActiveCel = CanDrawIntoVectorCel(activeTool, out _);
+        }
+
         return ActiveTool is not { CanBeUsedOnActiveLayer: true } && ActiveTool?.LayerTypeToCreateOnEmptyUse != null;
     }
 
     public bool NeedsNewAnimationKeyFrameForActiveTool()
     {
+        if (CanDrawIntoVectorCel(ActiveTool, out var vectorCelGroup))
+        {
+            return !vectorCelGroup.IsKeyFrameAt(Owner.DocumentManagerSubViewModel.ActiveDocument
+                .AnimationDataViewModel.ActiveFrameBindable);
+        }
+
         if (!TryGetAnimationGroup(out var animationGroupForLayer) ||
             ActiveTool?.LayerTypeToCreateOnEmptyUse != typeof(ImageLayerNode))
         {
@@ -610,6 +622,46 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
 
         return true;
+    }
+
+    private bool CanDrawIntoVectorCel(IToolHandler? tool, out ICelGroupHandler? celGroup)
+    {
+        celGroup = null;
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (activeDocument?.SelectedStructureMember is not VectorLayerNodeViewModel vectorLayer ||
+            tool?.LayerTypeToCreateOnEmptyUse != typeof(VectorLayerNode))
+        {
+            return false;
+        }
+
+        celGroup = activeDocument.AnimationDataViewModel.KeyFrames
+            .FirstOrDefault(x => x.LayerGuid == vectorLayer.Id && x.Id == vectorLayer.Id) as ICelGroupHandler;
+        if (celGroup is not { IsVisible: true })
+        {
+            return false;
+        }
+
+        if (!celGroup.IsKeyFrameAt(activeDocument.AnimationDataViewModel.ActiveFrameBindable))
+        {
+            return true;
+        }
+
+        var shape = vectorLayer.GetShapeData(activeDocument.AnimationDataViewModel.ActiveFrameTime);
+        return shape is null || shape is IReadOnlyTextData textData && string.IsNullOrEmpty(textData.Text.RawText);
+    }
+
+    private void UpdateVectorCelState()
+    {
+        if (ActiveToolSet is null)
+            return;
+
+        foreach (var toolHandler in ActiveToolSet.Tools)
+        {
+            if (toolHandler is ToolViewModel tool)
+            {
+                tool.CanDrawIntoActiveCel = CanDrawIntoVectorCel(tool, out _);
+            }
+        }
     }
 
     public void DeselectActiveTool()
@@ -1010,6 +1062,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             e.OldDocument.LayersChanged -= DocumentOnLayersChanged;
             e.OldDocument.MaskChanged -= DocumentOnMaskChanged;
             e.OldDocument.AnimationDataViewModel.ActiveFrameChanged -= ActiveFrameChanged;
+            e.OldDocument.AnimationDataViewModel.PropertyChanged -= AnimationDataOnPropertyChanged;
         }
 
         if (e.NewDocument is not null)
@@ -1018,6 +1071,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             e.NewDocument.LayersChanged += DocumentOnLayersChanged;
             e.NewDocument.MaskChanged += DocumentOnMaskChanged;
             e.NewDocument.AnimationDataViewModel.ActiveFrameChanged += ActiveFrameChanged;
+            e.NewDocument.AnimationDataViewModel.PropertyChanged += AnimationDataOnPropertyChanged;
             UpdateEnabledState();
         }
     }
@@ -1025,6 +1079,16 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     private void ActiveFrameChanged(int oldFrame, int newFrame)
     {
         UpdateActiveFrame(newFrame);
+        UpdateVectorCelState();
+    }
+
+    private void AnimationDataOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(AnimationDataViewModel.IsPlayingBindable) &&
+            sender is AnimationDataViewModel { IsPlayingBindable: false } animationData)
+        {
+            UpdateActiveFrame(animationData.ActiveFrameBindable);
+        }
     }
 
     private void DocumentOnLayersChanged(object? sender, LayersChangedEventArgs e)
@@ -1043,6 +1107,10 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             or nameof(DocumentViewModel.SoftSelectedStructureMembers))
         {
             UpdateEnabledState();
+        }
+        else if (e.PropertyName is nameof(DocumentViewModel.AllChangesSaved))
+        {
+            UpdateVectorCelState();
         }
     }
 
@@ -1075,5 +1143,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 tool.SelectedLayersChanged(selectedLayers.ToArray());
             }
         }
+
+        UpdateVectorCelState();
     }
 }

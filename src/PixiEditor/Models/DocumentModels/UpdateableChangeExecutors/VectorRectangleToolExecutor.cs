@@ -87,7 +87,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
         lastRect = rect;
 
         internals!.ActionAccumulator.AddActions(new SetShapeGeometry_Action(memberId, data,
-            VectorShapeChangeType.GeometryData));
+            VectorShapeChangeType.GeometryData, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     protected override IAction SettingsChangedAction(string name, object value)
@@ -111,7 +111,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
                 StrokeWidth = (float)StrokeWidth,
                 CornerRadius = toolViewModel.CornerRadius,
                 TransformationMatrix = lastMatrix
-            }, changeType);
+            }, changeType, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners)
@@ -152,7 +152,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
 
         lastMatrix = matrix;
 
-        return new SetShapeGeometry_Action(memberId, newData, VectorShapeChangeType.GeometryData);
+        return new SetShapeGeometry_Action(memberId, newData, VectorShapeChangeType.GeometryData, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction EndDrawAction()

@@ -132,7 +132,7 @@ internal class DeleteNode_Change : Change
             doc.AnimationData.AddKeyFrame(cloned);
             foreach (var keyFrame in savedKeyFrameGroup.Children)
             {
-                changes.Add(new CreateRasterKeyFrame_ChangeInfo(keyFrame.NodeId, keyFrame.StartFrame, keyFrame.Id,
+                changes.Add(new CreateCelKeyFrame_ChangeInfo(keyFrame.NodeId, keyFrame.StartFrame, keyFrame.Id,
                     false));
                 changes.Add(new KeyFrameLength_ChangeInfo(keyFrame.Id, keyFrame.StartFrame, keyFrame.Duration));
             }

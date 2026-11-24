@@ -37,7 +37,7 @@ internal abstract class ImageFileType : IoFileType
                 return new SaveResult(SaveResultType.CustomError, "ERR_EXPORT_SIZE_INVALID");
             }
 
-            var maybeBitmap = document.TryRenderWholeImage(0, exportSize, exportConfig.ExportOutput);
+            var maybeBitmap = document.TryRenderWholeImage(exportConfig.ExportFrame, exportSize, exportConfig.ExportOutput);
             if (maybeBitmap.IsT0)
                 return new SaveResult(SaveResultType.ConcurrencyError);
 
@@ -81,7 +81,7 @@ internal abstract class ImageFileType : IoFileType
                 return new SaveResult(SaveResultType.CustomError, "ERR_EXPORT_SIZE_INVALID");
             }
 
-            var maybeBitmap = document.TryRenderWholeImage(0, exportSize, config.ExportOutput);
+            var maybeBitmap = document.TryRenderWholeImage(config.ExportFrame, exportSize, config.ExportOutput);
             if (maybeBitmap.IsT0)
                 return new SaveResult(SaveResultType.ConcurrencyError);
 

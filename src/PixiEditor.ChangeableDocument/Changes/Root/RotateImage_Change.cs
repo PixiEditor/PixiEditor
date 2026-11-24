@@ -6,6 +6,8 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
+using PixiEditor.ChangeableDocument.Changes.Drawing;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -14,7 +16,7 @@ internal sealed class RotateImage_Change : Change
     private readonly RotationAngle rotation;
     private List<Guid> membersToRotate;
 
-    private Dictionary<Guid, Matrix3X3> originalTransformations = new();
+    private Dictionary<Guid, Matrix3X3[]> originalTransformations = new();
 
     private VecI originalSize;
     private double originalHorAxisY;
@@ -28,7 +30,7 @@ internal sealed class RotateImage_Change : Change
     {
         this.rotation = rotation;
         membersToRotate ??= new List<Guid>();
-        originalTransformations = new Dictionary<Guid, Matrix3X3>();
+        originalTransformations = new Dictionary<Guid, Matrix3X3[]>();
         this.membersToRotate = membersToRotate;
         this.frame = frame < 0 ? null : frame;
     }
@@ -180,12 +182,16 @@ internal sealed class RotateImage_Change : Change
                     if (tightBounds is null)
                         return;
 
-                    originalTransformations[member.Id] = transformableObject.TransformationMatrix;
-
-                    transformableObject.TransformationMatrix = transformableObject.TransformationMatrix.PostConcat(
+                    originalTransformations[member.Id] = transformableObject.GetAllTransformationMatrices();
+                    int targetFrame = frame ?? 0;
+                    changes.Add(new VectorShape_ChangeInfo(member.Id,
+                        ShiftLayer_UpdateableChange.AffectedAreaFromBounds(target, member.Id, targetFrame)));
+                    transformableObject.SetTransformationMatrix(targetFrame, transformableObject.GetTransformationMatrix(targetFrame).PostConcat(
                         Matrix3X3.CreateRotation(
                             RotationAngleToRadians(rotation),
-                            (float?)tightBounds?.Center.X ?? 0, (float?)tightBounds?.Center.Y ?? 0));
+                            (float?)tightBounds?.Center.X ?? 0, (float?)tightBounds?.Center.Y ?? 0)));
+                    changes.Add(new VectorShape_ChangeInfo(member.Id,
+                        ShiftLayer_UpdateableChange.AffectedAreaFromBounds(target, member.Id, targetFrame)));
                 }
 
                 if (member.EmbeddedMask is null)
@@ -197,7 +203,7 @@ internal sealed class RotateImage_Change : Change
 
         return changes;
     }
-
+    
     private OneOf<None, IChangeInfo, List<IChangeInfo>> RotateWholeImage(Document target)
     {
         int newWidth = rotation == RotationAngle.D180 ? target.Size.X : target.Size.Y;
@@ -236,15 +242,13 @@ internal sealed class RotateImage_Change : Change
             {
                 if (member is ITransformableObject transformableObject)
                 {
-                    RectD? tightBounds = member.GetTightBounds(0);
-                    if (tightBounds is null)
-                        return;
+                    RectD? tightBounds = member.GetTightBounds(frame ?? 0);
 
-                    originalTransformations[member.Id] = transformableObject.TransformationMatrix;
+                    originalTransformations[member.Id] = transformableObject.GetAllTransformationMatrices();
 
                     float radians = RotationAngleToRadians(rotation);
 
-                    VecD objectCenter = new VecD((float)tightBounds.Value.Center.X, (float)tightBounds.Value.Center.Y);
+                    VecD objectCenter = tightBounds?.Center ?? imageCenterOld;
 
                     var rotationMatrix =
                         Matrix3X3.CreateRotation(radians, (float)objectCenter.X, (float)objectCenter.Y);
@@ -264,9 +268,17 @@ internal sealed class RotateImage_Change : Change
                     VecD delta = newObjectCenter - objectCenter;
                     var translationMatrix = Matrix3X3.CreateTranslation(delta.X, delta.Y);
 
-                    transformableObject.TransformationMatrix =
-                        transformableObject.TransformationMatrix.PostConcat(rotationMatrix)
-                            .PostConcat(translationMatrix);
+                    if (frame != null)
+                    {
+                        transformableObject.SetTransformationMatrix(frame.Value,
+                        transformableObject.GetTransformationMatrix(frame.Value)
+                            .PostConcat(rotationMatrix)
+                            .PostConcat(translationMatrix));
+                    } else
+                    {
+                        transformableObject.SetAllTransformationMatrices(originalTransformations[member.Id]
+                            .Select(m => m.PostConcat(rotationMatrix).PostConcat(translationMatrix)).ToArray());
+                    }
                 }
             }
 
@@ -278,9 +290,10 @@ internal sealed class RotateImage_Change : Change
 
         return new Size_ChangeInfo(newSize, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
     }
-
+    
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
+        List<IChangeInfo> vectorChanges = new List<IChangeInfo>();
         if (originalTransformations.Count > 0)
         {
             foreach (var item in originalTransformations)
@@ -293,7 +306,11 @@ internal sealed class RotateImage_Change : Change
                 var memberNode = target.FindMember(member);
                 if (memberNode is ITransformableObject transformableObject)
                 {
-                    transformableObject.TransformationMatrix = item.Value;
+                    vectorChanges.Add(new VectorShape_ChangeInfo(member,
+                        ShiftLayer_UpdateableChange.AffectedAreaFromBounds(target, member, frame ?? 0)));
+                    transformableObject.SetAllTransformationMatrices(item.Value);
+                    vectorChanges.Add(new VectorShape_ChangeInfo(member,
+                        ShiftLayer_UpdateableChange.AffectedAreaFromBounds(target, member, frame ?? 0)));
                 }
             }
         }
@@ -303,7 +320,9 @@ internal sealed class RotateImage_Change : Change
             return RevertRotateWholeImage(target);
         }
 
-        return RevertRotateMembers(target);
+        var revertChanges = RevertRotateMembers(target);
+        revertChanges.AddRange(vectorChanges);
+        return revertChanges;
     }
 
     private OneOf<None, IChangeInfo, List<IChangeInfo>> RevertRotateWholeImage(Document target)

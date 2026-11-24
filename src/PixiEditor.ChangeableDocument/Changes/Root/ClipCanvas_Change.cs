@@ -59,9 +59,11 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
             }
             else if (member is ITransformableObject transformableObject)
             {
-                originalTransformations[member.Id] = transformableObject.TransformationMatrix;
+                var originals = transformableObject.GetAllTransformationMatrices();
+                originalTransformations[member.Id] = originals;
                 VecD floor = new VecD(-(float)newBounds.Pos.X, -(float)newBounds.Pos.Y);
-                transformableObject.TransformationMatrix = transformableObject.TransformationMatrix.PostConcat(Matrix3X3.CreateTranslation((float)floor.X, (float)floor.Y));
+                var translation = Matrix3X3.CreateTranslation((float)floor.X, (float)floor.Y);
+                transformableObject.SetAllTransformationMatrices(originals.Select(m => m.PostConcat(translation)).ToArray());
             }
 
             if (member.EmbeddedMask is null)

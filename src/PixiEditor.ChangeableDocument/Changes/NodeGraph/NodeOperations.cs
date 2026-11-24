@@ -71,6 +71,11 @@ public static class NodeOperations
             node = (Node)Activator.CreateInstance(nodeType, optionalParameters);
         }
 
+        if (node is ICelLayer celLayer)
+        {
+            celLayer.FallbackAnimationToLayerImage = target.AnimationData?.FallbackAnimationToLayerImage ?? false;
+        }
+
         return node;
     }
 

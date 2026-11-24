@@ -146,6 +146,7 @@ internal class ExportFileDialog : CustomDialog
             ExportConfig.ExportSize = new VecI(FileWidth, FileHeight);
             ExportConfig.ExportOutput = ExportOutput.Name;
             ExportConfig.ExportFramesToFolder = popup.FolderExport;
+            ExportConfig.ExportFrame = popup.ExportFrame;
             ExportConfig.AnimationRenderer = new FFMpegRenderer()
             {
                 Size = new VecI(FileWidth, FileHeight),

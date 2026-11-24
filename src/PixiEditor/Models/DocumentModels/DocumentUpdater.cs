@@ -159,8 +159,8 @@ internal class DocumentUpdater
             case ClearSoftSelectedMembers_PassthroughAction info:
                 ProcessClearSoftSelectedMembers(info);
                 break;
-            case CreateRasterKeyFrame_ChangeInfo info:
-                ProcessCreateRasterKeyFrame(info);
+            case CreateCelKeyFrame_ChangeInfo info:
+                ProcessCreateCelKeyFrame(info);
                 break;
             case DeleteKeyFrame_ChangeInfo info:
                 ProcessDeleteKeyFrame(info);
@@ -615,26 +615,40 @@ internal class DocumentUpdater
         doc.AnimationHandler.SetPlayingState(info.Play);
     }
 
-    private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)
+    private void ProcessCreateCelKeyFrame(CreateCelKeyFrame_ChangeInfo info)
     {
         if (info.Frame <= 0) return;
 
-        var vm = new RasterCelViewModel(info.TargetLayerGuid, info.Frame, 1,
+        var vm = new LayerCelViewModel(info.TargetLayerGuid, info.Frame, 1,
             info.KeyFrameId,
             (DocumentViewModel)doc, helper);
 
         doc.AnimationHandler.AddKeyFrame(vm);
         doc.InternalRaiseKeyFrameCreated(vm);
+        UpdateVectorLayerIcons();
     }
 
     private void ProcessDeleteKeyFrame(DeleteKeyFrame_ChangeInfo info)
     {
         doc.AnimationHandler.RemoveKeyFrame(info.DeletedKeyFrameId);
+        UpdateVectorLayerIcons();
     }
 
     private void ProcessActiveFrame(SetActiveFrame_PassthroughAction info)
     {
         doc.AnimationHandler.SetActiveFrame(info.Frame);
+        UpdateVectorLayerIcons();
+    }
+
+    private void UpdateVectorLayerIcons()
+    {
+        foreach (var layer in doc.StructureHelper.GetAllLayers())
+        {
+            if (layer is IVectorLayerHandler vectorLayerHandler)
+            {
+                vectorLayerHandler.UpdateLayerTypeIcon();
+            }
+        }
     }
 
     private void ProcessNewDefaultEndFrame(DefaultEndFrame_ChangeInfo info)
@@ -645,6 +659,7 @@ internal class DocumentUpdater
     private void ProcessKeyFrameLength(KeyFrameLength_ChangeInfo info)
     {
         doc.AnimationHandler.SetCelLength(info.KeyFrameGuid, info.StartFrame, info.Duration);
+        UpdateVectorLayerIcons();
     }
 
     private void ProcessKeyFrameVisibility(KeyFrameVisibility_ChangeInfo info)
@@ -1188,7 +1203,7 @@ internal class DocumentUpdater
     private void ProcessVectorShape(VectorShape_ChangeInfo info)
     {
         IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.LayerId);
-        if (member is IVectorLayerHandler vectorLayerHandler)
+        if (info.UpdatePreviews && member is IVectorLayerHandler vectorLayerHandler)
         {
             vectorLayerHandler.UpdateLayerTypeIcon();
         }

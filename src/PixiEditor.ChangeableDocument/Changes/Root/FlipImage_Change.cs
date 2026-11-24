@@ -5,6 +5,8 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
+using PixiEditor.ChangeableDocument.Changes.Drawing;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -113,11 +115,13 @@ internal sealed class FlipImage_Change : Change
                 {
                     RectD? tightBounds = member.GetTightBounds(frame);
                     if(tightBounds == null) return;
-                    transformableObject.TransformationMatrix = transformableObject.TransformationMatrix.PostConcat(
+                    transformableObject.SetTransformationMatrix(frame, transformableObject.GetTransformationMatrix(frame).PostConcat(
                         Matrix3X3.CreateScale(
                             flipType == FlipType.Horizontal ? -1 : 1,
                             flipType == FlipType.Vertical ? -1 : 1, 
-                            (float)tightBounds.Value.Center.X, (float)tightBounds.Value.Center.Y));
+                            (float)tightBounds.Value.Center.X, (float)tightBounds.Value.Center.Y)));
+                    changes.Add(new VectorShape_ChangeInfo(member.Id,
+                        ShiftLayer_UpdateableChange.AffectedAreaFromBounds(target, member.Id, frame)));
                 }
 
                 if (member.EmbeddedMask is not null)

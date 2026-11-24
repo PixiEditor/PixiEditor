@@ -47,9 +47,10 @@ internal class Crop_Change : ResizeBasedChangeBase
             }
             else if (member is ITransformableObject transformable)
             {
-                originalTransformations[member.Id] = transformable.TransformationMatrix;
+                var originals = transformable.GetAllTransformationMatrices();
+                originalTransformations[member.Id] = originals;
                 Matrix3X3 newMatrix = Matrix3X3.CreateTranslation(offset.X, offset.Y);
-                transformable.TransformationMatrix = newMatrix.Concat(transformable.TransformationMatrix);
+                transformable.SetAllTransformationMatrices(originals.Select(m => newMatrix.Concat(m)).ToArray());
             }
 
             if (member.EmbeddedMask is null)

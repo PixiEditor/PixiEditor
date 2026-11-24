@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 
 namespace PixiEditor.ChangeableDocument.Changes.Animation;
@@ -26,9 +27,9 @@ internal class SetFallbackAnimationToLayerImage_Change : Change
 
         target.NodeGraph.TryTraverse(x =>
         {
-            if (x is ImageLayerNode imgLayerNode)
+            if (x is ICelLayer celLayer)
             {
-                imgLayerNode.FallbackAnimationToLayerImage = FallbackToLayerImage;
+                celLayer.FallbackAnimationToLayerImage = FallbackToLayerImage;
             }
         });
 
@@ -41,9 +42,9 @@ internal class SetFallbackAnimationToLayerImage_Change : Change
 
         target.NodeGraph.TryTraverse(x =>
         {
-            if (x is ImageLayerNode imgLayerNode)
+            if (x is ICelLayer celLayer)
             {
-                imgLayerNode.FallbackAnimationToLayerImage = !FallbackToLayerImage;
+                celLayer.FallbackAnimationToLayerImage = !FallbackToLayerImage;
             }
         });
 

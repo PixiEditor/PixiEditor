@@ -8,12 +8,16 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
+using PixiEditor.ChangeableDocument.Changes.Animation;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 
 namespace PixiEditor.ChangeableDocument.Changes.Text;
 
 internal class ExtractSelectedText_Change : Change
 {
     private readonly Guid memberId;
+    private readonly int frame;
     private Guid[] newLayerIds;
     private bool extractEachCharacter = false;
     private int selectionStart;
@@ -27,12 +31,14 @@ internal class ExtractSelectedText_Change : Change
         Guid memberId,
         int selectionStart,
         int selectionEnd,
-        bool extractEachCharacter)
+        bool extractEachCharacter,
+        int frame)
     {
         this.memberId = memberId;
         this.selectionStart = selectionStart;
         this.selectionEnd = selectionEnd;
         this.extractEachCharacter = extractEachCharacter;
+        this.frame = frame;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -44,7 +50,7 @@ internal class ExtractSelectedText_Change : Change
             return false;
         }
 
-        if (node.EmbeddedShapeData is not TextVectorData textData)
+        if (node.GetShapeAtFrame(frame) is not TextVectorData textData)
         {
             return false;
         }
@@ -90,7 +96,7 @@ internal class ExtractSelectedText_Change : Change
 
         var node = target.FindNodeOrThrow<VectorLayerNode>(memberId);
 
-        if (node.EmbeddedShapeData is not TextVectorData textData)
+        if (node.GetShapeAtFrame(frame) is not TextVectorData textData)
         {
             throw new InvalidOperationException("Node does not contain TextVectorData.");
         }
@@ -103,7 +109,7 @@ internal class ExtractSelectedText_Change : Change
 
             if (index == 0)
             {
-                if (node.EmbeddedShapeData is TextVectorData textVectorData)
+                if (node.GetShapeAtFrame(frame) is TextVectorData textVectorData)
                 {
                     textVectorData.Text = subdivision.text;
                     textVectorData.TransformationMatrix =
@@ -120,7 +126,7 @@ internal class ExtractSelectedText_Change : Change
                 continue;
             }
 
-            if (node.EmbeddedShapeData.Clone() is not TextVectorData data)
+            if (textData.Clone() is not TextVectorData data)
             {
                 throw new InvalidOperationException("Failed to clone TextVectorData.");
             }
@@ -159,11 +165,12 @@ internal class ExtractSelectedText_Change : Change
             data.TransformationMatrix =
                 textData.TransformationMatrix.PostConcat(Matrix3X3.CreateTranslation(subdivision.offset.X,
                     subdivision.offset.Y));
-            newNode.EmbeddedShapeData = data;
+            newNode.SetOnlyShapeAtFrame(frame, data);
 
             target.NodeGraph.AddNode(newNode);
 
             changes.Add(CreateLayer_ChangeInfo.FromLayer(newNode));
+            changes.AddRange(CreateAnimationDataFromLayer_Change.CreateTimelineRow(target, newNode));
             changes.AddRange(NodeOperations.AppendMember(node, newNode, out var positions));
 
             foreach (var position in positions)
@@ -179,7 +186,7 @@ internal class ExtractSelectedText_Change : Change
     {
         var node = target.FindNodeOrThrow<VectorLayerNode>(memberId);
 
-        if (node.EmbeddedShapeData is not TextVectorData textData)
+        if (node.GetShapeAtFrame(frame) is not TextVectorData textData)
         {
             throw new InvalidOperationException("Node does not contain TextVectorData.");
         }
@@ -205,6 +212,11 @@ internal class ExtractSelectedText_Change : Change
 
             if (newNode != null)
             {
+                if (target.AnimationData.TryFindKeyFrame<GroupKeyFrame>(newLayerId, out _))
+                {
+                    target.AnimationData.RemoveKeyFrame(newLayerId);
+                    changes.Add(new DeleteKeyFrame_ChangeInfo(newLayerId));
+                }
                 changes.AddRange(NodeOperations.DetachStructureNode(newNode));
                 changes.Add(new DeleteStructureMember_ChangeInfo(newLayerId));
 

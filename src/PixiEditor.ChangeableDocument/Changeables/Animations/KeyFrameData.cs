@@ -59,7 +59,7 @@ public class KeyFrameData : IDisposable, IReadOnlyKeyFrameData
 
     public KeyFrameData Clone(bool newGuid = false)
     {
-        if (Data is not ICloneable && !Data.GetType().IsValueType && Data is not string)
+        if (Data != null && Data is not ICloneable && !Data.GetType().IsValueType && Data is not string)
         {
             throw new InvalidOperationException("Data must be ICloneable, ValueType or string to be cloned");
         }
