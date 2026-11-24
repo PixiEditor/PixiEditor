@@ -1,0 +1,32 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
+             xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:dock="clr-namespace:PixiEditor.ViewModels.Dock"
+             xmlns:document="clr-namespace:PixiEditor.ViewModels.Document"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:properties="clr-namespace:PixiEditor.ViewModels.Document.Properties"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="dock:PropertiesDockViewModel"
+             x:Class="PixiEditor.Views.Dock.PropertiesDockView">
+    <Design.DataContext>
+        <dock:PropertiesDockViewModel />
+    </Design.DataContext>
+
+    <StackPanel Orientation="Vertical">
+        <TextBlock localization:Translator.LocalizedString="{Binding ObjectTitle}"/>
+        <ItemsControl ItemsSource="{Binding Properties}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type properties:PropertyViewModel}">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock localization:Translator.Key="{Binding Label}" />
+                        <ContentControl Content="{Binding}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>

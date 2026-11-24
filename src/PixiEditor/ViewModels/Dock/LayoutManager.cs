@@ -80,6 +80,9 @@ internal class LayoutManager
         NodeGraphDockViewModel nodeGraphDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
 
         GuidesDockViewModel guidesDockViewModel = new GuidesDockViewModel(mainViewModel.DocumentManagerSubViewModel);
+
+        PropertiesDockViewModel propertiesDockViewModel = new PropertiesDockViewModel(mainViewModel.DocumentManagerSubViewModel);
+
         /*
         ChannelsDockViewModel channelsDockDockViewModel = new(mainViewModel.WindowSubViewModel);
         */
@@ -99,6 +102,7 @@ internal class LayoutManager
         RegisterDockable(paletteViewerDockViewModel);
         RegisterDockable(timelineDockViewModel);
         RegisterDockable(nodeGraphDockViewModel);
+        RegisterDockable(propertiesDockViewModel);
         RegisterDockable(guidesDockViewModel);
         /*
         RegisterDockable(channelsDockDockViewModel);
@@ -152,7 +156,11 @@ internal class LayoutManager
                     Second = new DockableArea
                     {
                         Id = "DocumentPreviewArea",
-                        ActiveDockable = DockContext.CreateDockable(documentPreviewDockViewModel)
+                        Dockables =
+                        [
+                            DockContext.CreateDockable(documentPreviewDockViewModel),
+                            DockContext.CreateDockable(propertiesDockViewModel)
+                        ],
                     }
                 }
             }

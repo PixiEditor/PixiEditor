@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using ChunkyImageLib.DataHolders;
@@ -44,6 +45,7 @@ using PixiEditor.UI.Common.Converters;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.Nodes.Workspace;
+using PixiEditor.ViewModels.Document.Properties;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
@@ -53,7 +55,7 @@ using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 namespace PixiEditor.ViewModels.Document;
 
 #nullable enable
-internal partial class DocumentViewModel : PixiObservableObject, IDocument
+internal partial class DocumentViewModel : PixiObservableObject, IDocument, IPropertiesObject
 {
     public event EventHandler<LayersChangedEventArgs>? LayersChanged;
     public event EventHandler<MaskChangedEventArgs>? MaskChanged;
@@ -294,6 +296,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
     IContextualOptionsHandler IDocument.ContextualOptionsHandler => ContextualOptionsViewModel;
+
+    public LocalizedString LabelKey => FileName;
+    public IReadOnlyCollection<PropertyViewModel> Properties => new List<PropertyViewModel> { widthProp, heightProp };
+
+    private NumberPropertyViewModel widthProp;
+    private NumberPropertyViewModel heightProp;
+
     IRulerOverlayHandler IDocument.RulerOverlayHandler => RulerOverlayViewModel;
     public bool UsesSrgbBlending { get; private set; }
 
@@ -310,7 +319,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         var serviceProvider = ViewModelMain.Current.Services;
         Internals = new DocumentInternalParts(this, serviceProvider);
-
         InitializeViewModel();
     }
 
@@ -424,6 +432,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         Renderer = new DocumentRenderer(Internals.Tracker.Document);
         SceneRenderer = new SceneRenderer(Internals.Tracker.Document, this);
+
+        InitializeProperties();
     }
 
     private void UpdateGuidesEditingState()
@@ -1379,6 +1389,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         OnPropertyChanged(nameof(Height));
 
         // TODO: Make sure this is correct, it was in InternalRaiseSizeChanged previously, check DocumentUpdater.cs ProcessSize
+        widthProp?.Value = size.X;
+        heightProp?.Value = size.Y;
         SizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(this, oldSize, size));
     }
 
@@ -1746,5 +1758,18 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public void SubscribeKeyFrameReadyToUseOnce(Action action)
     {
         queuedKeyFrameReadyToUseActions.Enqueue(action);
+    }
+
+    private void InitializeProperties()
+    {
+        widthProp = new NumberPropertyViewModel("Width", "WIDTH", null, Width)
+        {
+            IsReadOnly = true
+        };
+
+        heightProp = new NumberPropertyViewModel("Height", "HEIGHT", null, Height)
+        {
+            IsReadOnly = true
+        };
     }
 }

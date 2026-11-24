@@ -1,10 +1,16 @@
-﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+﻿
+using System.ComponentModel;
+using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Changes.Vectors;
 using PixiEditor.Models.Handlers;
+using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.Document.Properties;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ViewModels.Tools.Tools;
 
@@ -12,9 +18,17 @@ namespace PixiEditor.ViewModels.Document.Nodes;
 
 [NodeViewModel("VECTOR_LAYER", "STRUCTURE", PixiPerfectIcons.VectorPen)]
 internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNode>, IVectorLayerHandler,
-    ITransformableMemberHandler
+    IPropertiesObject, ITransformableMemberHandler
 {
-    private Dictionary<Type, Type> quickToolsMap = new Dictionary<Type, Type>()
+    public LocalizedString LabelKey => DisplayName;
+    public IReadOnlyCollection<PropertyViewModel> Properties { get; set; } = new List<PropertyViewModel>();
+
+    private Type? lastVectorType;
+    private IReadOnlyVectorNode? cachedNode;
+
+    private Dictionary<string, PropertyViewModel> properties = new();
+
+    private readonly Dictionary<Type, Type> quickToolsMap = new()
     {
         { typeof(IReadOnlyEllipseData), typeof(VectorEllipseToolViewModel) },
         { typeof(IReadOnlyRectangleData), typeof(VectorRectangleToolViewModel) },
@@ -23,7 +37,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         { typeof(IReadOnlyPathData), typeof(VectorPathToolViewModel) }
     };
 
-    bool lockTransparency;
+    private bool lockTransparency;
 
     public void SetLockTransparency(bool lockTransparency)
     {
@@ -41,7 +55,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         }
     }
 
-    private bool shouldDrawOnMask = false;
+    private bool shouldDrawOnMask;
 
     public bool ShouldDrawOnMask
     {
@@ -50,6 +64,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         {
             if (value == shouldDrawOnMask)
                 return;
+
             shouldDrawOnMask = value;
             OnPropertyChanged(nameof(ShouldDrawOnMask));
         }
@@ -78,45 +93,246 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         get
         {
             var shapeData = GetShapeData(0);
-            if (shapeData is LineVectorData)
-            {
-                return PixiPerfectIcons.Line;
-            }
 
-            if (shapeData is TextVectorData)
+            return shapeData switch
             {
-                return PixiPerfectIcons.TextAntialiased;
-            }
-
-            if (shapeData is RectangleVectorData)
-            {
-                return PixiPerfectIcons.Square;
-            }
-
-            if (shapeData is EllipseVectorData)
-            {
-                return PixiPerfectIcons.Circle;
-            }
-
-            return PixiPerfectIcons.Tangent;
+                LineVectorData => PixiPerfectIcons.Line,
+                TextVectorData => PixiPerfectIcons.TextAntialiased,
+                RectangleVectorData => PixiPerfectIcons.Square,
+                EllipseVectorData => PixiPerfectIcons.Circle,
+                _ => PixiPerfectIcons.Tangent
+            };
         }
     }
 
     public bool CanLockTransparency { get; } = false;
 
-    public IReadOnlyShapeVectorData? GetShapeData(KeyFrameTime frameTime)
+    public VectorLayerNodeViewModel()
     {
-        return ((IReadOnlyVectorNode)Internals.Tracker.Document.FindMember(Id))?.ShapeData;
     }
 
-    public void UpdateLayerTypeIcon()
+    private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        OnPropertyChanged(nameof(LayerTypeIcon));
+        if (e.PropertyName == nameof(DocumentViewModel.MeasurementConversionData) ||
+            e.PropertyName == nameof(DocumentViewModel.MeasurementUnitBindable))
+        {
+            UpdateProperties();
+        }
+    }
+
+    private void RecreateProperties()
+    {
+        if (Document == null)
+            return;
+
+        Document.PropertyChanged -= DocumentOnPropertyChanged;
+        Document.PropertyChanged += DocumentOnPropertyChanged;
+
+        properties = new Dictionary<string, PropertyViewModel>();
+
+        var shapeData = GetShapeData(Document.AnimationDataViewModel.ActiveFrameBindable);
+
+        switch (shapeData)
+        {
+            case RectangleVectorData rectangle:
+                AddVectorProperties(
+                    "Center",
+                    "X",
+                    "Y",
+                    rectangle.Center,
+                    data => ((RectangleVectorData)data).Center,
+                    (data, value) => ((RectangleVectorData)data).Center = value);
+
+                AddSizeProperty(
+                    "Width",
+                    "WIDTH",
+                    rectangle.Size.X,
+                    (data, value) =>
+                    {
+                        var rectangleData = (RectangleVectorData)data;
+                        rectangleData.Size = new VecD(value, rectangleData.Size.Y);
+                    });
+
+                AddSizeProperty(
+                    "Height",
+                    "HEIGHT",
+                    rectangle.Size.Y,
+                    (data, value) =>
+                    {
+                        var rectangleData = (RectangleVectorData)data;
+                        rectangleData.Size = new VecD(rectangleData.Size.X, value);
+                    });
+                break;
+
+            case LineVectorData line:
+                AddVectorProperties(
+                    "Start",
+                    "X",
+                    "Y",
+                    line.Start,
+                    data => ((LineVectorData)data).Start,
+                    (data, value) => ((LineVectorData)data).Start = value);
+
+                AddVectorProperties(
+                    "End",
+                    "X",
+                    "Y",
+                    line.End,
+                    data => ((LineVectorData)data).End,
+                    (data, value) => ((LineVectorData)data).End = value);
+                break;
+
+            case EllipseVectorData ellipse:
+                AddVectorProperties(
+                    "Center",
+                    "X",
+                    "Y",
+                    ellipse.Center,
+                    data => ((EllipseVectorData)data).Center,
+                    (data, value) => ((EllipseVectorData)data).Center = value);
+                AddVectorProperties("Radius", "RADIUS_X", "RADIUS_Y", ellipse.Radius,
+                    data => ((EllipseVectorData)data).Radius,
+                    (data, value) => ((EllipseVectorData)data).Radius = value);
+                break;
+
+            case TextVectorData text:
+                break;
+        }
+
+        Properties = properties.Values;
+    }
+
+    private void AddVectorProperties(
+        string prefix,
+        string xLocalizationKey,
+        string yLocalizationKey,
+        VecD value,
+        Func<ShapeVectorData, VecD> getter,
+        Action<ShapeVectorData, VecD> setter)
+    {
+        AddSizeProperty( $"{prefix}X", xLocalizationKey, value.X,
+            (data, x) =>
+            {
+                var current = getter(data);
+                setter(data, new VecD(x, current.Y));
+            });
+
+        AddSizeProperty($"{prefix}Y", yLocalizationKey, value.Y,
+            (data, y) =>
+            {
+                var current = getter(data);
+                setter(data, new VecD(current.X, y));
+            });
+    }
+
+    private void AddSizeProperty(
+        string name,
+        string localizationKey,
+        double value,
+        Action<ShapeVectorData, double> setter)
+    {
+        properties.Add(name, new SizePropertyViewModel(name, localizationKey, (newValue, state) =>
+        {
+            var cloned = (ShapeVectorData)GetShapeData(
+                Document.AnimationDataViewModel.ActiveFrameTime).Clone();
+
+            setter(cloned, newValue);
+            UpdateGeometryData(cloned, state);
+        }, value)
+        {
+            MeasurementUnit = Document.MeasurementUnitBindable,
+            ConverterData = Document.MeasurementConversionData
+        });
+    }
+
+    private void UpdateGeometryData(ShapeVectorData data, UpdateState state)
+    {
+        Internals.ActionAccumulator.AddActions(
+            new SetShapeGeometry_Action(Id, data, VectorShapeChangeType.GeometryData));
+
+        if (state == UpdateState.Finish)
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
+        }
+    }
+
+    public IReadOnlyShapeVectorData? GetShapeData(KeyFrameTime frameTime)
+    {
+        if (cachedNode == null)
+        {
+            cachedNode = (IReadOnlyVectorNode)Internals.Tracker.Document.FindMember(Id);
+        }
+
+        return cachedNode?.ShapeData;
+    }
+
+    public void VectorShapeChanged()
+    {
+        Type? currentType = GetShapeData(
+            Document.AnimationDataViewModel.ActiveFrameTime)?.GetType();
+
+        if (lastVectorType != currentType)
+        {
+            OnPropertyChanged(nameof(LayerTypeIcon));
+            RecreateProperties();
+            lastVectorType = currentType;
+        }
+        else
+        {
+            UpdateProperties();
+        }
+    }
+
+    private void UpdateProperties()
+    {
+        var shapeData = GetShapeData(Document.AnimationDataViewModel.ActiveFrameBindable);
+
+        switch (shapeData)
+        {
+            case RectangleVectorData rectangle:
+                UpdateVectorProperties("Center", rectangle.Center);
+                UpdateSizeProperty("Width", rectangle.Size.X);
+                UpdateSizeProperty("Height", rectangle.Size.Y);
+                break;
+
+            case LineVectorData line:
+                UpdateVectorProperties("Start", line.Start);
+                UpdateVectorProperties("End", line.End);
+                break;
+
+            case EllipseVectorData ellipse:
+                UpdateVectorProperties("Center", ellipse.Center);
+                UpdateVectorProperties("Radius", ellipse.Radius);
+                break;
+        }
+    }
+
+    private void UpdateVectorProperties(string prefix, VecD value)
+    {
+        UpdateSizeProperty($"{prefix}X", value.X);
+        UpdateSizeProperty($"{prefix}Y", value.Y);
+    }
+
+    private void UpdateSizeProperty(string name, double value)
+    {
+        if (properties.TryGetValue(name, out var property))
+        {
+            UpdateSizeProp(property).Value = value;
+        }
+    }
+
+    private SizePropertyViewModel UpdateSizeProp(PropertyViewModel property)
+    {
+        var sizeProp = (SizePropertyViewModel)property;
+        sizeProp.ConverterData = Document.MeasurementConversionData;
+        sizeProp.MeasurementUnit = Document.MeasurementUnitBindable;
+        return sizeProp;
     }
 
     public override bool CanQuickColorChange()
     {
         var shapeData = GetShapeData(Document.AnimationDataViewModel.ActiveFrameTime);
+
         if (shapeData is null)
             return false;
 

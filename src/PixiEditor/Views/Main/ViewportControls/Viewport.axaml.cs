@@ -476,7 +476,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void OnScaleChanged(double newScale)
     {
-        SnappingViewModel.SnappingController.SnapDistance = SnappingController.DefaultSnapDistance / newScale;
+        SnappingViewModel?.SnappingController?.SnapDistance = SnappingController.DefaultSnapDistance / newScale;
     }
 
     private void OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)

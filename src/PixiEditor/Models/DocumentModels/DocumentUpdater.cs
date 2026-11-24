@@ -1190,7 +1190,7 @@ internal class DocumentUpdater
         IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.LayerId);
         if (member is IVectorLayerHandler vectorLayerHandler)
         {
-            vectorLayerHandler.UpdateLayerTypeIcon();
+            vectorLayerHandler.VectorShapeChanged();
         }
     }
 
