@@ -29,6 +29,7 @@ internal class MoveViewportToolViewModel : ToolViewModel
 
         ActionDisplay = new LocalizedString("MOVE_VIEWPORT_ACTION_DISPLAY");
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.SuppressAllOverlayEvents(ToolName);
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.TransformShowStateChanged -= TransformViewModel_TransformActivated;
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.TransformShowStateChanged += TransformViewModel_TransformActivated;
     }
 

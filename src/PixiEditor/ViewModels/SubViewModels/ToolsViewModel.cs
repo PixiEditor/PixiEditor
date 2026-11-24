@@ -1062,6 +1062,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             e.OldDocument.LayersChanged -= DocumentOnLayersChanged;
             e.OldDocument.MaskChanged -= DocumentOnMaskChanged;
             e.OldDocument.AnimationDataViewModel.ActiveFrameChanged -= ActiveFrameChanged;
+            e.OldDocument.AnimationDataViewModel.PropertyChanged -= AnimationDataOnPropertyChanged;
         }
 
         if (e.NewDocument is not null)
@@ -1070,6 +1071,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             e.NewDocument.LayersChanged += DocumentOnLayersChanged;
             e.NewDocument.MaskChanged += DocumentOnMaskChanged;
             e.NewDocument.AnimationDataViewModel.ActiveFrameChanged += ActiveFrameChanged;
+            e.NewDocument.AnimationDataViewModel.PropertyChanged += AnimationDataOnPropertyChanged;
             UpdateEnabledState();
         }
     }
@@ -1078,6 +1080,15 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         UpdateActiveFrame(newFrame);
         UpdateVectorCelState();
+    }
+
+    private void AnimationDataOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(AnimationDataViewModel.IsPlayingBindable) &&
+            sender is AnimationDataViewModel { IsPlayingBindable: false } animationData)
+        {
+            UpdateActiveFrame(animationData.ActiveFrameBindable);
+        }
     }
 
     private void DocumentOnLayersChanged(object? sender, LayersChangedEventArgs e)

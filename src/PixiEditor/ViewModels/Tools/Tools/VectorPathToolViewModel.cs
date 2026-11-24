@@ -156,6 +156,9 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     public override void OnActiveFrameChanged(int newFrame)
     {
         OnDeselecting(false);
+        if (ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.AnimationDataViewModel.IsPlayingBindable == true)
+            return;
+
         OnToolSelected(false);
     }
 }

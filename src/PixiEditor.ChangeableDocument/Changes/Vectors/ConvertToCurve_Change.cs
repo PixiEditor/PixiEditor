@@ -232,7 +232,7 @@ internal class ConvertToCurve_Change : Change
         List<(VectorPath path, TextInline inline)> groups = new();
         foreach (var inlinePath in inlinePaths)
         {
-            int index = groups.FindIndex(x => HasSamePaint(x.inline, inlinePath.inline));
+            int index = groups.FindIndex(x => x.inline.HasEqualSettings(inlinePath.inline, true));
             if (index < 0)
             {
                 groups.Add((inlinePath.path, inlinePath.inline.Clone()));
@@ -245,14 +245,6 @@ internal class ConvertToCurve_Change : Change
         }
 
         return groups.ToArray();
-    }
-
-    private static bool HasSamePaint(TextInline first, TextInline second)
-    {
-        return first.Fill == second.Fill
-               && first.FillPaintable?.GetCacheHash() == second.FillPaintable?.GetCacheHash()
-               && first.StrokePaintable?.GetCacheHash() == second.StrokePaintable?.GetCacheHash()
-               && Math.Abs(first.StrokeWidth - second.StrokeWidth) < float.Epsilon;
     }
 
     private List<IChangeInfo> SplitTextCel(Document target, VectorLayerNode node, TextVectorData textData,

@@ -119,7 +119,8 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
 
                 var finalMatrix = Matrix3X3.CreateTranslation((float)mappedDelta.X, (float)mappedDelta.Y);
 
-                path.AddPath(path, finalMatrix, AddPathMode.Append);
+                using var shiftedPath = new VectorPath(path);
+                path.AddPath(shiftedPath, finalMatrix, AddPathMode.Append);
 
                 var newShapeData = new PathVectorData(path)
                 {
@@ -134,7 +135,7 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
 
                 vectorLayer.SetShapeAtFrame(frame,newShapeData);
                 changes.Add(new VectorShape_ChangeInfo(layerGuid,
-                    ShiftLayer_UpdateableChange.AffectedAreaFromBounds(target, layerGuid, frame)));
+                    ShiftLayer_UpdateableChange.AffectedAreaFromBounds(target, layerGuid, frame), false));
             }
         }
 

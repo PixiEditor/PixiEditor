@@ -199,6 +199,8 @@ internal class AffectedAreasGatherer
                     break;
                 case VectorShape_ChangeInfo info:
                     AddToMainImage(info.Affected);
+                    if (!info.UpdatePreviews)
+                        break;
                     AddToImagePreviews(info.LayerId);
                     AddToNodePreviews(info.LayerId);
                     break;

@@ -610,16 +610,30 @@ internal class DocumentUpdater
 
         doc.AnimationHandler.AddKeyFrame(vm);
         doc.InternalRaiseKeyFrameCreated(vm);
+        UpdateVectorLayerIcons();
     }
 
     private void ProcessDeleteKeyFrame(DeleteKeyFrame_ChangeInfo info)
     {
         doc.AnimationHandler.RemoveKeyFrame(info.DeletedKeyFrameId);
+        UpdateVectorLayerIcons();
     }
 
     private void ProcessActiveFrame(SetActiveFrame_PassthroughAction info)
     {
         doc.AnimationHandler.SetActiveFrame(info.Frame);
+        UpdateVectorLayerIcons();
+    }
+
+    private void UpdateVectorLayerIcons()
+    {
+        foreach (var layer in doc.StructureHelper.GetAllLayers())
+        {
+            if (layer is IVectorLayerHandler vectorLayerHandler)
+            {
+                vectorLayerHandler.UpdateLayerTypeIcon();
+            }
+        }
     }
 
     private void ProcessNewDefaultEndFrame(DefaultEndFrame_ChangeInfo info)
@@ -630,6 +644,7 @@ internal class DocumentUpdater
     private void ProcessKeyFrameLength(KeyFrameLength_ChangeInfo info)
     {
         doc.AnimationHandler.SetCelLength(info.KeyFrameGuid, info.StartFrame, info.Duration);
+        UpdateVectorLayerIcons();
     }
 
     private void ProcessKeyFrameVisibility(KeyFrameVisibility_ChangeInfo info)
@@ -1173,7 +1188,7 @@ internal class DocumentUpdater
     private void ProcessVectorShape(VectorShape_ChangeInfo info)
     {
         IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.LayerId);
-        if (member is IVectorLayerHandler vectorLayerHandler)
+        if (info.UpdatePreviews && member is IVectorLayerHandler vectorLayerHandler)
         {
             vectorLayerHandler.UpdateLayerTypeIcon();
         }

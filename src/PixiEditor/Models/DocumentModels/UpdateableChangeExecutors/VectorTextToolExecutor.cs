@@ -74,7 +74,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         selectedMember = document.SelectedStructureMember;
 
-        if (selectedMember is not IVectorLayerHandler layerHandler)
+        if (selectedMember is not IVectorLayerHandler layerHandler ||
+            GetHandler<IToolsHandler>()?.NeedsNewAnimationKeyFrameForActiveTool() == true)
         {
             isListeningForValidLayer = true;
             return ExecutionState.Success;

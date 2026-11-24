@@ -92,8 +92,6 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return InputVector.Value ?? GetShapeAtFrame(frame.Frame);
     }
 
-    IReadOnlyShapeVectorData IReadOnlyVectorNode.ShapeData => RenderableShapeData;
-
     IReadOnlyShapeVectorData? IReadOnlyVectorNode.GetShapeData(KeyFrameTime frame) => GetRenderableShapeData(frame);
 
 
@@ -397,10 +395,6 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             }
         });
     }
-
-    public IChangeInfo[] ChangeColor(params Color?[] colors) => ChangeColor(0, colors);
-
-    public Color?[] GetColors() => GetColors(0);
 
     public IChangeInfo[] ChangeColor(int frame, params Color?[] colors)
     {

@@ -27,7 +27,13 @@
                     </Style>
                 </TabControl.Styles>
                 <TabControl.Items>
-                    <TabItem IsSelected="True" ui1:Translator.Key="EXPORT_IMAGE_HEADER" />
+                    <TabItem IsSelected="True" ui1:Translator.Key="EXPORT_IMAGE_HEADER">
+                        <StackPanel Spacing="5" Orientation="Horizontal">
+                            <TextBlock ui1:Translator.Key="EXPORT_FRAME" VerticalAlignment="Center" />
+                            <controls:NumberInput Min="1" Width="50" Decimals="0"
+                                                  Value="{Binding ElementName=saveFilePopup, Path=ExportFrame, Mode=TwoWay}" />
+                        </StackPanel>
+                    </TabItem>
                     <TabItem ui1:Translator.Key="EXPORT_ANIMATION_HEADER">
                         <StackPanel Orientation="Vertical" Spacing="5">
                             <StackPanel Spacing="5" Orientation="Horizontal">
