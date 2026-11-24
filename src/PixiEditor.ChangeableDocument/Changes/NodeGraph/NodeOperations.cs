@@ -73,7 +73,7 @@ public static class NodeOperations
 
         if (node is ICelLayer celLayer)
         {
-            celLayer.FallbackAnimationToLayerImage = target.AnimationData.FallbackAnimationToLayerImage;
+            celLayer.FallbackAnimationToLayerImage = target.AnimationData?.FallbackAnimationToLayerImage ?? false;
         }
 
         return node;
