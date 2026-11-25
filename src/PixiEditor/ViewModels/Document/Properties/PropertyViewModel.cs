@@ -29,14 +29,15 @@ internal abstract class PropertyViewModel : ObservableObject
 
 internal abstract class PropertyViewModel<T> : PropertyViewModel
 {
+    private T _value;
     public T Value
     {
-        get;
+        get => _value;
         set
         {
-            if (SetProperty(ref field, value))
+            if (SetProperty(ref _value, value))
             {
-                SyncBack?.Invoke(value, MergeChanges ? UpdateState.Updating : UpdateState.Finish);
+                SyncBack?.Invoke(value, MergeChanges ? UpdateState.Updating : UpdateState.OneShot);
             }
         }
     }
@@ -46,9 +47,12 @@ internal abstract class PropertyViewModel<T> : PropertyViewModel
         get;
         set
         {
-            if (SetProperty(ref field, value) && !value)
+            if (SetProperty(ref field, value))
             {
-                SyncBack?.Invoke(Value, UpdateState.Finish);
+                if (!value)
+                {
+                    SyncBack?.Invoke(Value, UpdateState.Finish);
+                }
             }
         }
     }
@@ -59,14 +63,16 @@ internal abstract class PropertyViewModel<T> : PropertyViewModel
     }
 
 
-    public PropertyViewModel(string name, Action<T, UpdateState> syncBack) : base(name)
+    public PropertyViewModel(string name, Action<T, UpdateState> syncBack, T defaultValue) : base(name)
     {
         SyncBack = syncBack;
+        _value = defaultValue;
     }
 }
 
 public enum UpdateState
 {
+    OneShot,
     Updating,
     Finish
 }

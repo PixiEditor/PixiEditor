@@ -80,11 +80,14 @@ internal class PropertiesDockViewModel : DockableViewModel
 
     private void SetFromPropertiesObject(IPropertiesObject propertiesObject)
     {
+        currentPropertiesObject?.StopUpdates();
         currentPropertiesObject?.PropertiesUpdated -= OnPropertiesUpdated;
         Properties = new ObservableCollection<PropertyViewModel>(propertiesObject.Properties);
         ObjectTitle = propertiesObject.LabelKey;
         currentPropertiesObject = propertiesObject;
         currentPropertiesObject?.PropertiesUpdated += OnPropertiesUpdated;
+
+        currentPropertiesObject.StartUpdates();
     }
 
     private void OnPropertiesUpdated(IReadOnlyCollection<PropertyViewModel> prop)

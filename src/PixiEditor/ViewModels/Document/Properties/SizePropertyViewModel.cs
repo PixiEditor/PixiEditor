@@ -18,9 +18,8 @@ internal class SizePropertyViewModel : PropertyViewModel<double>
         set => SetProperty(ref field, value);
     }
 
-    public SizePropertyViewModel(string name, string label, Action<double, UpdateState> syncBack, double defaultValue = 0) : base(name, syncBack)
+    public SizePropertyViewModel(string name, string label, Action<double, UpdateState> syncBack, double defaultValue = 0) : base(name, syncBack, defaultValue)
     {
         Label = label;
-        Value = defaultValue;
     }
 }

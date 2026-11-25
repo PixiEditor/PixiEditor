@@ -482,10 +482,16 @@ internal class ViewportOverlays
             Source = Viewport, Path = "Document.PathOverlayViewModel.LockEditing", Mode = BindingMode.OneWay
         };
 
+        Binding activePointBinding = new()
+        {
+            Source = Viewport, Path = "Document.PathOverlayViewModel.ActivePoints", Mode = BindingMode.TwoWay
+        };
+
         vectorPathOverlay.Bind(VectorPathOverlay.PathProperty, pathBinding);
         vectorPathOverlay.Bind(VectorPathOverlay.AddToUndoCommandProperty, addToUndoCommandBinding);
         vectorPathOverlay.Bind(VectorPathOverlay.SnappingControllerProperty, snappingBinding);
         vectorPathOverlay.Bind(VectorPathOverlay.LockEditingProperty, lockEditingBinding);
+        vectorPathOverlay.Bind(VectorPathOverlay.ActivePointsProperty, activePointBinding);
     }
 
     private void BindSnappingOverlay()

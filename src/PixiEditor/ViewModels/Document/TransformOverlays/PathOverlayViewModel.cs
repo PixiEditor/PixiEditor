@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.DocumentModels;
@@ -63,12 +65,37 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
         set => SetProperty(ref showApplyButton, value);
     }
 
+    public ObservableCollection<int> ActivePoints
+    {
+        get;
+        set
+        {
+            var old = field;
+            if (SetProperty(ref field, value))
+            {
+                if (old != null)
+                {
+                    old.CollectionChanged -= OnPointsChanged;
+                }
+
+                if (value != null)
+                {
+                    value.CollectionChanged += OnPointsChanged;
+                }
+            }
+        }
+    }
+
+    public event Action<IReadOnlyCollection<int>> SelectedPointsChanged;
+
     private bool suppressUndo = false;
 
     public PathOverlayViewModel(DocumentViewModel documentViewModel, DocumentInternalParts internals)
     {
         this.documentViewModel = documentViewModel;
         this.internals = internals;
+        ActivePoints = new ObservableCollection<int>();
+        ActivePoints.CollectionChanged += OnPointsChanged;
     }
 
     public void Show(VectorPath newPath, bool showApplyButton, Action<VectorPath>? customAddToUndo)
@@ -96,5 +123,10 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
     private void PathDataChanged(VectorPath path)
     {
         AddToUndoCommand.Execute(path);
+    }
+
+    private void OnPointsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        SelectedPointsChanged?.Invoke(e.NewItems as ObservableCollection<int>);
     }
 }

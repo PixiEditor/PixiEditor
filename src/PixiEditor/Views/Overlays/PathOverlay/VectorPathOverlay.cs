@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Input;
 using Drawie.Backend.Core.Numerics;
@@ -6,6 +7,7 @@ using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.Drawables;
 using PixiEditor.Views.Overlays.Handles;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
@@ -25,6 +27,15 @@ public class VectorPathOverlay : Overlay
 
     public static readonly StyledProperty<bool> LockEditingProperty = AvaloniaProperty.Register<VectorPathOverlay, bool>(
         nameof(LockEditing));
+
+    public static readonly StyledProperty<ObservableCollection<int>> ActivePointsProperty = AvaloniaProperty.Register<VectorPathOverlay, ObservableCollection<int>>(
+        nameof(ActivePoints));
+
+    public ObservableCollection<int> ActivePoints
+    {
+        get => GetValue(ActivePointsProperty);
+        set => SetValue(ActivePointsProperty, value);
+    }
 
     public bool LockEditing
     {
@@ -82,6 +93,7 @@ public class VectorPathOverlay : Overlay
 
     public VectorPathOverlay()
     {
+        ActivePoints = new ObservableCollection<int>();
         transformHandle = new TransformHandle(this);
         transformHandle.OnPress += MoveHandlePress;
         transformHandle.OnDrag += MoveHandleDrag;
@@ -335,6 +347,7 @@ public class VectorPathOverlay : Overlay
             handle.OnDrag -= OnHandleDrag;
             handle.OnRelease -= OnHandleRelease;
             handle.OnTap -= OnHandleTap;
+            handle.OnSelectionChanged -= OnSelectionChanged;
             if (handle is { IsSelected: true })
             {
                 previouslySelectedIndex = i;
@@ -455,6 +468,7 @@ public class VectorPathOverlay : Overlay
             anchor.OnDrag += OnHandleDrag;
             anchor.OnRelease += OnHandleRelease;
             anchor.OnTap += OnHandleTap;
+            anchor.OnSelectionChanged += OnSelectionChanged;
             AddHandle(anchor);
             SnappingController?.AddXYAxis($"editingPath[{atIndex}]", () =>
             {
@@ -471,6 +485,21 @@ public class VectorPathOverlay : Overlay
             controlPoint.OnRelease += OnHandleRelease;
             controlPointHandles.Add(controlPoint);
             AddHandle(controlPoint);
+        }
+    }
+
+    private void OnSelectionChanged(AnchorHandle handle, bool selected)
+    {
+        if (selected)
+        {
+            var index = anchorHandles.IndexOf(handle);
+            if(!ActivePoints.Contains(index))
+                ActivePoints.Add(index);
+        }
+        else
+        {
+            var index = anchorHandles.IndexOf(handle);
+            ActivePoints.Remove(index);
         }
     }
 

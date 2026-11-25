@@ -1,5 +1,5 @@
-﻿
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
@@ -129,9 +129,6 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         if (Document == null)
             return;
 
-        Document.PropertyChanged -= DocumentOnPropertyChanged;
-        Document.PropertyChanged += DocumentOnPropertyChanged;
-
         properties = new Dictionary<string, PropertyViewModel>();
 
         var shapeData = GetShapeData(Document.AnimationDataViewModel.ActiveFrameBindable);
@@ -201,10 +198,43 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
 
             case TextVectorData text:
                 break;
+
+            case ShapeVectorData shape:
+                if (Document.PathOverlayViewModel.ActivePoints.Count > 0)
+                {
+                    var pointIndex = Document.PathOverlayViewModel.ActivePoints[0];
+                    var point = GetPoint(pointIndex);
+                    AddVectorProperties("Point", "POINT_X", "POINT_Y", (VecD)point.Position,
+                        data => (VecD)GetPoint(pointIndex).Position,
+                        (data, value) =>
+                        {
+                            if (data is not PathVectorData pathVectorData) return;
+                            var editable = new EditableVectorPath(pathVectorData.Path);
+                            var subshape = editable.GetSubShapeContainingIndex(pointIndex);
+                            int pointLocalIndex = editable.GetSubShapePointIndex(pointIndex, subshape);
+                            subshape.SetPointPosition(pointLocalIndex, (VecF)value, true);
+                            pathVectorData.Path = editable.ToVectorPath();
+                        });
+                }
+
+                break;
         }
 
         Properties = properties.Values;
         PropertiesUpdated?.Invoke(Properties);
+    }
+
+    private ShapePoint GetPoint(int pointIndex, ShapeVectorData? data = null)
+    {
+        var editable = new EditableVectorPath((data as PathVectorData)?.Path ?? Document.PathOverlayViewModel.Path);
+        var subshape = editable.GetSubShapeContainingIndex(pointIndex);
+        var point = subshape.Points[editable.GetSubShapePointIndex(pointIndex, subshape)];
+        return point;
+    }
+
+    private void SelectedPointsChanged(IReadOnlyCollection<int> pointIndices)
+    {
+        RecreateProperties();
     }
 
     private void AddVectorProperties(
@@ -215,7 +245,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         Func<ShapeVectorData, VecD> getter,
         Action<ShapeVectorData, VecD> setter)
     {
-        AddSizeProperty( $"{prefix}X", xLocalizationKey, value.X,
+        AddSizeProperty($"{prefix}X", xLocalizationKey, value.X,
             (data, x) =>
             {
                 var current = getter(data);
@@ -245,8 +275,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
             UpdateGeometryData(cloned, state);
         }, value)
         {
-            MeasurementUnit = Document.MeasurementUnitBindable,
-            ConverterData = Document.MeasurementConversionData
+            MeasurementUnit = Document.MeasurementUnitBindable, ConverterData = Document.MeasurementConversionData
         });
     }
 
@@ -254,17 +283,16 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
     {
         if (isUpdatingProperties) return;
 
-        if (state == UpdateState.Updating)
-        {
-            Document.Operations.TryStopActiveExecutor();
-        }
-
         Internals.ActionAccumulator.AddActions(
             new SetShapeGeometry_Action(Id, data, VectorShapeChangeType.GeometryData));
 
-        if (state == UpdateState.Finish)
+        if (state == UpdateState.OneShot || state == UpdateState.Finish)
         {
             Internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
+        }
+
+        if (state == UpdateState.Finish)
+        {
             Document.Tools.UseLastKnownTool();
         }
     }
@@ -355,5 +383,20 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
             return false;
 
         return Document.TransformViewModel.TransformActive;
+    }
+
+    void IPropertiesObject.StartUpdates()
+    {
+        Document.PropertyChanged -= DocumentOnPropertyChanged;
+        Document.PropertyChanged += DocumentOnPropertyChanged;
+
+        Document.PathOverlayViewModel.SelectedPointsChanged -= SelectedPointsChanged;
+        Document.PathOverlayViewModel.SelectedPointsChanged += SelectedPointsChanged;
+    }
+
+    void IPropertiesObject.StopUpdates()
+    {
+        Document.PropertyChanged -= DocumentOnPropertyChanged;
+        Document.PathOverlayViewModel.SelectedPointsChanged -= SelectedPointsChanged;
     }
 }

@@ -296,6 +296,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument, IPro
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
     IContextualOptionsHandler IDocument.ContextualOptionsHandler => ContextualOptionsViewModel;
+    void IPropertiesObject.StartUpdates() { }
+    void IPropertiesObject.StopUpdates() { }
 
     public LocalizedString LabelKey => FileName;
     public IReadOnlyCollection<PropertyViewModel> Properties => new List<PropertyViewModel> { widthProp, heightProp };

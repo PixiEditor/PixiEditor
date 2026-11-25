@@ -8,9 +8,18 @@ public class AnchorHandle : RectangleHandle
 {
     private Paint paint;
     private Paint selectedPaint;
-    
-    public bool IsSelected { get; set; } = false;
+
+    public bool IsSelected
+    {
+        get;
+        set
+        {
+            field = value;
+            OnSelectionChanged?.Invoke(this, value);
+        }
+    } = false;
     public override VecD HitSizeMargin { get; set; } = new VecD(10, 10);
+    public event Action<AnchorHandle, bool> OnSelectionChanged;
 
     public AnchorHandle(Overlay owner) : base(owner)
     {
