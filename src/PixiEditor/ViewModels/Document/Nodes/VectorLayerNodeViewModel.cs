@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Changes.Vectors;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.Handlers;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document.Properties;
@@ -22,9 +23,12 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
 {
     public LocalizedString LabelKey => DisplayName;
     public IReadOnlyCollection<PropertyViewModel> Properties { get; set; } = new List<PropertyViewModel>();
+    public event Action<IReadOnlyCollection<PropertyViewModel>>? PropertiesUpdated;
+    public event Action GeometryChanged;
 
     private Type? lastVectorType;
     private IReadOnlyVectorNode? cachedNode;
+    private bool isUpdatingProperties;
 
     private Dictionary<string, PropertyViewModel> properties = new();
 
@@ -200,6 +204,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         }
 
         Properties = properties.Values;
+        PropertiesUpdated?.Invoke(Properties);
     }
 
     private void AddVectorProperties(
@@ -247,12 +252,20 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
 
     private void UpdateGeometryData(ShapeVectorData data, UpdateState state)
     {
+        if (isUpdatingProperties) return;
+
+        if (state == UpdateState.Updating)
+        {
+            Document.Operations.TryStopActiveExecutor();
+        }
+
         Internals.ActionAccumulator.AddActions(
             new SetShapeGeometry_Action(Id, data, VectorShapeChangeType.GeometryData));
 
         if (state == UpdateState.Finish)
         {
             Internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
+            Document.Tools.UseLastKnownTool();
         }
     }
 
@@ -281,10 +294,13 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         {
             UpdateProperties();
         }
+
+        GeometryChanged?.Invoke();
     }
 
     private void UpdateProperties()
     {
+        isUpdatingProperties = true;
         var shapeData = GetShapeData(Document.AnimationDataViewModel.ActiveFrameBindable);
 
         switch (shapeData)
@@ -305,6 +321,8 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
                 UpdateVectorProperties("Radius", ellipse.Radius);
                 break;
         }
+
+        isUpdatingProperties = false;
     }
 
     private void UpdateVectorProperties(string prefix, VecD value)

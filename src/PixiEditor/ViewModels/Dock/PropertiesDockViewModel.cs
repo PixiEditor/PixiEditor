@@ -29,6 +29,8 @@ internal class PropertiesDockViewModel : DockableViewModel
         set => SetProperty(ref field, value);
     }
 
+    private IPropertiesObject? currentPropertiesObject;
+
     public PropertiesDockViewModel(DocumentManagerViewModel documentManagerViewModel)
     {
         DocumentManagerViewModel = documentManagerViewModel;
@@ -45,13 +47,20 @@ internal class PropertiesDockViewModel : DockableViewModel
         {
             Properties = new ObservableCollection<PropertyViewModel>();
             ObjectTitle = "";
+            currentPropertiesObject?.PropertiesUpdated -= OnPropertiesUpdated;
+            currentPropertiesObject = null;
             return;
         }
 
         Properties = new ObservableCollection<PropertyViewModel>(e.NewDocument.Properties);
         ObjectTitle = e.NewDocument.LabelKey;
 
+        currentPropertiesObject?.PropertiesUpdated -= OnPropertiesUpdated;
         e.NewDocument.PropertyChanged += NewDocumentOnPropertyChanged;
+
+        currentPropertiesObject = e.NewDocument;
+
+        currentPropertiesObject?.PropertiesUpdated += OnPropertiesUpdated;
     }
 
     private void NewDocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -71,7 +80,15 @@ internal class PropertiesDockViewModel : DockableViewModel
 
     private void SetFromPropertiesObject(IPropertiesObject propertiesObject)
     {
+        currentPropertiesObject?.PropertiesUpdated -= OnPropertiesUpdated;
         Properties = new ObservableCollection<PropertyViewModel>(propertiesObject.Properties);
         ObjectTitle = propertiesObject.LabelKey;
+        currentPropertiesObject = propertiesObject;
+        currentPropertiesObject?.PropertiesUpdated += OnPropertiesUpdated;
+    }
+
+    private void OnPropertiesUpdated(IReadOnlyCollection<PropertyViewModel> prop)
+    {
+        Properties = new ObservableCollection<PropertyViewModel>(prop);
     }
 }

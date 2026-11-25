@@ -299,6 +299,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument, IPro
 
     public LocalizedString LabelKey => FileName;
     public IReadOnlyCollection<PropertyViewModel> Properties => new List<PropertyViewModel> { widthProp, heightProp };
+    public event Action<IReadOnlyCollection<PropertyViewModel>>? PropertiesUpdated;
 
     private NumberPropertyViewModel widthProp;
     private NumberPropertyViewModel heightProp;

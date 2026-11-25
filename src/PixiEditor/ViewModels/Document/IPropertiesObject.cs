@@ -7,4 +7,5 @@ internal interface IPropertiesObject
 {
     LocalizedString LabelKey { get; }
     public IReadOnlyCollection<PropertyViewModel> Properties { get; }
+    event Action<IReadOnlyCollection<PropertyViewModel>> PropertiesUpdated;
 }
