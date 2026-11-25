@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+             xmlns:properties="clr-namespace:PixiEditor.ViewModels.Document.Properties"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="properties:CustomSizePropertyViewModel"
+             x:Class="PixiEditor.Views.Document.Properties.CustomSizePropertyView">
+    <Design.DataContext>
+        <properties:CustomSizePropertyViewModel />
+    </Design.DataContext>
+
+    <Panel>
+        <controls:SizeInput IsVisible="{Binding !IsReadOnly}"
+                              DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}"
+                              Unit="{Binding Unit}"
+                              Decimals="{Binding Decimals}"
+                              MinSize="{Binding Min}"
+                              Size="{Binding Value, Mode=TwoWay}" />
+        <TextBlock Text="{Binding Value}" IsVisible="{Binding IsReadOnly}" />
+    </Panel>
+</UserControl>

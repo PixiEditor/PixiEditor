@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions.Generated;
@@ -220,6 +221,21 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
                 break;
         }
 
+        AddCustomSizeProperty("Rotation", "ROTATION", shapeData.TransformationCorners.RectRotation,
+            double.MinValue, "°", 2,
+            (data, value) =>
+            {
+                var vector = data;
+                var matrix = vector.TransformationMatrix;
+
+                var delta = float.DegreesToRadians((float)value) - (float)vector.TransformationCorners.RectRotation;
+
+                vector.TransformationMatrix = matrix.PostConcat(
+                    Matrix3X3.CreateRotation(
+                        delta,
+                        (float)vector.TransformationCorners.RectCenter.X,
+                        (float)vector.TransformationCorners.RectCenter.Y));
+            });
         Properties = properties.Values;
         PropertiesUpdated?.Invoke(Properties);
     }
@@ -260,11 +276,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
             });
     }
 
-    private void AddSizeProperty(
-        string name,
-        string localizationKey,
-        double value,
-        Action<ShapeVectorData, double> setter)
+    private void AddSizeProperty(string name, string localizationKey, double value, Action<ShapeVectorData, double> setter)
     {
         properties.Add(name, new SizePropertyViewModel(name, localizationKey, (newValue, state) =>
         {
@@ -279,6 +291,23 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         });
     }
 
+    private void AddCustomSizeProperty(string name, string localizationKey, double value, double min, string unit, int decimals, Action<ShapeVectorData, double> setter)
+    {
+        properties.Add(name, new CustomSizePropertyViewModel(name, localizationKey, (newValue, state) =>
+        {
+            var cloned = (ShapeVectorData)GetShapeData(
+                Document.AnimationDataViewModel.ActiveFrameTime).Clone();
+
+            setter(cloned, newValue);
+            UpdateGeometryData(cloned, state);
+        }, value)
+        {
+            Min = min,
+            Unit = unit,
+            Decimals = decimals
+        });
+    }
+
     private void UpdateGeometryData(ShapeVectorData data, UpdateState state)
     {
         if (isUpdatingProperties) return;
@@ -286,7 +315,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         Internals.ActionAccumulator.AddActions(
             new SetShapeGeometry_Action(Id, data, VectorShapeChangeType.GeometryData));
 
-        if (state == UpdateState.OneShot || state == UpdateState.Finish)
+        if (state is UpdateState.OneShot or UpdateState.Finish)
         {
             Internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
         }
@@ -328,6 +357,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
 
     private void UpdateProperties()
     {
+        if (isUpdatingProperties) return;
         isUpdatingProperties = true;
         var shapeData = GetShapeData(Document.AnimationDataViewModel.ActiveFrameBindable);
 
@@ -347,6 +377,14 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
             case EllipseVectorData ellipse:
                 UpdateVectorProperties("Center", ellipse.Center);
                 UpdateVectorProperties("Radius", ellipse.Radius);
+                break;
+            case PathVectorData shape:
+                if (Document.PathOverlayViewModel.ActivePoints.Count > 0)
+                {
+                    UpdateVectorProperties("Point",
+                        (VecD)GetPoint(Document.PathOverlayViewModel.ActivePoints[0]).Position);
+                }
+
                 break;
         }
 
