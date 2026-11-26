@@ -63,6 +63,12 @@ internal abstract class PropertyViewModel<T> : PropertyViewModel
     }
 
 
+    public void SetValueWithoutSyncBack(T value)
+    {
+        _value = value;
+        OnPropertyChanged(nameof(Value));
+    }
+
     public PropertyViewModel(string name, Action<T, UpdateState> syncBack, T defaultValue) : base(name)
     {
         SyncBack = syncBack;

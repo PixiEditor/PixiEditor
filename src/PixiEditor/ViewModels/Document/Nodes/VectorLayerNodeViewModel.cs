@@ -130,6 +130,8 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         if (Document == null)
             return;
 
+        isUpdatingProperties = true;
+
         properties = new Dictionary<string, PropertyViewModel>();
 
         var shapeData = GetShapeData(Document.AnimationDataViewModel.ActiveFrameBindable);
@@ -205,17 +207,20 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
                 {
                     var pointIndex = Document.PathOverlayViewModel.ActivePoints[0];
                     var point = GetPoint(pointIndex);
-                    AddVectorProperties("Point", "POINT_X", "POINT_Y", (VecD)point.Position,
-                        data => (VecD)GetPoint(pointIndex).Position,
-                        (data, value) =>
-                        {
-                            if (data is not PathVectorData pathVectorData) return;
-                            var editable = new EditableVectorPath(pathVectorData.Path);
-                            var subshape = editable.GetSubShapeContainingIndex(pointIndex);
-                            int pointLocalIndex = editable.GetSubShapePointIndex(pointIndex, subshape);
-                            subshape.SetPointPosition(pointLocalIndex, (VecF)value, true);
-                            pathVectorData.Path = editable.ToVectorPath();
-                        });
+                    if (point != null)
+                    {
+                        AddVectorProperties("Point", "POINT_X", "POINT_Y", (VecD)point.Position,
+                            data => (VecD?)GetPoint(pointIndex)?.Position ?? VecD.Zero,
+                            (data, value) =>
+                            {
+                                if (data is not PathVectorData pathVectorData) return;
+                                var editable = new EditableVectorPath(pathVectorData.Path);
+                                var subshape = editable.GetSubShapeContainingIndex(pointIndex);
+                                int pointLocalIndex = editable.GetSubShapePointIndex(pointIndex, subshape);
+                                subshape.SetPointPosition(pointLocalIndex, (VecF)value, true);
+                                pathVectorData.Path = editable.ToVectorPath();
+                            });
+                    }
                 }
 
                 break;
@@ -238,13 +243,15 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
             });
         Properties = properties.Values;
         PropertiesUpdated?.Invoke(Properties);
+
+        isUpdatingProperties = false;
     }
 
-    private ShapePoint GetPoint(int pointIndex, ShapeVectorData? data = null)
+    private ShapePoint? GetPoint(int pointIndex, ShapeVectorData? data = null)
     {
         var editable = new EditableVectorPath((data as PathVectorData)?.Path ?? Document.PathOverlayViewModel.Path);
         var subshape = editable.GetSubShapeContainingIndex(pointIndex);
-        var point = subshape.Points[editable.GetSubShapePointIndex(pointIndex, subshape)];
+        var point = subshape?.Points[editable.GetSubShapePointIndex(pointIndex, subshape)];
         return point;
     }
 
@@ -312,8 +319,11 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
     {
         if (isUpdatingProperties) return;
 
-        Internals.ActionAccumulator.AddActions(
-            new SetShapeGeometry_Action(Id, data, VectorShapeChangeType.GeometryData));
+        if (state is UpdateState.OneShot or UpdateState.Updating)
+        {
+            Internals.ActionAccumulator.AddActions(
+                new SetShapeGeometry_Action(Id, data, VectorShapeChangeType.GeometryData));
+        }
 
         if (state is UpdateState.OneShot or UpdateState.Finish)
         {
@@ -381,8 +391,11 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
             case PathVectorData shape:
                 if (Document.PathOverlayViewModel.ActivePoints.Count > 0)
                 {
-                    UpdateVectorProperties("Point",
-                        (VecD)GetPoint(Document.PathOverlayViewModel.ActivePoints[0]).Position);
+                    var pt = (VecD?)GetPoint(Document.PathOverlayViewModel.ActivePoints[0])?.Position;
+                    if (pt != null)
+                    {
+                        UpdateVectorProperties("Point", pt.Value);
+                    }
                 }
 
                 break;
@@ -401,7 +414,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
     {
         if (properties.TryGetValue(name, out var property))
         {
-            UpdateSizeProp(property).Value = value;
+            UpdateSizeProp(property).SetValueWithoutSyncBack(value);
         }
     }
 
