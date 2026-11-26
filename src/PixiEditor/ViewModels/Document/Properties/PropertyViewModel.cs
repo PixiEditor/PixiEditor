@@ -29,6 +29,7 @@ internal abstract class PropertyViewModel : ObservableObject
 
 internal abstract class PropertyViewModel<T> : PropertyViewModel
 {
+    private bool skipNextSyncBack;
     private T _value;
     public T Value
     {
@@ -37,7 +38,12 @@ internal abstract class PropertyViewModel<T> : PropertyViewModel
         {
             if (SetProperty(ref _value, value))
             {
-                SyncBack?.Invoke(value, MergeChanges ? UpdateState.Updating : UpdateState.OneShot);
+                if (!skipNextSyncBack)
+                {
+                    SyncBack?.Invoke(value, MergeChanges ? UpdateState.Updating : UpdateState.OneShot);
+                }
+
+                skipNextSyncBack = false;
             }
         }
     }
@@ -73,6 +79,7 @@ internal abstract class PropertyViewModel<T> : PropertyViewModel
     {
         SyncBack = syncBack;
         _value = defaultValue;
+        skipNextSyncBack = true;
     }
 }
 

@@ -226,7 +226,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
                 break;
         }
 
-        AddCustomSizeProperty("Rotation", "ROTATION", shapeData.TransformationCorners.RectRotation,
+        AddCustomSizeProperty("Rotation", "RELATIVE_ROTATION", shapeData.TransformationCorners.RectRotation,
             double.MinValue, "°", 2,
             (data, value) =>
             {
@@ -283,7 +283,8 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
             });
     }
 
-    private void AddSizeProperty(string name, string localizationKey, double value, Action<ShapeVectorData, double> setter)
+    private void AddSizeProperty(string name, string localizationKey, double value,
+        Action<ShapeVectorData, double> setter)
     {
         properties.Add(name, new SizePropertyViewModel(name, localizationKey, (newValue, state) =>
         {
@@ -298,7 +299,8 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         });
     }
 
-    private void AddCustomSizeProperty(string name, string localizationKey, double value, double min, string unit, int decimals, Action<ShapeVectorData, double> setter)
+    private void AddCustomSizeProperty(string name, string localizationKey, double value, double min, string unit,
+        int decimals, Action<ShapeVectorData, double> setter)
     {
         properties.Add(name, new CustomSizePropertyViewModel(name, localizationKey, (newValue, state) =>
         {
@@ -307,17 +309,20 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
 
             setter(cloned, newValue);
             UpdateGeometryData(cloned, state);
-        }, value)
-        {
-            Min = min,
-            Unit = unit,
-            Decimals = decimals
-        });
+        }, value) { Min = min, Unit = unit, Decimals = decimals });
     }
 
     private void UpdateGeometryData(ShapeVectorData data, UpdateState state)
     {
         if (isUpdatingProperties) return;
+
+        bool wasPathOverlayActive = Document.PathOverlayViewModel.IsActive;
+        bool wasTransformOverlayActive = Document.TransformViewModel.TransformActive;
+        bool wasLineToolActive = Document.LineToolOverlayViewModel.IsEnabled;
+
+        Document.PathOverlayViewModel.IsActive = false;
+        Document.TransformViewModel.TransformActive = false;
+        Document.LineToolOverlayViewModel.IsEnabled = false;
 
         if (state is UpdateState.OneShot or UpdateState.Updating)
         {
@@ -332,6 +337,9 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
 
         if (state == UpdateState.Finish)
         {
+            Document.LineToolOverlayViewModel.IsEnabled = wasLineToolActive;
+            Document.PathOverlayViewModel.IsActive = wasPathOverlayActive;
+            Document.TransformViewModel.TransformActive = wasTransformOverlayActive;
             Document.Tools.UseLastKnownTool();
         }
     }
@@ -365,41 +373,50 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         GeometryChanged?.Invoke();
     }
 
-    private void UpdateProperties()
+    public void TransformChanged()
+    {
+        UpdateProperties(true);
+    }
+
+    private void UpdateProperties(bool transformOnly = false)
     {
         if (isUpdatingProperties) return;
         isUpdatingProperties = true;
         var shapeData = GetShapeData(Document.AnimationDataViewModel.ActiveFrameBindable);
-
-        switch (shapeData)
+        if (!transformOnly)
         {
-            case RectangleVectorData rectangle:
-                UpdateVectorProperties("Center", rectangle.Center);
-                UpdateSizeProperty("Width", rectangle.Size.X);
-                UpdateSizeProperty("Height", rectangle.Size.Y);
-                break;
+            switch (shapeData)
+            {
+                case RectangleVectorData rectangle:
+                    UpdateVectorProperties("Center", rectangle.Center);
+                    UpdateSizeProperty("Width", rectangle.Size.X);
+                    UpdateSizeProperty("Height", rectangle.Size.Y);
+                    break;
 
-            case LineVectorData line:
-                UpdateVectorProperties("Start", line.Start);
-                UpdateVectorProperties("End", line.End);
-                break;
+                case LineVectorData line:
+                    UpdateVectorProperties("Start", line.Start);
+                    UpdateVectorProperties("End", line.End);
+                    break;
 
-            case EllipseVectorData ellipse:
-                UpdateVectorProperties("Center", ellipse.Center);
-                UpdateVectorProperties("Radius", ellipse.Radius);
-                break;
-            case PathVectorData shape:
-                if (Document.PathOverlayViewModel.ActivePoints.Count > 0)
-                {
-                    var pt = (VecD?)GetPoint(Document.PathOverlayViewModel.ActivePoints[0])?.Position;
-                    if (pt != null)
+                case EllipseVectorData ellipse:
+                    UpdateVectorProperties("Center", ellipse.Center);
+                    UpdateVectorProperties("Radius", ellipse.Radius);
+                    break;
+                case PathVectorData shape:
+                    if (Document.PathOverlayViewModel.ActivePoints.Count > 0)
                     {
-                        UpdateVectorProperties("Point", pt.Value);
+                        var pt = (VecD?)GetPoint(Document.PathOverlayViewModel.ActivePoints[0])?.Position;
+                        if (pt != null)
+                        {
+                            UpdateVectorProperties("Point", pt.Value);
+                        }
                     }
-                }
 
-                break;
+                    break;
+            }
         }
+
+        UpdateSizeProperty("Rotation", double.RadiansToDegrees(shapeData.TransformationCorners.RectRotation));
 
         isUpdatingProperties = false;
     }
@@ -418,12 +435,23 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         }
     }
 
-    private SizePropertyViewModel UpdateSizeProp(PropertyViewModel property)
+    private PropertyViewModel<double> UpdateSizeProp(PropertyViewModel property)
     {
-        var sizeProp = (SizePropertyViewModel)property;
-        sizeProp.ConverterData = Document.MeasurementConversionData;
-        sizeProp.MeasurementUnit = Document.MeasurementUnitBindable;
-        return sizeProp;
+        if (property is SizePropertyViewModel sizeProp)
+        {
+            sizeProp.ConverterData = Document.MeasurementConversionData;
+            sizeProp.MeasurementUnit = Document.MeasurementUnitBindable;
+            return sizeProp;
+        }
+
+        if (property is CustomSizePropertyViewModel customSizeProp)
+        {
+            customSizeProp.ConverterData = Document.MeasurementConversionData;
+            customSizeProp.MeasurementUnit = Document.MeasurementUnitBindable;
+            return customSizeProp;
+        }
+
+        return null;
     }
 
     public override bool CanQuickColorChange()

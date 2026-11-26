@@ -25,6 +25,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ChangeableDocument.ChangeInfos.Guides;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
+using PixiEditor.ChangeableDocument.ChangeInfos.Objects;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Dialogs;
@@ -277,6 +278,9 @@ internal class DocumentUpdater
                 break;
             case DocumentMeasurement_ChangeInfo info:
                 ProcessDocumentMeasurement(info);
+                break;
+            case TransformObject_ChangeInfo info:
+                ProcessTransform(info);
                 break;
         }
     }
@@ -1191,6 +1195,15 @@ internal class DocumentUpdater
         if (member is IVectorLayerHandler vectorLayerHandler)
         {
             vectorLayerHandler.VectorShapeChanged();
+        }
+    }
+
+    private void ProcessTransform(TransformObject_ChangeInfo info)
+    {
+        IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.NodeGuid);
+        if (member is IVectorLayerHandler vectorLayerHandler)
+        {
+            vectorLayerHandler.TransformChanged();
         }
     }
 

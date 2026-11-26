@@ -487,6 +487,12 @@ internal class ViewportOverlays
             Source = Viewport, Path = "Document.PathOverlayViewModel.ActivePoints", Mode = BindingMode.TwoWay
         };
 
+        Binding isActiveBinding = new()
+        {
+            Source = Viewport, Path = "Document.PathOverlayViewModel.IsActive", Mode = BindingMode.OneWay
+        };
+
+        vectorPathOverlay.Bind(Visual.IsVisibleProperty, isActiveBinding);
         vectorPathOverlay.Bind(VectorPathOverlay.PathProperty, pathBinding);
         vectorPathOverlay.Bind(VectorPathOverlay.AddToUndoCommandProperty, addToUndoCommandBinding);
         vectorPathOverlay.Bind(VectorPathOverlay.SnappingControllerProperty, snappingBinding);

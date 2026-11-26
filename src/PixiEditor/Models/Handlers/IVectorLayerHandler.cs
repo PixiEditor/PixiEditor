@@ -7,4 +7,5 @@ internal interface IVectorLayerHandler : ILayerHandler
 {
     public IReadOnlyShapeVectorData? GetShapeData(KeyFrameTime frameTime);
     void VectorShapeChanged();
+    void TransformChanged();
 }

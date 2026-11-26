@@ -47,7 +47,12 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
     }
 
     public event Action<VectorPath>? PathChanged;
-    public bool IsActive { get; set; }
+
+    public bool IsActive
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
 
     private RelayCommand<VectorPath> addToUndoCommand;
 

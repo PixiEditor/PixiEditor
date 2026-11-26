@@ -1725,5 +1725,6 @@
   "TYPOGRAPHY_SHEET_PRESET": "Typography Sheet",
   "TYPOGRAPHY_SHEET_A4_PRESET": "Typography Sheet A4",
   "PICA_SHEET_PRESET": "Pica Sheet",
-  "TRANSFORM_OVERLAY_SIZE_FORMAT": "W: {0} H: {1} {2}"
+  "TRANSFORM_OVERLAY_SIZE_FORMAT": "W: {0} H: {1} {2}",
+  "RELATIVE_ROTATION": "Relative Rotation"
 }
