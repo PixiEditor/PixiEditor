@@ -204,6 +204,9 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
                 break;
 
             case TextVectorData text:
+                AddVectorProperties("Position", "POSITION_X", "POSITION_Y", text.Position,
+                    data =>  ((TextVectorData)data).Position,
+                    (data, value) => ((TextVectorData)data).Position = value);
                 break;
 
 
@@ -461,10 +464,12 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         bool wasPathOverlayActive = Document.PathOverlayViewModel.IsActive;
         bool wasTransformOverlayActive = Document.TransformViewModel.TransformActive;
         bool wasLineToolActive = Document.LineToolOverlayViewModel.IsEnabled;
+        bool wasTextOverlayActive = Document.TextOverlayViewModel.IsActive;
 
         Document.PathOverlayViewModel.IsActive = false;
         Document.TransformViewModel.TransformActive = false;
         Document.LineToolOverlayViewModel.IsEnabled = false;
+        Document.TextOverlayViewModel.IsActive = false;
 
         if (state is UpdateState.OneShot or UpdateState.Updating)
         {
@@ -482,6 +487,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
             Document.LineToolOverlayViewModel.IsEnabled = wasLineToolActive;
             Document.PathOverlayViewModel.IsActive = wasPathOverlayActive;
             Document.TransformViewModel.TransformActive = wasTransformOverlayActive;
+            Document.TextOverlayViewModel.IsActive = wasTextOverlayActive;
             Document.Tools.UseLastKnownTool();
         }
     }
@@ -545,6 +551,10 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
                     UpdateVectorProperties("Radius", ellipse.Radius);
                     break;
 
+                case TextVectorData text:
+                    UpdateVectorProperties("Position", text.Position);
+                    break;
+
                 case PathVectorData shape:
                     if (Document.PathOverlayViewModel.ActivePoints.Count > 0)
                     {
@@ -589,6 +599,10 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         if (properties.TryGetValue(name, out var property))
         {
             UpdateSizeProp(property).SetValueWithoutSyncBack(value);
+        }
+        else
+        {
+            RecreateProperties();
         }
     }
 
