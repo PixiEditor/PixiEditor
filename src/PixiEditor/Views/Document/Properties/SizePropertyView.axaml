@@ -18,7 +18,7 @@
                               Unit="{Binding MeasurementUnit.ShortNameLocalizationKey}"
                               MeasurementConverterData="{Binding ConverterData}"
                               Decimals="4"
-                              MinSize="0.00001"
+                              MinSize="{Binding Min}"
                               Size="{Binding Value, Mode=TwoWay}" />
         <TextBlock Text="{Binding Value}" IsVisible="{Binding IsReadOnly}" />
     </Panel>
