@@ -43,7 +43,10 @@ public partial class SizeInput : UserControl
         AvaloniaProperty.Register<SizeInput, MeasurementConverterData?>(
             nameof(MeasurementConverterData));
 
-    public MeasurementConverterData?  MeasurementConverterData
+    public static readonly StyledProperty<bool> DraggerDeltaModeProperty =
+        AvaloniaProperty.Register<SizeInput, bool>("DraggerDeltaMode");
+
+    public MeasurementConverterData? MeasurementConverterData
     {
         get => GetValue(MeasurementConverterDataProperty);
         set => SetValue(MeasurementConverterDataProperty, value);
@@ -71,6 +74,24 @@ public partial class SizeInput : UserControl
     {
         get { return GetValue(OnScrollActionProperty); }
         set { SetValue(OnScrollActionProperty, value); }
+    }
+
+    public string Unit
+    {
+        get => (string)GetValue(UnitProperty);
+        set => SetValue(UnitProperty, value);
+    }
+
+    public bool DraggingGrabber
+    {
+        get { return (bool)GetValue(DraggingGrabberProperty); }
+        set { SetValue(DraggingGrabberProperty, value); }
+    }
+
+    public bool DraggerDeltaMode
+    {
+        get { return (bool)GetValue(DraggerDeltaModeProperty); }
+        set { SetValue(DraggerDeltaModeProperty, value); }
     }
 
     public static readonly StyledProperty<Action> OnScrollActionProperty =
@@ -215,18 +236,6 @@ public partial class SizeInput : UserControl
         e.Handled = true;
         if (!input.IsFocused)
             input.Focus();
-    }
-
-    public string Unit
-    {
-        get => (string)GetValue(UnitProperty);
-        set => SetValue(UnitProperty, value);
-    }
-
-    public bool DraggingGrabber
-    {
-        get { return (bool)GetValue(DraggingGrabberProperty); }
-        set { SetValue(DraggingGrabberProperty, value); }
     }
 
     private void Border_MouseWheel(object? sender, PointerWheelEventArgs e)

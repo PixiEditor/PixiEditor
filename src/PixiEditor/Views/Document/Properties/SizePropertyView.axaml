@@ -18,6 +18,7 @@
                               Unit="{Binding MeasurementUnit.ShortNameLocalizationKey}"
                               MeasurementConverterData="{Binding ConverterData}"
                               Decimals="4"
+                              DraggerDeltaMode="{Binding DraggerDeltaMode}"
                               MinSize="{Binding Min}"
                               Size="{Binding Value, Mode=TwoWay}" />
         <TextBlock Text="{Binding Value}" IsVisible="{Binding IsReadOnly}" />

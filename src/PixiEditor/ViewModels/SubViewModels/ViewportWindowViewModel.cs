@@ -254,7 +254,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesSaved))
         {
-            var nonZoomed = Document.SceneTextures.Where(x =>
+            var nonZoomed = Document?.SceneTextures?.Where(x =>
                     x.Value is { DrawingSurface.Canvas.TotalMatrix: { TransX: 0, TransY: 0, SkewX: 0, SkewY: 0 } })
                 .ToArray();
             if (nonZoomed.Length > 0)

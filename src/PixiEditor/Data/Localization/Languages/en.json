@@ -1726,5 +1726,18 @@
   "TYPOGRAPHY_SHEET_A4_PRESET": "Typography Sheet A4",
   "PICA_SHEET_PRESET": "Pica Sheet",
   "TRANSFORM_OVERLAY_SIZE_FORMAT": "W: {0} H: {1} {2}",
-  "RELATIVE_ROTATION": "Relative Rotation"
+  "RELATIVE_ROTATION": "Relative Rotation",
+  "PROPERTIES_TITLE": "Properties",
+  "POINT_X": "X",
+  "POINT_Y": "Y",
+  "CONTROL_POINT_1_X": "Control Point 1 X",
+  "CONTROL_POINT_1_Y": "Control Point 1 Y",
+  "CONTROL_POINT_2_X": "Control Point 2 X",
+  "CONTROL_POINT_2_Y": "Control Point 2 Y",
+  "RADIUS_X": "Radius X",
+  "RADIUS_Y": "Radius Y",
+  "CONIC_WEIGHT": "Conic Weight",
+  "POINTS_X": "Move X by",
+  "POINTS_Y": "Move Y by",
+  "CONIC_WEIGHTS": "Conic Weights"
 }

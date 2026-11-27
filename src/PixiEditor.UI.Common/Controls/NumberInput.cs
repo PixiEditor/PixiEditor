@@ -45,6 +45,9 @@ public partial class NumberInput : TextBox
     public static readonly StyledProperty<bool> DraggingGrabberProperty = AvaloniaProperty.Register<NumberInput, bool>(
         nameof(DraggingGrabber));
 
+    public static readonly StyledProperty<bool> DraggerDeltaModeProperty =
+        AvaloniaProperty.Register<NumberInput, bool>(nameof(DraggerDeltaMode));
+
     public bool DraggingGrabber
     {
         get => GetValue(DraggingGrabberProperty);
@@ -146,6 +149,12 @@ public partial class NumberInput : TextBox
     {
         get { return (bool)GetValue(EnableScrollChangeProperty); }
         set { SetValue(EnableScrollChangeProperty, value); }
+    }
+
+    public bool DraggerDeltaMode
+    {
+        get { return (bool)GetValue(DraggerDeltaModeProperty); }
+        set { SetValue(DraggerDeltaModeProperty, value); }
     }
 
     private Control? leftGrabber;
@@ -253,6 +262,10 @@ public partial class NumberInput : TextBox
             double newValue = _pressedValue + diff / pixelsPerUnit;
             newValue = Math.Round(newValue, Math.Min(Decimals, 2));
             Value = newValue;
+            if (DraggerDeltaMode)
+            {
+                _pressedRelativeX = relativeX;
+            }
             e.Handled = true;
         }
     }

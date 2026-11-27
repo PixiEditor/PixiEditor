@@ -205,7 +205,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
 
             case TextVectorData text:
                 AddVectorProperties("Position", "POSITION_X", "POSITION_Y", text.Position,
-                    data =>  ((TextVectorData)data).Position,
+                    data => ((TextVectorData)data).Position,
                     (data, value) => ((TextVectorData)data).Position = value);
                 break;
 
@@ -213,97 +213,267 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
             case ShapeVectorData shape:
                 if (Document.PathOverlayViewModel.ActivePoints.Count > 0)
                 {
-                    int pointIndex = Document.PathOverlayViewModel.ActivePoints[0];
-                    var point = GetPoint(pointIndex);
-
-                    if (point != null)
+                    if (Document.PathOverlayViewModel.ActivePoints.Count == 1)
                     {
-                        AddVectorProperties(
-                            "Point",
-                            "POINT_X",
-                            "POINT_Y",
-                            (VecD)point.Position,
-                            data => (VecD?)GetPoint(pointIndex, data)?.Position ?? VecD.Zero,
-                            (data, value) =>
-                            {
-                                if (data is not PathVectorData pathData) return;
-
-                                var editable = new EditableVectorPath(pathData.Path);
-                                var subshape = editable.GetSubShapeContainingIndex(pointIndex);
-                                if (subshape == null) return;
-
-                                int localIndex = editable.GetSubShapePointIndex(pointIndex, subshape);
-                                subshape.SetPointPosition(localIndex, (VecF)value, true);
-                                pathData.Path = editable.ToVectorPath();
-                            },
-                            new VecD(double.NegativeInfinity));
-
-                        if (point.Verb.VerbType == PathVerb.Conic)
-                        {
-                            AddCustomSizeProperty(
-                                "ConicWeight",
-                                "CONIC_WEIGHT",
-                                point.Verb.ConicWeight,
-                                0.001,
-                                "",
-                                3,
-                                (data, value) =>
-                                {
-                                    UpdatePathPoint(data, pointIndex, p =>
-                                    {
-                                        p.Verb.ConicWeight = (float)value;
-                                    });
-                                });
-                        }
-                        else
-                        {
-                            var (incoming, outgoing) = GetAdjacentControlPoints(pointIndex);
-
-                            if (incoming != null)
-                            {
-                                AddPathControlPointProperties("ControlPoint1",
-                                    "CONTROL_POINT_1_X",
-                                    "CONTROL_POINT_1_Y",
-                                    incoming.Verb.ControlPoint2!.Value,
-                                    false,
-                                    incoming.Index);
-                            }
-
-                            if (outgoing != null)
-                            {
-                                AddPathControlPointProperties("ControlPoint2",
-                                    "CONTROL_POINT_2_X",
-                                    "CONTROL_POINT_2_Y",
-                                    outgoing.Verb.ControlPoint1!.Value,
-                                    true,
-                                    outgoing.Index);
-                            }
-                        }
+                        CreatePointProperty();
+                    }
+                    else
+                    {
+                        CreatePointsProperty();
                     }
                 }
 
                 break;
         }
 
-        AddCustomSizeProperty("Rotation", "RELATIVE_ROTATION", shapeData.TransformationCorners.RectRotation,
-            double.MinValue, "°", 2,
-            (data, value) =>
-            {
-                var vector = data;
-                var matrix = vector.TransformationMatrix;
+        if (shapeData != null)
+        {
+            AddCustomSizeProperty("Rotation", "RELATIVE_ROTATION", shapeData.TransformationCorners.RectRotation,
+                double.MinValue, "°", 2,
+                (data, value) =>
+                {
+                    var vector = data;
+                    var matrix = vector.TransformationMatrix;
 
-                var delta = float.DegreesToRadians((float)value) - (float)vector.TransformationCorners.RectRotation;
+                    var delta = float.DegreesToRadians((float)value) - (float)vector.TransformationCorners.RectRotation;
 
-                vector.TransformationMatrix = matrix.PostConcat(
-                    Matrix3X3.CreateRotation(
-                        delta,
-                        (float)vector.TransformationCorners.RectCenter.X,
-                        (float)vector.TransformationCorners.RectCenter.Y));
-            });
+                    vector.TransformationMatrix = matrix.PostConcat(
+                        Matrix3X3.CreateRotation(
+                            delta,
+                            (float)vector.TransformationCorners.RectCenter.X,
+                            (float)vector.TransformationCorners.RectCenter.Y));
+                });
+        }
+
         Properties = properties.Values;
         PropertiesUpdated?.Invoke(Properties);
 
         isUpdatingProperties = false;
+    }
+
+    private void CreatePointProperty()
+    {
+        int pointIndex = Document.PathOverlayViewModel.ActivePoints[0];
+        var point = GetPoint(pointIndex);
+
+        if (point != null)
+        {
+            AddVectorProperties(
+                "Point",
+                "POINT_X",
+                "POINT_Y",
+                (VecD)point.Position,
+                data => (VecD?)GetPoint(pointIndex, data)?.Position ?? VecD.Zero,
+                (data, value) =>
+                {
+                    if (data is not PathVectorData pathData) return;
+
+                    var editable = new EditableVectorPath(pathData.Path);
+                    var subshape = editable.GetSubShapeContainingIndex(pointIndex);
+                    if (subshape == null) return;
+
+                    int localIndex = editable.GetSubShapePointIndex(pointIndex, subshape);
+                    subshape.SetPointPosition(localIndex, (VecF)value, true);
+                    pathData.Path = editable.ToVectorPath();
+                },
+                new VecD(double.NegativeInfinity));
+
+            if (point.Verb.VerbType == PathVerb.Conic)
+            {
+                AddCustomSizeProperty(
+                    "ConicWeight",
+                    "CONIC_WEIGHT",
+                    point.Verb.ConicWeight,
+                    0.001,
+                    "",
+                    3,
+                    (data, value) =>
+                    {
+                        UpdatePathPoint(data, pointIndex, p =>
+                        {
+                            p.Verb.ConicWeight = (float)value;
+                        });
+                    });
+            }
+            else
+            {
+                var (incoming, outgoing) = GetAdjacentControlPoints(pointIndex);
+
+                if (incoming != null)
+                {
+                    AddPathControlPointProperties("ControlPoint1",
+                        "CONTROL_POINT_1_X",
+                        "CONTROL_POINT_1_Y",
+                        incoming.Verb.ControlPoint2!.Value,
+                        false,
+                        incoming.Index);
+                }
+
+                if (outgoing != null)
+                {
+                    AddPathControlPointProperties("ControlPoint2",
+                        "CONTROL_POINT_2_X",
+                        "CONTROL_POINT_2_Y",
+                        outgoing.Verb.ControlPoint1!.Value,
+                        true,
+                        outgoing.Index);
+                }
+            }
+        }
+    }
+
+    private void CreatePointsProperty()
+    {
+        var selected = Document.PathOverlayViewModel.ActivePoints;
+
+        AddVectorProperties("Points", "POINTS_X", "POINTS_Y",
+            VecD.Zero,
+            data => VecD.Zero,
+            (data, value) =>
+            {
+                if (data is not PathVectorData pathData) return;
+
+                var editable = new EditableVectorPath(pathData.Path);
+
+                int ptIndex = 0;
+                for (var i = 0; i < editable.SubShapes.Count; i++)
+                {
+                    var editableSubShape = editable.SubShapes[i];
+                    foreach (var shapePoint in editableSubShape.Points)
+                    {
+                        int shapePointIndex = ptIndex;
+                        if (selected.Contains(shapePointIndex))
+                        {
+                            editableSubShape.SetPointPosition(
+                                shapePoint.Index,
+                                shapePoint.Position + (VecF)value,
+                                true);
+                        }
+
+                        ptIndex++;
+                    }
+                }
+
+                pathData.Path = editable.ToVectorPath();
+            },
+            new VecD(double.NegativeInfinity),
+            true);
+
+        bool anyHasControlPoint1 = false;
+        bool anyHasControlPoint2 = false;
+        bool anyHasConicWeight = false;
+        double conicOfFirst = 0.001;
+
+        foreach (var pointIndex in selected)
+        {
+            var point = GetPoint(pointIndex);
+            if (point == null) continue;
+
+            if (point.Verb.VerbType == PathVerb.Conic)
+            {
+                if(!anyHasConicWeight)
+                {
+                    conicOfFirst = point.Verb.ConicWeight;
+                }
+                anyHasConicWeight = true;
+                continue;
+            }
+
+            var (incoming, outgoing) = GetAdjacentControlPoints(pointIndex);
+
+            anyHasControlPoint1 |= incoming != null;
+            anyHasControlPoint2 |= outgoing != null;
+        }
+
+        if (anyHasControlPoint1)
+        {
+            AddBulkControlPointProperty("ControlPoints1", "CONTROL_POINTS_1_X", "CONTROL_POINTS_1_Y",
+                false, selected);
+        }
+
+        if (anyHasControlPoint2)
+        {
+            AddBulkControlPointProperty("ControlPoints2", "CONTROL_POINTS_2_X", "CONTROL_POINTS_2_Y",
+                true, selected);
+        }
+
+        if (anyHasConicWeight)
+        {
+            AddCustomSizeProperty(
+                "ConicWeights",
+                "CONIC_WEIGHTS",
+                conicOfFirst,
+                0.001,
+                "",
+                3,
+                (data, value) =>
+                {
+                    if (data is not PathVectorData pathData) return;
+
+                    var editable = new EditableVectorPath(pathData.Path);
+
+                    foreach (var pointIndex in selected)
+                    {
+                        var point = GetPoint(pointIndex, data);
+                        if (point?.Verb.VerbType != PathVerb.Conic) continue;
+
+                        UpdatePathPoint(pointIndex, p =>
+                        {
+                            p.Verb.ConicWeight = (float)value;
+                        }, editable);
+                    }
+
+                    pathData.Path = editable.ToVectorPath();
+                });
+        }
+    }
+
+    private void AddBulkControlPointProperty(string propertyName, string localizationKeyX, string localizationKeyY,
+        bool outgoing,
+        IReadOnlyCollection<int> selected)
+    {
+        AddVectorProperties(propertyName, localizationKeyX, localizationKeyY,
+            VecD.Zero,
+            data => VecD.Zero,
+            (data, value) =>
+            {
+                if (data is not PathVectorData pathData) return;
+
+                var editable = new EditableVectorPath(pathData.Path);
+
+                var affectedPoints = new HashSet<ShapePoint>();
+
+                foreach (var pointIndex in selected)
+                {
+                    var (incoming, nextOutgoing) = GetAdjacentControlPoints(pointIndex, editable);
+
+                    var adjacent = outgoing ? nextOutgoing : incoming;
+                    if (adjacent == null) continue;
+
+                    if (!affectedPoints.Add(adjacent)) continue;
+
+                    var subshape = editable.GetSubShapeContainingIndex(adjacent.Index);
+                    if (subshape == null) continue;
+
+                    var verb = adjacent.Verb;
+
+                    var controlPoint = outgoing
+                        ? verb.ControlPoint1
+                        : verb.ControlPoint2;
+
+                    if (controlPoint == null) continue;
+
+                    var newPosition = (VecF)controlPoint.Value + (VecF)value;
+
+                    if (outgoing)
+                        verb.ControlPoint1 = newPosition;
+                    else
+                        verb.ControlPoint2 = newPosition;
+                }
+
+                pathData.Path = editable.ToVectorPath();
+            },
+            new VecD(double.NegativeInfinity), true);
     }
 
     private (ShapePoint? Incoming, ShapePoint? Outgoing) GetAdjacentControlPoints(
@@ -313,6 +483,12 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         var editable = new EditableVectorPath(
             (data as PathVectorData)?.Path ?? Document.PathOverlayViewModel.Path);
 
+        return GetAdjacentControlPoints(pointIndex, editable);
+    }
+
+    private static (ShapePoint? Incoming, ShapePoint? Outgoing) GetAdjacentControlPoints(int pointIndex,
+        EditableVectorPath editable)
+    {
         var subshape = editable.GetSubShapeContainingIndex(pointIndex);
 
         if (subshape == null)
@@ -375,17 +551,26 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
             return;
 
         var editable = new EditableVectorPath(pathData.Path);
+        if (!UpdatePathPoint(pointIndex, update, editable))
+        {
+            return;
+        }
+
+        pathData.Path = editable.ToVectorPath();
+    }
+
+    private static bool UpdatePathPoint(int pointIndex, Action<ShapePoint> update, EditableVectorPath editable)
+    {
         var subshape = editable.GetSubShapeContainingIndex(pointIndex);
 
         if (subshape == null)
-            return;
+            return false;
 
         int localIndex = editable.GetSubShapePointIndex(pointIndex, subshape);
         var point = subshape.Points[localIndex];
 
         update(point);
-
-        pathData.Path = editable.ToVectorPath();
+        return true;
     }
 
 
@@ -409,25 +594,25 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         VecD value,
         Func<ShapeVectorData, VecD> getter,
         Action<ShapeVectorData, VecD> setter,
-        VecD? min = null)
+        VecD? min = null, bool draggerDeltaMode = false)
     {
         AddSizeProperty($"{prefix}X", xLocalizationKey, value.X,
             (data, x) =>
             {
                 var current = getter(data);
                 setter(data, new VecD(x, current.Y));
-            }, min?.X ?? 0.00001);
+            }, min?.X ?? 0.00001, draggerDeltaMode);
 
         AddSizeProperty($"{prefix}Y", yLocalizationKey, value.Y,
             (data, y) =>
             {
                 var current = getter(data);
                 setter(data, new VecD(current.X, y));
-            }, min?.Y ?? 0.00001);
+            }, min?.Y ?? 0.00001, draggerDeltaMode);
     }
 
     private void AddSizeProperty(string name, string localizationKey, double value,
-        Action<ShapeVectorData, double> setter, double min = 0.00001)
+        Action<ShapeVectorData, double> setter, double min = 0.00001, bool draggerDeltaMode = false)
     {
         properties.Add(name, new SizePropertyViewModel(name, localizationKey, (newValue, state) =>
         {
@@ -440,7 +625,8 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         {
             MeasurementUnit = Document.MeasurementUnitBindable,
             ConverterData = Document.MeasurementConversionData,
-            Min = min
+            Min = min,
+            DraggerDeltaMode = draggerDeltaMode
         });
     }
 
@@ -556,7 +742,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
                     break;
 
                 case PathVectorData shape:
-                    if (Document.PathOverlayViewModel.ActivePoints.Count > 0)
+                    if (Document.PathOverlayViewModel.ActivePoints.Count == 1)
                     {
                         int pointIndex = Document.PathOverlayViewModel.ActivePoints[0];
                         var point = GetPoint(pointIndex, shape);
@@ -578,6 +764,13 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
                             }
                         }
                     }
+                    else if (Document.PathOverlayViewModel.ActivePoints.Count > 1)
+                    {
+                        UpdateVectorProperties("Points", VecD.Zero, false);
+                        UpdateVectorProperties("ControlPoints1", VecD.Zero, false);
+                        UpdateVectorProperties("ControlPoints2", VecD.Zero, false);
+                        //UpdateSizeProperty("ConicWeights", 0, false);
+                    }
 
                     break;
             }
@@ -588,19 +781,19 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         isUpdatingProperties = false;
     }
 
-    private void UpdateVectorProperties(string prefix, VecD value)
+    private void UpdateVectorProperties(string prefix, VecD value, bool createOnMissing = true)
     {
-        UpdateSizeProperty($"{prefix}X", value.X);
-        UpdateSizeProperty($"{prefix}Y", value.Y);
+        UpdateSizeProperty($"{prefix}X", value.X, createOnMissing);
+        UpdateSizeProperty($"{prefix}Y", value.Y, createOnMissing);
     }
 
-    private void UpdateSizeProperty(string name, double value)
+    private void UpdateSizeProperty(string name, double value, bool createOnMissing = true)
     {
         if (properties.TryGetValue(name, out var property))
         {
             UpdateSizeProp(property).SetValueWithoutSyncBack(value);
         }
-        else
+        else if (createOnMissing)
         {
             RecreateProperties();
         }
